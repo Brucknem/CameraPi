@@ -11,10 +11,11 @@ sense = SenseHat()
 log_file = '/home/pi/script_log_' + datetime_now.strftime(file_date_format_string) + '.txt'
 
 
-def write_to_log(key: any, value: any = None):
+def write_to_log(key: any, value: any = None, stack_depth: int = 1):
     """
     Write to log file.
 
+    :param stack_depth:
     :param key: The key message that is written.
     :param value: An optional value
     :return:
@@ -23,7 +24,7 @@ def write_to_log(key: any, value: any = None):
         with open(log_file, 'a+') as file:
             output_string: str = '[' + datetime.now().strftime(log_date_format_string) + ']\t'
 
-            output_string += inspect.stack()[1][3] + ':\t'
+            output_string += inspect.stack()[stack_depth][3] + ':\t'
             output_string += str(key)
             if value:
                 output_string += ':\t' + str(value)
@@ -38,6 +39,21 @@ def write_to_log(key: any, value: any = None):
 write_to_log('Started monitoring')
 
 
+def single_sensor_measurement(measurement_name: str, measurement_function):
+    """
+    Reads a measurement from the sense hat and logs it.
+
+    :param measurement_name: The name of the measurement
+    :param measurement_function: The measurement function
+    :return:
+    """
+    try:
+        value = measurement_function()
+        write_to_log(measurement_name, value, 2)
+    except Exception as err:
+        write_to_log(err)
+
+
 def pressure(event):
     """
     Read the pressure from the sense hat and log.
@@ -49,12 +65,8 @@ def pressure(event):
     if event.action == 'released':
         return
 
-    try:
-        sense.clear(255, 0, 0)
-        pressure_value = sense.get_pressure()
-        write_to_log('Pressure', pressure_value)
-    except Exception as err:
-        write_to_log(err)
+    sense.clear(255, 0, 0)
+    single_sensor_measurement('Pressure', sense.get_pressure)
 
 
 def temperature(event):
@@ -68,15 +80,9 @@ def temperature(event):
     if event.action == 'released':
         return
 
-    try:
-        sense.clear(0, 0, 255)
-        temperature_humidity = sense.get_temperature_from_humidity()
-        temperature_pressure = sense.get_temperature_from_pressure()
-
-        write_to_log('Temperature (Humidity)', temperature_humidity)
-        write_to_log('Temperature (Pressure)', temperature_pressure)
-    except Exception as err:
-        write_to_log(err)
+    sense.clear(0, 0, 255)
+    single_sensor_measurement('Temperature (Humidity)', sense.get_temperature_from_humidity)
+    single_sensor_measurement('Temperature (Pressure)', sense.get_temperature_from_pressure)
 
 
 def humidity(event):
@@ -90,13 +96,8 @@ def humidity(event):
     if event.action == 'released':
         return
 
-    try:
-        sense.clear(0, 255, 0)
-
-        humidity_value = sense.get_humidity()
-        write_to_log('Humidity', humidity_value)
-    except Exception as err:
-        write_to_log(err)
+    sense.clear(0, 255, 0)
+    single_sensor_measurement('Humidity', sense.get_humidity)
 
 
 def start_camera(event):
