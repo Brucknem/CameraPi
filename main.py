@@ -1,14 +1,20 @@
 import inspect
+import os
+import shutil
+import time
 from datetime import datetime
 
 from sense_hat import SenseHat
 
-file_date_format_string = '%Y_%m_%d_%H_%M_%S'
-log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
 datetime_now = datetime.now()
 sense = SenseHat()
 
-log_file = '/home/pi/script_log_' + datetime_now.strftime(file_date_format_string) + '.txt'
+file_date_format_string = '%Y_%m_%d_%H_%M_%S'
+log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
+
+log_dir = '/mnt/harddrive/log/nightsight/'
+log_file_name = datetime_now.strftime(file_date_format_string) + '.txt'
+log_file = log_dir + log_file_name
 
 
 def write_to_log(key: any, value: any = None, stack_depth: int = 1):
@@ -36,9 +42,6 @@ def write_to_log(key: any, value: any = None, stack_depth: int = 1):
         print(err)
 
 
-write_to_log('Started monitoring')
-
-
 def single_sensor_measurement(measurement_name: str, measurement_function):
     """
     Reads a measurement from the sense hat and logs it.
@@ -54,50 +57,53 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
         write_to_log(err)
 
 
-def pressure(event):
+def read_sensors(event):
     """
-    Read the pressure from the sense hat and log.
+    Read the pressure, temperature and humidity from the sense hat and log.
     (Joystick key callback)
 
     :param event: the key input event
     :return:
     """
-    if event.action == 'released':
-        return
 
-    sense.clear(255, 0, 0)
-    single_sensor_measurement('Pressure', sense.get_pressure)
-
-
-def temperature(event):
-    """
-    Read the temperature from the sense hat and log.
-    (Joystick key callback)
-
-    :param event: the key input event
-    :return:
-    """
-    if event.action == 'released':
-        return
-
-    sense.clear(0, 0, 255)
-    single_sensor_measurement('Temperature (Humidity)', sense.get_temperature_from_humidity)
-    single_sensor_measurement('Temperature (Pressure)', sense.get_temperature_from_pressure)
-
-
-def humidity(event):
-    """
-    Read the humidity from the sense hat and log.
-    (Joystick key callback)
-
-    :param event: the key input event
-    :return:
-    """
     if event.action == 'released':
         return
 
     sense.clear(0, 255, 0)
+    single_sensor_measurement('Pressure', sense.get_pressure)
     single_sensor_measurement('Humidity', sense.get_humidity)
+    single_sensor_measurement('Temperature (Humidity)', sense.get_temperature_from_humidity)
+    single_sensor_measurement('Temperature (Pressure)', sense.get_temperature_from_pressure)
+    sense.clear()
+
+
+def remove_all_logs(event):
+    """
+    Removes all log files.
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
+    if event.action == 'released':
+        return
+
+    try:
+        sense.clear(255, 0, 0)
+        for filename in os.listdir(log_dir):
+            if filename == log_file_name:
+                continue
+            file_path = os.path.join(log_dir, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                write_to_log('Failed to delete %s: %s' % (file_path, e))
+        sense.clear()
+    except Exception as err:
+        write_to_log(err)
 
 
 def start_camera(event):
@@ -118,12 +124,37 @@ def start_camera(event):
         write_to_log(err)
 
 
-# Tell the program which function to associate with which direction
-sense.stick.direction_up = humidity
-sense.stick.direction_down = pressure
-sense.stick.direction_left = temperature
-sense.stick.direction_right = start_camera
+def stop_camera(event):
+    """
+    Method stub for camera stopping later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
+    if event.action == 'released':
+        return
+
+    try:
+        sense.clear(0, 255, 255)
+        write_to_log('Camera', 'stopped')
+        time.sleep(0.5)
+        sense.clear()
+    except Exception as err:
+        write_to_log(err)
+
+
+# Register joystick callbacks
+sense.stick.direction_left = read_sensors
+sense.stick.direction_right = remove_all_logs
+sense.stick.direction_up = start_camera
+sense.stick.direction_down = stop_camera
 sense.stick.direction_middle = sense.clear  # Press the enter key
+
+write_to_log('Started monitoring')
+sense.clear(0, 0, 255)
+time.sleep(0.5)
+sense.clear()
 
 while True:
     pass  # This keeps the program running to receive joystick events
