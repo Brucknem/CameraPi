@@ -16,6 +16,21 @@ log_dir = '/mnt/harddrive/log/nightsight/'
 log_file_name = datetime_now.strftime(file_date_format_string) + '.txt'
 log_file = log_dir + log_file_name
 
+is_camera_running: bool = False
+
+
+def display_camera_running():
+    """
+    Sets the sense hat matrix according to the recording state.
+    """
+    global is_camera_running
+
+    if is_camera_running:
+        sense.clear(255, 255, 0)
+        sense.low_light = True
+    else:
+        sense.clear()
+
 
 def write_to_log(key: any, value: any = None, stack_depth: int = 1):
     """
@@ -24,7 +39,6 @@ def write_to_log(key: any, value: any = None, stack_depth: int = 1):
     :param stack_depth:
     :param key: The key message that is written.
     :param value: An optional value
-    :return:
     """
     try:
         with open(log_file, 'a+') as file:
@@ -48,7 +62,6 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
 
     :param measurement_name: The name of the measurement
     :param measurement_function: The measurement function
-    :return:
     """
     try:
         value = measurement_function()
@@ -63,7 +76,6 @@ def read_sensors(event):
     (Joystick key callback)
 
     :param event: the key input event
-    :return:
     """
 
     if event.action == 'released':
@@ -74,7 +86,7 @@ def read_sensors(event):
     single_sensor_measurement('Humidity', sense.get_humidity)
     single_sensor_measurement('Temperature (Humidity)', sense.get_temperature_from_humidity)
     single_sensor_measurement('Temperature (Pressure)', sense.get_temperature_from_pressure)
-    sense.clear()
+    display_camera_running()
 
 
 def remove_all_logs(event):
@@ -83,7 +95,6 @@ def remove_all_logs(event):
     (Joystick key callback)
 
     :param event: the key input event
-    :return:
     """
     if event.action == 'released':
         return
@@ -101,7 +112,7 @@ def remove_all_logs(event):
                     shutil.rmtree(file_path)
             except Exception as e:
                 write_to_log('Failed to delete %s: %s' % (file_path, e))
-        sense.clear()
+        display_camera_running()
     except Exception as err:
         write_to_log(err)
 
@@ -112,14 +123,17 @@ def start_camera(event):
     (Joystick key callback)
 
     :param event: the key input event
-    :return:
     """
-    if event.action == 'released':
+    global is_camera_running
+    if event.action == 'released' or is_camera_running:
         return
 
     try:
-        sense.clear(255, 255, 0)
         write_to_log('Camera', 'started')
+
+        is_camera_running = True
+        display_camera_running()
+
     except Exception as err:
         write_to_log(err)
 
@@ -130,16 +144,17 @@ def stop_camera(event):
     (Joystick key callback)
 
     :param event: the key input event
-    :return:
     """
-    if event.action == 'released':
+    global is_camera_running
+    if event.action == 'released' or not is_camera_running:
         return
 
     try:
-        sense.clear(0, 255, 255)
         write_to_log('Camera', 'stopped')
-        time.sleep(0.5)
-        sense.clear()
+
+        is_camera_running = False
+        display_camera_running()
+
     except Exception as err:
         write_to_log(err)
 
@@ -152,7 +167,7 @@ sense.stick.direction_down = stop_camera
 sense.stick.direction_middle = sense.clear  # Press the enter key
 
 write_to_log('Started monitoring')
-sense.clear(0, 0, 255)
+sense.show_message('Started Nightsight', scroll_speed=0.05)
 time.sleep(0.5)
 sense.clear()
 
