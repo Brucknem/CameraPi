@@ -12,6 +12,13 @@ log_file = '/home/pi/script_log_' + datetime_now.strftime(file_date_format_strin
 
 
 def write_to_log(key: any, value: any = None):
+    """
+    Write to log file.
+
+    :param key: The key message that is written.
+    :param value: An optional value
+    :return:
+    """
     try:
         with open(log_file, 'a+') as file:
             output_string: str = '[' + datetime.now().strftime(log_date_format_string) + ']\t'
@@ -31,8 +38,14 @@ def write_to_log(key: any, value: any = None):
 write_to_log('Started monitoring')
 
 
-# Define the functions
 def pressure(event):
+    """
+    Read the pressure from the sense hat and log.
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
     if event.action == 'released':
         return
 
@@ -45,6 +58,13 @@ def pressure(event):
 
 
 def temperature(event):
+    """
+    Read the temperature from the sense hat and log.
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
     if event.action == 'released':
         return
 
@@ -60,6 +80,13 @@ def temperature(event):
 
 
 def humidity(event):
+    """
+    Read the humidity from the sense hat and log.
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
     if event.action == 'released':
         return
 
@@ -73,9 +100,16 @@ def humidity(event):
 
 
 def start_camera(event):
+    """
+    Method stub for camera starting later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    :return:
+    """
     if event.action == 'released':
         return
-    
+
     try:
         sense.clear(255, 255, 0)
         write_to_log('Camera', 'started')
