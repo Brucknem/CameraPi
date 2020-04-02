@@ -5,7 +5,14 @@ from Utils import *
 
 
 class RecordingsFolder:
+    """
+    Wrapper that holds all necessary file paths for logging and recording.
+    """
+
     def __init__(self, base_path: str = '/mnt/harddrive/recordings/nightsight/'):
+        """
+        Constructor.
+        """
         self.datetime_now = datetime.now()
         self.log_dir = os.path.join(base_path, get_datetime_now_file_string())
         Path(self.log_dir).mkdir(parents=True, exist_ok=True)
