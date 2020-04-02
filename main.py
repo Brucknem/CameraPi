@@ -15,11 +15,18 @@ sense = SenseHat()
 recordingsFolder = RecordingsFolder()
 camera = Camera(recordingsFolder.log_dir)
 
+# camera_state_to_color_map: map = {
+#     CameraState.IDLE: (0, 0, 0),
+#     CameraState.STARTING_RECORD: (255, 255, 255),
+#     CameraState.RECORDING: (0, 255, 0),
+#     CameraState.STOPPING_RECORD: (255, 255, 0)
+# }
+
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
-    CameraState.STARTING_RECORD: (255, 255, 255),
-    CameraState.RECORDING: (0, 255, 0),
-    CameraState.STOPPING_RECORD: (255, 255, 0)
+    CameraState.STARTING_RECORD: (25, 25, 25),
+    CameraState.RECORDING: (0, 25, 0),
+    CameraState.STOPPING_RECORD: (25, 25, 0)
 }
 
 
@@ -118,8 +125,8 @@ def start_camera(event):
         return
 
     try:
-        recordingsFolder.write_to_log(function_name(), 'Camera', 'started')
-        display_camera_state(camera.set_camera_state(CameraState.RECORDING))
+        recordingsFolder.write_to_log(function_name(), 'Starting camera')
+        display_camera_state(camera.set_camera_state(CameraState.STARTING_RECORD))
     except Exception as err:
         on_error(err)
 
@@ -136,7 +143,7 @@ def stop_camera(event):
         return
 
     try:
-        recordingsFolder.write_to_log(function_name(), 'Camera', 'stopped')
+        recordingsFolder.write_to_log(function_name(), 'Stopping camera')
         display_camera_state(camera.set_camera_state(CameraState.STOPPING_RECORD))
     except Exception as err:
         on_error(err)
@@ -146,10 +153,9 @@ sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
 # Register joystick callbacks
-sense.stick.direction_left = read_sensors
-# sense.stick.direction_right = remove_all_logs
-sense.stick.direction_up = start_camera
-sense.stick.direction_down = stop_camera
+sense.stick.direction_left = start_camera
+sense.stick.direction_right = stop_camera
+sense.stick.direction_up = read_sensors
 # sense.stick.direction_middle = sense.clear  # Press the enter key
 
 while True:
@@ -158,4 +164,4 @@ while True:
     except Exception as err:
         recordingsFolder.write_to_log('Run', err)
     display_camera_state(camera.camera_state)
-    time.sleep(0.1)
+    time.sleep(1)
