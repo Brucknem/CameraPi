@@ -8,18 +8,38 @@ from threading import Condition
 from Camera import CameraState
 from Observer import Observer
 
-PAGE = """\
-<html>
-<head>
-<title>Nightsight Pi Streaming Demo</title>
+PAGE_TOP = """\
+<!doctype html>
+<html lang="en">
+  <head>
+"""
+
+PAGE_REFRESH = """\
+<meta http-equiv="refresh" content="5" />
+"""
+
+PAGE_MIDDLE = """\
 </head>
-<body>
-<h1>Nightsight Pi Streaming Demo</h1>
-<img src="stream.mjpg" width="640" height="480" />
-<hr>
+<body width="100%" style="text-align:center; content-align:center; font-size:xx-large">
+<h1>Nightsight Pi Streaming</h1>
+<img src="stream.mjpg" width="100%" />
+<br><br>
 <form action = "" method = "post">
-    <input class="button" type="submit" value="Start recording" name="start" onclick=""></input> 
-    <input class="button" type="submit" value="Stop recording" name="stop" onclick=""></input> 
+"""
+
+START_RECORDING = '<input style="font-size:xx-large" class="button" type="submit" value="Start recording" ' \
+                  'name="start" onclick=""></input> '
+STOP_RECORDING = '<input style="font-size:xx-large" class="button" type="submit" value="Stop recording" name="stop" ' \
+                 'onclick=""></input> '
+
+START_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="button" type="submit" value="Start ' \
+                           'recording" name="start" onclick=""></input> '
+STOP_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="button" type="submit" value="Stop ' \
+                          'recording" name="stop" onclick=""></input> '
+
+PAGE_BOTTOM = """\
+<br><br>
+<input style="font-size:xx-large" class="button" type="submit" value="Refresh page" name="refresh" onclick=""></input>
 </form>
 </body>
 </html>
@@ -64,7 +84,28 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         Sets the common response headers and content.
         :return:
         """
-        content = PAGE.encode('utf-8')
+        global webstreaming
+
+        content = PAGE_TOP.encode('utf-8')
+
+        if webstreaming.camera.camera_state is CameraState.STOPPING_RECORD:
+            content += PAGE_REFRESH.encode('utf-8')
+
+        content = PAGE_MIDDLE.encode('utf-8')
+
+        if webstreaming.camera.camera_state is CameraState.RECORDING or \
+                webstreaming.camera.camera_state is CameraState.STARTING_RECORD:
+            content += START_RECORDING_DISABLED.encode('utf-8')
+            content += STOP_RECORDING.encode('utf-8')
+        elif webstreaming.camera.camera_state is CameraState.IDLE:
+            content += START_RECORDING.encode('utf-8')
+            content += STOP_RECORDING_DISABLED.encode('utf-8')
+        else:
+            content += START_RECORDING_DISABLED.encode('utf-8')
+            content += STOP_RECORDING_DISABLED.encode('utf-8')
+
+        content += PAGE_BOTTOM.encode('utf-8')
+
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.send_header('Content-Length', len(content))
@@ -152,7 +193,6 @@ class WebStreaming(Observer):
         self.address = '', 8080
         self.camera = None
         self.server = StreamingServer(self.address, StreamingHandler)
-        self.is_streaming = False
 
     def set_camera(self, camera):
         """
