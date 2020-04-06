@@ -5,6 +5,9 @@ import threading
 from http import server
 from threading import Condition
 
+from Camera import CameraState
+from Observer import Observer
+
 PAGE = """\
 <html>
 <head>
@@ -72,15 +75,17 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         REST Post handler.
         """
+        global webstreaming
+
         if self.path == '/index.html':
             content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
             post_data = self.rfile.read(content_length)  # <--- Gets the data itself
 
             post_data = post_data.decode('utf-8')
             if 'start' in post_data:
-                print('hit start')
+                webstreaming.start_recording()
             if 'stop' in post_data:
-                print('hit stop')
+                webstreaming.stop_recording()
             self.set_response()
 
         else:
@@ -116,9 +121,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
             except Exception as e:
-                logging.warning(
-                    'Removed streaming client %s: %s',
-                    self.client_address, str(e))
+                pass
+                # logging.warning(
+                #     'Removed streaming client %s: %s',
+                #     self.client_address, str(e))
         else:
             self.send_error(404)
             self.end_headers()
@@ -132,28 +138,60 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-class WebStreaming:
+class WebStreaming(Observer):
     """
     Wrapper for the camera web stream.
     Runs an asynchron thread for the web view. 
     """
 
-    def __init__(self, camera):
+    def __init__(self):
         """
         Constructor.
         """
+        super().__init__()
         self.address = ('', 8080)
-        self.camera = camera
+        self.camera = None
         self.server = StreamingServer(self.address, StreamingHandler)
         self.is_streaming = False
+
+    def set_camera(self, camera):
+        self.camera = camera
         self.start_streaming()
+
+    def start_recording(self):
+        """
+        Starts the recording.
+        :return:
+        """
+        if not self.camera:
+            return
+
+        self.camera.set_camera_state(CameraState.STARTING_RECORD)
+
+    def stop_recording(self):
+        """
+        Stops the recording.
+        """
+        if not self.camera:
+            return
+
+        self.camera.set_camera_state(CameraState.STOPPING_RECORD)
+
+    def toggle_streaming(self):
+        """
+        Toggles the webserver.
+        """
+        if self.camera.is_streaming:
+            self.stop_streaming()
+        else:
+            self.start_streaming()
 
     def start_streaming(self):
         """
         Starts the webserver.
         :return:
         """
-        if self.is_streaming:
+        if not self.camera:
             return
 
         thread = threading.Thread(target=self.stream, args=())
@@ -164,31 +202,27 @@ class WebStreaming:
         """
         Stops the webserver.
         """
-        if not self.is_streaming:
+        if not self.camera:
             return
 
         self.server.shutdown()
-
-    def toggle_streaming(self):
-        """
-        Toggles the webserver.
-        """
-        if self.is_streaming:
-            self.stop_streaming()
-        else:
-            self.start_streaming()
 
     def stream(self):
         """
         Starts the camera in streaming mode and starts the webserver to stream to.
         """
-        self.is_streaming = True
-        self.camera.start_streaming(output)
-        try:
-            self.server.serve_forever()
-        finally:
-            self.camera.stop_streaming()
-            self.is_streaming = False
+        if self.camera.start_streaming(output):
+            try:
+                self.server.serve_forever()
+            finally:
+                self.camera.stop_streaming()
+
+    def update(self, **kwargs):
+        """
+        @inheritdoc
+        """
+        pass
 
 
 output = StreamingOutput()
+webstreaming = WebStreaming()

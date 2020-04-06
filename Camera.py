@@ -1,9 +1,12 @@
+import logging
 import os
 from enum import Enum
 from pathlib import Path
 
 from picamera import PiCamera
 
+from Observable import Observable
+from RecordingsFolder import RecordingsFolder
 from Utils import *
 
 
@@ -17,22 +20,33 @@ class CameraState(Enum):
     STOPPING_RECORD = 4
 
 
-class Camera:
+camera_state_to_allowed_state_map: map = {
+    CameraState.IDLE: (CameraState.STARTING_RECORD,),
+    CameraState.STARTING_RECORD: (CameraState.RECORDING,),
+    CameraState.RECORDING: (CameraState.RECORDING, CameraState.STOPPING_RECORD),
+    CameraState.STOPPING_RECORD: (CameraState.IDLE,)
+}
+
+
+class Camera(Observable):
     """
     Wrapper for the picamera.
     """
 
-    def __init__(self, recordings_folder: str, chunk_length: int = 5):
+    def __init__(self, chunk_length: int = 5):
         """
         Constructor.
         """
+        super().__init__()
         self.camera_state = CameraState.IDLE
         self.__camera = PiCamera()
         self.__camera.resolution = 1600, 1200
         # self.__camera.vflip = True
-        self.__base_recordings_folder = recordings_folder
-        self.__current_recordings_folder = recordings_folder
+        self.__base_recordings_folder = RecordingsFolder().log_dir
+        self.__current_recordings_folder = RecordingsFolder().log_dir
         self.__chunk_lenght = chunk_length
+
+        self.is_streaming = False
 
     def set_camera_state(self, new_mode: CameraState):
         """
@@ -41,8 +55,12 @@ class Camera:
         :param new_mode:
         :return:
         """
+        if new_mode not in camera_state_to_allowed_state_map[self.camera_state]:
+            return
+
+        logging.info(str(new_mode))
         self.camera_state = new_mode
-        return self.camera_state
+        self.notify(state=self.camera_state)
 
     def close_camera(self):
         """
@@ -60,34 +78,39 @@ class Camera:
         self.__camera.start_recording(self.get_chunk_path())
         self.set_camera_state(CameraState.RECORDING)
 
-        print('starting')
-
-    def start_streaming(self, output):
-        """
-        Starts a stream to an output stream object.
-        """
-        self.__camera.start_recording(output, format='mjpeg', splitter_port=2)
-
-    def stop_streaming(self):
-        """
-        Stops the streaming.
-        """
-        self.__camera.stop_recording(splitter_port=2)
-
     def record(self):
         """
         Record functionality of the camera.
         """
         self.__camera.split_recording(self.get_chunk_path())
         self.__camera.wait_recording(self.__chunk_lenght)
+        self.set_camera_state(CameraState.RECORDING)
 
     def stop_recording(self):
         """
         Stop the recording.
-        """
+       """
         self.__camera.stop_recording()
         self.__camera.stop_preview()
         self.set_camera_state(CameraState.IDLE)
+
+    def start_streaming(self, output):
+        """
+        Starts a stream to an output stream object.
+        """
+        if not self.is_streaming:
+            self.__camera.start_recording(output, format='mjpeg', splitter_port=2)
+            self.is_streaming = True
+            return True
+        return False
+
+    def stop_streaming(self):
+        """
+        Stops the streaming.
+        """
+        if self.is_streaming:
+            self.__camera.stop_recording(splitter_port=2)
+            self.is_streaming = False
 
     def run(self):
         """
@@ -95,13 +118,16 @@ class Camera:
 
         :return: the current camera state
         """
-        if self.camera_state is CameraState.STARTING_RECORD:
-            self.start_recording()
-        elif self.camera_state is CameraState.RECORDING:
-            self.record()
-        elif self.camera_state is CameraState.STOPPING_RECORD:
-            self.stop_recording()
-        return self.camera_state
+
+        try:
+            if self.camera_state is CameraState.STARTING_RECORD:
+                self.start_recording()
+            elif self.camera_state is CameraState.RECORDING:
+                self.record()
+            elif self.camera_state is CameraState.STOPPING_RECORD:
+                self.stop_recording()
+        except Exception as err:
+            logging.exception('Run', err)
 
     def get_chunk_path(self):
         """
