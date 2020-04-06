@@ -114,9 +114,9 @@ class WebStreaming:
         """
         Constructor.
         """
-        address = ('', 8080)
+        self.address = ('', 8080)
         self.camera = camera
-        self.server = StreamingServer(address, StreamingHandler)
+        self.server = StreamingServer(self.address, StreamingHandler)
         self.is_streaming = False
         self.start_streaming()
 

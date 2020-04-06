@@ -4,6 +4,7 @@ import inspect
 import signal
 import sys
 import time
+import socket
 
 from sense_hat import SenseHat
 
@@ -157,6 +158,27 @@ def toggle_streaming(event):
     webstreaming.toggle_streaming()
 
 
+def show_ip(event):
+    """
+    Displays the own ip for easy connect.
+    """
+    global webstreaming
+    if event.action != 'released':
+        return
+
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        output_string = str(ip) + ':' + str(webstreaming.address[1])
+        recordingsFolder.write_to_log('Show IP', 'ip', output_string)
+        sense.show_message(output_string)
+    except Exception as err:
+        recordingsFolder.write_to_log('Show IP', 'failed', err)
+        sense.clear(255, 0, 0)
+
+
 sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
@@ -164,6 +186,7 @@ sense.clear()
 sense.stick.direction_left = start_camera
 sense.stick.direction_right = stop_camera
 sense.stick.direction_up = read_sensors
+sense.stick.direction_down = show_ip
 sense.stick.direction_middle = toggle_streaming  # Press the enter key
 
 
