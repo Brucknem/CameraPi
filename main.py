@@ -148,6 +148,20 @@ def stop_camera(event):
         on_error(err)
 
 
+def toggle_streaming(event):
+    """
+    Toggles the web stream.
+    """
+    global webstreaming
+    if event.action != 'released':
+        return
+
+    if webstreaming.is_streaming:
+        webstreaming.shutdown()
+    else:
+        webstreaming.start_streaming()
+
+
 # sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
@@ -155,7 +169,7 @@ sense.clear()
 sense.stick.direction_left = start_camera
 sense.stick.direction_right = stop_camera
 sense.stick.direction_up = read_sensors
-# sense.stick.direction_middle = exit_program  # Press the enter key
+sense.stick.direction_middle = toggle_streaming  # Press the enter key
 
 
 while True:
