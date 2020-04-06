@@ -121,8 +121,5 @@ sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
 sense_hat_wrapper.sense.clear()
 
 while True:
-    try:
-        camera.run()
-    except Exception as err:
-        logging.exception('Main loop', err)
+    camera.run()
     time.sleep(1)

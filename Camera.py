@@ -18,6 +18,7 @@ class CameraState(Enum):
     STARTING_RECORD = 2
     RECORDING = 3
     STOPPING_RECORD = 4
+    CLOSED = 5
 
 
 camera_state_to_allowed_state_map: map = {
@@ -40,7 +41,9 @@ class Camera(Observable):
         super().__init__()
         self.camera_state = CameraState.IDLE
         self.__camera = PiCamera()
-        self.__camera.resolution = 1600, 1200
+        self.__camera.resolution = 1200, 900
+        self.__camera.framerate = 30
+
         # self.__camera.vflip = True
         self.__base_recordings_folder = RecordingsFolder().log_dir
         self.__current_recordings_folder = RecordingsFolder().log_dir
@@ -48,14 +51,11 @@ class Camera(Observable):
 
         self.is_streaming = False
 
-    def set_camera_state(self, new_mode: CameraState):
+    def set_camera_state(self, new_mode: CameraState, force=False):
         """
         Setter for camera mode.
-
-        :param new_mode:
-        :return:
         """
-        if new_mode not in camera_state_to_allowed_state_map[self.camera_state]:
+        if not force and new_mode not in camera_state_to_allowed_state_map[self.camera_state]:
             return
 
         logging.info(str(new_mode))
@@ -74,6 +74,7 @@ class Camera(Observable):
         """
         self.__current_recordings_folder = os.path.join(self.__base_recordings_folder, get_datetime_now_file_string())
         Path(self.__current_recordings_folder).mkdir(parents=True, exist_ok=True)
+
         self.__camera.start_preview()
         self.__camera.start_recording(self.get_chunk_path())
         self.set_camera_state(CameraState.RECORDING)
@@ -127,7 +128,8 @@ class Camera(Observable):
             elif self.camera_state is CameraState.STOPPING_RECORD:
                 self.stop_recording()
         except Exception as err:
-            logging.exception('Run', err)
+            logging.exception('Run: ' + str(err))
+            self.set_camera_state(CameraState.IDLE, True)
 
     def get_chunk_path(self):
         """

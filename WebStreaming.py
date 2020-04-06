@@ -264,7 +264,8 @@ class WebStreaming(Observer):
         """
         @inheritdoc
         """
-        pass
+        if 'restart' in kwargs:
+            pass
 
 
 output = StreamingOutput()

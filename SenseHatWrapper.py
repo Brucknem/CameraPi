@@ -57,7 +57,8 @@ class SenseHatWrapper(Observer):
         """
         @inheritdoc
         """
-        self.display_camera_state(kwargs['state'])
+        if 'state' in kwargs:
+            self.display_camera_state(kwargs['state'])
 
     def read_sensors(self):
         """
@@ -91,5 +92,5 @@ class SenseHatWrapper(Observer):
             logging.info('IP: ' + output_string)
             self.sense.show_message(output_string)
         except Exception as err:
-            logging.exception('Show IP failed: ', err)
+            logging.exception('Show IP failed: ' + str(err))
             self.sense.clear(255, 0, 0)
