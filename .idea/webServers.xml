@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="7671eba5-a574-4631-8da3-b4f66df62d5c" name="Camera Pi" url="http://192.168.2.45">
+        <fileTransfer host="192.168.2.45" port="21" rootFolder="/home/pi/Repositories/Raspberry-Pi">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

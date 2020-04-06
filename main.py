@@ -17,8 +17,6 @@ recordingsFolder = RecordingsFolder()
 camera = Camera(recordingsFolder.log_dir)
 webstreaming = WebStreaming(camera)
 
-print('streaming async')
-
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
     CameraState.STARTING_RECORD: (25, 25, 25),
@@ -156,10 +154,7 @@ def toggle_streaming(event):
     if event.action != 'released':
         return
 
-    if webstreaming.is_streaming:
-        webstreaming.shutdown()
-    else:
-        webstreaming.start_streaming()
+    webstreaming.toggle_streaming()
 
 
 # sense.show_message('Starting Nightsight', scroll_speed=0.05)

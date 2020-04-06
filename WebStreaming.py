@@ -114,21 +114,53 @@ class WebStreaming:
         """
         Constructor.
         """
-        address = ('', 8000)
-        server = StreamingServer(address, StreamingHandler)
-        thread = threading.Thread(target=self.stream, args=(server, camera))
+        address = ('', 8080)
+        self.camera = camera
+        self.server = StreamingServer(address, StreamingHandler)
+        self.is_streaming = False
+        self.start_streaming()
+
+    def start_streaming(self):
+        """
+        Starts the webserver.
+        :return:
+        """
+        if self.is_streaming:
+            return
+
+        thread = threading.Thread(target=self.stream, args=())
         thread.daemon = True
         thread.start()
 
-    def stream(self, server, camera):
+    def stop_streaming(self):
+        """
+        Stops the webserver.
+        """
+        if not self.is_streaming:
+            return
+
+        self.server.shutdown()
+
+    def toggle_streaming(self):
+        """
+        Toggles the webserver.
+        """
+        if self.is_streaming:
+            self.stop_streaming()
+        else:
+            self.start_streaming()
+
+    def stream(self):
         """
         Starts the camera in streaming mode and starts the webserver to stream to.
         """
-        camera.start_streaming(output)
+        self.is_streaming = True
+        self.camera.start_streaming(output)
         try:
-            server.serve_forever()
+            self.server.serve_forever()
         finally:
-            camera.stop_streaming()
+            self.camera.stop_streaming()
+            self.is_streaming = False
 
 
 output = StreamingOutput()
