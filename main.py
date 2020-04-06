@@ -157,7 +157,7 @@ def toggle_streaming(event):
     webstreaming.toggle_streaming()
 
 
-# sense.show_message('Starting Nightsight', scroll_speed=0.05)
+sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
 # Register joystick callbacks
