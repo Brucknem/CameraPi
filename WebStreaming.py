@@ -14,8 +14,10 @@ PAGE = """\
 <h1>Nightsight Pi Streaming Demo</h1>
 <img src="stream.mjpg" width="640" height="480" />
 <hr>
-<button>Start recording</button>
-<button>Stop recording</button>
+<form action = "" method = "post">
+    <input class="button" type="submit" value="Start recording" name="start" onclick=""></input> 
+    <input class="button" type="submit" value="Stop recording" name="stop" onclick=""></input> 
+</form>
 </body>
 </html>
 """
@@ -54,6 +56,37 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
     Base Http request handler for the camera stream.
     """
 
+    def set_response(self):
+        """
+        Sets the common response headers and content.
+        :return:
+        """
+        content = PAGE.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-Length', len(content))
+        self.end_headers()
+        self.wfile.write(content)
+
+    def do_POST(self):
+        """
+        REST Post handler.
+        """
+        if self.path == '/index.html':
+            content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
+            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+
+            post_data = post_data.decode('utf-8')
+            if 'start' in post_data:
+                print('hit start')
+            if 'stop' in post_data:
+                print('hit stop')
+            self.set_response()
+
+        else:
+            self.send_error(404)
+            self.end_headers()
+
     def do_GET(self):
         """
         REST Get handler.
@@ -63,12 +96,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Location', '/index.html')
             self.end_headers()
         elif self.path == '/index.html':
-            content = PAGE.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html')
-            self.send_header('Content-Length', len(content))
-            self.end_headers()
-            self.wfile.write(content)
+            self.set_response()
         elif self.path == '/stream.mjpg':
             self.send_response(200)
             self.send_header('Age', 0)

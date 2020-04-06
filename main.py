@@ -179,7 +179,7 @@ def show_ip(event):
         sense.clear(255, 0, 0)
 
 
-sense.show_message('Starting Nightsight', scroll_speed=0.05)
+# sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
 # Register joystick callbacks
