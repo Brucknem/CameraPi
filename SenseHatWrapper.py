@@ -31,7 +31,14 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
 
 
 class SenseHatWrapper(Observer):
+    """
+    Wrapper for the Sense Hat functions.
+    """
+
     def __init__(self, camera):
+        """
+        Constructor.
+        """
         super().__init__()
         self.sense = SenseHat()
         self.camera = camera

@@ -149,12 +149,15 @@ class WebStreaming(Observer):
         Constructor.
         """
         super().__init__()
-        self.address = ('', 8080)
+        self.address = '', 8080
         self.camera = None
         self.server = StreamingServer(self.address, StreamingHandler)
         self.is_streaming = False
 
     def set_camera(self, camera):
+        """
+        Sets the camera object.
+        """
         self.camera = camera
         self.start_streaming()
 

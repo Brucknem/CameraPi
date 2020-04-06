@@ -12,6 +12,9 @@ class RecordingsFolder(object):
     __instance = None
 
     def __new__(cls, base_path: str = '/mnt/harddrive/recordings/nightsight/'):
+        """
+        Singleton constructor.
+        """
         if RecordingsFolder.__instance is None:
             RecordingsFolder.__instance = object.__new__(cls)
 
