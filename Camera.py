@@ -21,7 +21,8 @@ class Camera:
     """
     Wrapper for the picamera.
     """
-    def __init__(self, recordings_folder: str, chunk_length: int = 60):
+
+    def __init__(self, recordings_folder: str, chunk_length: int = 5):
         """
         Constructor.
         """
@@ -60,6 +61,18 @@ class Camera:
         self.set_camera_state(CameraState.RECORDING)
 
         print('starting')
+
+    def start_streaming(self, output):
+        """
+        Starts a stream to an output stream object.
+        """
+        self.__camera.start_recording(output, format='mjpeg', splitter_port=2)
+
+    def stop_streaming(self):
+        """
+        Stops the streaming.
+        """
+        self.__camera.stop_recording(splitter_port=2)
 
     def record(self):
         """

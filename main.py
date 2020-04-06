@@ -9,18 +9,15 @@ from sense_hat import SenseHat
 
 from Camera import *
 from RecordingsFolder import *
+from WebStreaming import WebStreaming
 
 sense = SenseHat()
 
 recordingsFolder = RecordingsFolder()
 camera = Camera(recordingsFolder.log_dir)
+webstreaming = WebStreaming(camera)
 
-# camera_state_to_color_map: map = {
-#     CameraState.IDLE: (0, 0, 0),
-#     CameraState.STARTING_RECORD: (255, 255, 255),
-#     CameraState.RECORDING: (0, 255, 0),
-#     CameraState.STOPPING_RECORD: (255, 255, 0)
-# }
+print('streaming async')
 
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
@@ -121,6 +118,8 @@ def start_camera(event):
     :param event: the key input event
     """
     global camera
+    global webstreaming
+
     if event.action != 'released' or camera.camera_state is not CameraState.IDLE:
         return
 
@@ -149,14 +148,15 @@ def stop_camera(event):
         on_error(err)
 
 
-sense.show_message('Starting Nightsight', scroll_speed=0.05)
+# sense.show_message('Starting Nightsight', scroll_speed=0.05)
 sense.clear()
 
 # Register joystick callbacks
 sense.stick.direction_left = start_camera
 sense.stick.direction_right = stop_camera
 sense.stick.direction_up = read_sensors
-# sense.stick.direction_middle = sense.clear  # Press the enter key
+# sense.stick.direction_middle = exit_program  # Press the enter key
+
 
 while True:
     try:

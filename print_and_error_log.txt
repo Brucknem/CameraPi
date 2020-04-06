@@ -1,0 +1,7 @@
+[05-04-2020 (23:20:15)]	RecordingsFolder:	Started monitoring
+
+[05-04-2020 (23:20:21)]	start_camera:	Starting camera
+
+starting
+[05-04-2020 (23:20:30)]	Terminating:	Ctrl+C pressed
+
