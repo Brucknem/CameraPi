@@ -110,15 +110,15 @@ def show_ip(event):
     sense_hat_wrapper.show_ip()
 
 
-# sense.show_message('Starting Nightsight', scroll_speed=0.05)
-sense_hat_wrapper.sense.clear()
-
 # Register joystick callbacks
 sense_hat_wrapper.sense.stick.direction_left = start_camera
 sense_hat_wrapper.sense.stick.direction_right = stop_camera
 sense_hat_wrapper.sense.stick.direction_up = read_sensors
 sense_hat_wrapper.sense.stick.direction_down = show_ip
 sense_hat_wrapper.sense.stick.direction_middle = toggle_streaming  # Press the enter key
+
+sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
+sense_hat_wrapper.sense.clear()
 
 while True:
     try:
