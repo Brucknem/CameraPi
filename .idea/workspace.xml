@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="20f0c1f2-6de2-4163-8580-be7b928e71fa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SenseHatWrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/SenseHatWrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebStreaming.py" beforeDir="false" afterPath="$PROJECT_DIR$/WebStreaming.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="20f0c1f2-6de2-4163-8580-be7b928e71fa" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -67,7 +61,7 @@
       <workItem from="1586170706580" duration="7419000" />
       <workItem from="1586178493413" duration="12693000" />
       <workItem from="1586192093316" duration="93000" />
-      <workItem from="1586194856082" duration="4604000" />
+      <workItem from="1586194856082" duration="4722000" />
     </task>
     <servers />
   </component>
