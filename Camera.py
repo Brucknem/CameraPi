@@ -64,7 +64,7 @@ class Camera(Observable):
         """
         Recovers the camera state after a failure
         """
-        logging.error('Recovering camera')
+        logging.info('Recovering camera')
         old_state = self.camera_state
 
         try:
@@ -78,7 +78,7 @@ class Camera(Observable):
         try:
             self.__camera.close()
         except:
-            logging.error('No camera found')
+            logging.info('No camera found')
 
         self.__camera = PiCamera()
         self.__camera.resolution = 1200, 900
@@ -132,10 +132,9 @@ class Camera(Observable):
 
         try:
             while self.camera_state is CameraState.RECORDING:
+                logging.info('Recording')
                 self.__camera.split_recording(self.get_chunk_path())
                 self.__camera.wait_recording(self.__chunk_lenght)
-                if self.camera_state is CameraState.RECORDING:
-                    self.set_camera_state(CameraState.RECORDING)
         except Exception as err:
             self.recover_camera()
 

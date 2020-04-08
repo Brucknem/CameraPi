@@ -219,15 +219,6 @@ class WebStreaming(Observer):
 
         self.camera.stop_recording()
 
-    def toggle_streaming(self):
-        """
-        Toggles the webserver.
-        """
-        if self.camera.output:
-            self.stop_streaming()
-        else:
-            self.start_streaming()
-
     def start_streaming(self):
         """
         Starts the webserver.

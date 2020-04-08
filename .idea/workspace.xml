@@ -4,10 +4,6 @@
     <list default="true" id="20f0c1f2-6de2-4163-8580-be7b928e71fa" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NightsightCameraCase.png" beforeDir="false" afterPath="$PROJECT_DIR$/NightsightCameraCase.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NightsightCameraCase.xcf" beforeDir="false" afterPath="$PROJECT_DIR$/NightsightCameraCase.xcf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NightsightCameraCase_Back.png" beforeDir="false" afterPath="$PROJECT_DIR$/NightsightCameraCase_Back.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NightsightCameraCase_Back.xcf" beforeDir="false" afterPath="$PROJECT_DIR$/NightsightCameraCase_Back.xcf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SenseHatWrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/SenseHatWrapper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebStreaming.py" beforeDir="false" afterPath="$PROJECT_DIR$/WebStreaming.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
@@ -73,7 +69,7 @@
       <workItem from="1586192093316" duration="93000" />
       <workItem from="1586194856082" duration="4722000" />
       <workItem from="1586358429155" duration="5992000" />
-      <workItem from="1586364545476" duration="108000" />
+      <workItem from="1586364545476" duration="1950000" />
     </task>
     <servers />
   </component>

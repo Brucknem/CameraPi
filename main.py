@@ -9,7 +9,7 @@ from RecordingsFolder import *
 from SenseHatWrapper import SenseHatWrapper
 from WebStreaming import webstreaming
 
-logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
 logging.info('Started monitoring')
 
 recordingsFolder = RecordingsFolder()
@@ -88,15 +88,26 @@ def stop_camera(event):
         logging.exception(err)
 
 
-def toggle_streaming(event):
+def start_streaming(event):
     """
-    Toggles the web stream.
+    Starts the web stream.
     """
     global webstreaming
     if event.action != 'released':
         return
 
-    webstreaming.toggle_streaming()
+    webstreaming.start_streaming()
+
+
+def stop_streaming(event):
+    """
+    Stops the web stream.
+    """
+    global webstreaming
+    if event.action != 'released':
+        return
+
+    webstreaming.stop_streaming()
 
 
 def show_ip(event):
@@ -112,11 +123,11 @@ def show_ip(event):
 # Register joystick callbacks
 sense_hat_wrapper.sense.stick.direction_left = start_camera
 sense_hat_wrapper.sense.stick.direction_right = stop_camera
-sense_hat_wrapper.sense.stick.direction_up = read_sensors
-sense_hat_wrapper.sense.stick.direction_down = show_ip
-sense_hat_wrapper.sense.stick.direction_middle = toggle_streaming  # Press the enter key
+sense_hat_wrapper.sense.stick.direction_up = start_streaming
+sense_hat_wrapper.sense.stick.direction_down = stop_streaming
+sense_hat_wrapper.sense.stick.direction_middle = show_ip  # Press the enter key
 
-# sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
+sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
 sense_hat_wrapper.sense.clear()
 
 while True:

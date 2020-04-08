@@ -66,6 +66,7 @@ class SenseHatWrapper(Observer):
         :param event: the key input event
         """
         try:
+            pixel_list = self.sense.get_pixels()
             self.sense.clear(0, 0, 255)
             single_sensor_measurement('Pressure', self.sense.get_pressure)
             single_sensor_measurement('Humidity', self.sense.get_humidity)
@@ -75,6 +76,7 @@ class SenseHatWrapper(Observer):
                                       self.sense.get_temperature_from_pressure)
             # self.update(state=self.camera.camera_state)
             self.sense.clear()
+            self.sense.set_pixels(pixel_list)
         except Exception as err:
             logging.exception(err)
 
