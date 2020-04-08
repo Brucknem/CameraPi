@@ -10,7 +10,6 @@ from Utils import function_name
 
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
-    CameraState.STARTING_RECORD: (25, 25, 25),
     CameraState.RECORDING: (0, 25, 0),
     CameraState.STOPPING_RECORD: (25, 25, 0)
 }

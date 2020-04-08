@@ -93,8 +93,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
         content = PAGE_MIDDLE.encode('utf-8')
 
-        if webstreaming.camera.camera_state is CameraState.RECORDING or \
-                webstreaming.camera.camera_state is CameraState.STARTING_RECORD:
+        if webstreaming.camera.camera_state is CameraState.RECORDING:
             content += START_RECORDING_DISABLED.encode('utf-8')
             content += STOP_RECORDING.encode('utf-8')
         elif webstreaming.camera.camera_state is CameraState.IDLE:
@@ -209,7 +208,7 @@ class WebStreaming(Observer):
         if not self.camera:
             return
 
-        self.camera.set_camera_state(CameraState.STARTING_RECORD)
+        self.camera.start_recording()
 
     def stop_recording(self):
         """
@@ -218,13 +217,13 @@ class WebStreaming(Observer):
         if not self.camera:
             return
 
-        self.camera.set_camera_state(CameraState.STOPPING_RECORD)
+        self.camera.stop_recording()
 
     def toggle_streaming(self):
         """
         Toggles the webserver.
         """
-        if self.camera.is_streaming:
+        if self.camera.output:
             self.stop_streaming()
         else:
             self.start_streaming()

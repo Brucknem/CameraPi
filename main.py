@@ -9,7 +9,7 @@ from RecordingsFolder import *
 from SenseHatWrapper import SenseHatWrapper
 from WebStreaming import webstreaming
 
-logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.DEBUG)
 logging.info('Started monitoring')
 
 recordingsFolder = RecordingsFolder()
@@ -32,6 +32,7 @@ def signal_handler(sig, frame):
     global camera
     logging.info('Terminating: Ctrl+C pressed')
     camera.close_camera()
+    sense_hat_wrapper.sense.clear()
     sys.exit(0)
 
 
@@ -61,12 +62,11 @@ def start_camera(event):
     """
     global camera
 
-    if event.action != 'released' or camera.camera_state is not CameraState.IDLE:
+    if event.action != 'released':
         return
 
     try:
-        logging.info('Starting camera')
-        camera.set_camera_state(CameraState.STARTING_RECORD)
+        camera.start_recording()
     except Exception as err:
         logging.exception(err)
 
@@ -79,12 +79,11 @@ def stop_camera(event):
     :param event: the key input event
     """
     global camera
-    if event.action != 'released' or camera.camera_state is not CameraState.RECORDING:
+    if event.action != 'released':
         return
 
     try:
-        logging.info('Stopping camera')
-        camera.set_camera_state(CameraState.STOPPING_RECORD)
+        camera.stop_recording()
     except Exception as err:
         logging.exception(err)
 
@@ -117,9 +116,8 @@ sense_hat_wrapper.sense.stick.direction_up = read_sensors
 sense_hat_wrapper.sense.stick.direction_down = show_ip
 sense_hat_wrapper.sense.stick.direction_middle = toggle_streaming  # Press the enter key
 
-sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
+# sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
 sense_hat_wrapper.sense.clear()
 
 while True:
-    camera.run()
-    time.sleep(1)
+    pass
