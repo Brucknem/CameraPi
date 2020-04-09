@@ -7,6 +7,7 @@ import time
 from Camera import *
 from RecordingsFolder import *
 from SenseHatWrapper import SenseHatWrapper
+from SenseHatWrapperMock import SenseHatWrapperMock
 from WebStreaming import webstreaming
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
@@ -16,7 +17,10 @@ recordingsFolder = RecordingsFolder()
 
 camera = Camera()
 webstreaming.set_camera(camera)
-sense_hat_wrapper = SenseHatWrapper(camera)
+try:
+    sense_hat_wrapper = SenseHatWrapper(camera)
+except:
+    sense_hat_wrapper = SenseHatWrapperMock()
 
 camera.attach(webstreaming)
 camera.attach(sense_hat_wrapper)

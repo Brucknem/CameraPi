@@ -34,7 +34,7 @@ class Camera(Observable):
     Wrapper for the picamera.
     """
 
-    def __init__(self, chunk_length: int = 5):
+    def __init__(self, chunk_length: int = 5 * 60):
         """
         Constructor.
         """
