@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="20f0c1f2-6de2-4163-8580-be7b928e71fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/SenseHatWrapperMock.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,7 +67,7 @@
       <workItem from="1586358429155" duration="5992000" />
       <workItem from="1586364545476" duration="1950000" />
       <workItem from="1586366951929" duration="917000" />
-      <workItem from="1586450952524" duration="141000" />
+      <workItem from="1586450952524" duration="239000" />
     </task>
     <servers />
   </component>
