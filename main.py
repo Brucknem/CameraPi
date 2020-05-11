@@ -26,12 +26,14 @@ logging.info('Started monitoring')
 recordingsFolder = RecordingsFolder(args.out if args.out else out_path_default)
 
 camera = Camera()
-webstreaming = get_webstreaming()
-webstreaming.set_camera(camera)
 try:
     sense_hat_wrapper = SenseHatWrapper(camera)
 except:
     sense_hat_wrapper = SenseHatWrapperMock()
+
+webstreaming = get_webstreaming()
+webstreaming.set_camera(camera)
+webstreaming.set_sense_hat(sense_hat_wrapper)
 
 camera.attach(webstreaming)
 camera.attach(sense_hat_wrapper)

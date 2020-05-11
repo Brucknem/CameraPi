@@ -6,6 +6,7 @@ from http import server
 from threading import Condition
 
 from Camera import CameraState
+from ISenseHatWrapper import ISenseHatWrapper
 from Observer import Observer
 
 PAGE_TOP = """\
@@ -24,7 +25,7 @@ PAGE_MIDDLE = """\
 <h1>Nightsight Pi Streaming</h1>
 <img src="stream.mjpg" width="100%" />
 <br><br>
-<form action = "" method = "post">
+<form action = "" method = "get">
 """
 
 START_RECORDING = '<input style="font-size:xx-large" class="button" type="submit" value="Start recording" ' \
@@ -37,10 +38,14 @@ START_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="bu
 STOP_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="button" type="submit" value="Stop ' \
                           'recording" name="stop" onclick=""></input> '
 
-PAGE_BOTTOM = """\
+PAGE_BOTTOM = """
 <br><br>
 <input style="font-size:xx-large" class="button" type="submit" value="Refresh page" name="refresh" onclick=""></input>
 </form>
+<br><br>
+"""
+
+PAGE_END = """
 </body>
 </html>
 """
@@ -105,6 +110,20 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
         content += PAGE_BOTTOM.encode('utf-8')
 
+        if webstreaming.sense_hat:
+            values = webstreaming.sense_hat.read_sensors()
+
+            print(values)
+
+            for (key, value) in values.items():
+                content += '<div style="font-size:xx-large">'.encode('utf-8')
+                content += str(key).encode('utf-8')
+                content += ': '.encode('utf-8')
+                content += str(value).encode('utf-8')
+                content += '</div>'.encode('utf-8')
+
+        content += PAGE_END.encode('utf-8')
+
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.send_header('Content-Length', len(content))
@@ -116,6 +135,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         REST Post handler.
         """
         global webstreaming
+        print('in get!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
 
         if self.path == '/index.html':
             content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
@@ -136,11 +156,24 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         REST Get handler.
         """
+
+        print(self.path)
+
         if self.path == '/':
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-        elif self.path == '/index.html':
+        elif str.startswith(str(self.path), '/index.html'):
+            from urllib.parse import parse_qs
+            try:
+                get_data = parse_qs(str.split(self.path, '?')[1])
+                if 'start' in get_data:
+                    webstreaming.start_recording()
+                if 'stop' in get_data:
+                    webstreaming.stop_recording()
+
+            except IndexError as e:
+                pass
             self.set_response()
         elif self.path == '/stream.mjpg':
             self.send_response(200)
@@ -162,9 +195,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(b'\r\n')
             except Exception as e:
                 pass
-                # logging.warning(
-                #     'Removed streaming client %s: %s',
-                #     self.client_address, str(e))
         else:
             self.send_error(404)
             self.end_headers()
@@ -192,6 +222,7 @@ class WebStreaming(Observer):
         self.address = '', 8080
         self.camera = None
         self.server = StreamingServer(self.address, StreamingHandler)
+        self.sense_hat: ISenseHatWrapper = None
 
     def set_camera(self, camera):
         """
@@ -199,6 +230,12 @@ class WebStreaming(Observer):
         """
         self.camera = camera
         self.start_streaming()
+
+    def set_sense_hat(self, sense_hat: ISenseHatWrapper):
+        """
+        Sets the camera object.
+        """
+        self.sense_hat = sense_hat
 
     def start_recording(self):
         """

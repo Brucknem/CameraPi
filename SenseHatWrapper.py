@@ -23,11 +23,14 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
     :param measurement_name: The name of the measurement
     :param measurement_function: The measurement function
     """
+    output = {measurement_name: None}
     try:
         value = measurement_function()
         logging.info(str(measurement_name) + ': ' + str(value))
+        output[measurement_name] = value
     except Exception as err:
         logging.exception(err)
+    return output
 
 
 class SenseHatWrapper(Observer, ISenseHatWrapper):
@@ -64,20 +67,31 @@ class SenseHatWrapper(Observer, ISenseHatWrapper):
         """
         Read the pressure, temperature and humidity from the sense hat and log.
         """
+
+        values = {}
+
         try:
             pixel_list = self.sense.get_pixels()
             self.sense.clear(0, 0, 255)
-            single_sensor_measurement('Pressure', self.sense.get_pressure)
-            single_sensor_measurement('Humidity', self.sense.get_humidity)
-            single_sensor_measurement('Temperature (Humidity)',
-                                      self.sense.get_temperature_from_humidity)
-            single_sensor_measurement('Temperature (Pressure)',
-                                      self.sense.get_temperature_from_pressure)
-            # self.update(state=self.camera.camera_state)
+
+            pressure = self.sense.get_pressure
+            humidity = self.sense.get_humidity
+            temperature_humidity = self.sense.get_temperature_from_humidity
+            temperature_pressure = self.sense.get_temperature_from_pressure
+
+            values.update(single_sensor_measurement('Pressure', pressure))
+            values.update(single_sensor_measurement('Humidity', humidity))
+            values.update(single_sensor_measurement('Temperature (Humidity)',
+                                                    temperature_humidity))
+            values.update(single_sensor_measurement('Temperature (Pressure)',
+                                                    temperature_pressure))
             self.sense.clear()
             self.sense.set_pixels(pixel_list)
+
         except Exception as err:
             logging.exception(err)
+
+        return values
 
     def show_ip(self):
         """

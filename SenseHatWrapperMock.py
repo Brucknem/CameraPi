@@ -13,3 +13,10 @@ class SenseHatWrapperMock(Observer, ISenseHatWrapper):
         Constructor.
         """
         super().__init__()
+
+    def read_sensors(self):
+        """ Override """
+
+        f = open("/sys/class/thermal/thermal_zone0/temp", "r")
+        cpu = f.readline()
+        return {'Temperature (Chip)': str(int(cpu) / 1000) + ' \'C'}

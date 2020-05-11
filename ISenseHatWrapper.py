@@ -21,7 +21,7 @@ class ISenseHatWrapper(ABC):
         """
         Read the pressure, temperature and humidity from the sense hat and log.
         """
-        pass
+        return {}
 
     def show_ip(self):
         """
