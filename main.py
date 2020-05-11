@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import logging
+import argparse
 import signal
 import sys
-import time
-import argparse
 
 from RecordingsFolder import *
 from WebStreaming import get_webstreaming

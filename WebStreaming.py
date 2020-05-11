@@ -1,5 +1,4 @@
 import io
-import logging
 import socketserver
 import threading
 from http import server
@@ -15,7 +14,7 @@ PAGE_TOP = """
   <head>
   </head>
 <body width="100%" style="text-align:center; content-align:center; font-size:xx-large">
-<h1>Nightsight Pi Streaming</h1>
+<h1>Camera Pi Streaming</h1>
 """
 
 PAGE_STREAM = """
