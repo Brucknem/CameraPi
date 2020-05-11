@@ -1,7 +1,7 @@
+import logging
 import time
 
 from ICamera import CameraState, ICamera
-import logging
 
 
 class CameraMock(ICamera):
@@ -13,7 +13,7 @@ class CameraMock(ICamera):
         """
         Constructor.
         """
-        super().__init__()
+        super().__init__(chunk_length)
 
     def record(self):
         """ Overriding """

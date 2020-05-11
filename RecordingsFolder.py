@@ -11,7 +11,7 @@ class RecordingsFolder(object):
     """
     __instance = None
 
-    def __new__(cls, base_path: str = '/mnt/harddrive/recordings/nightsight/'):
+    def __new__(cls, base_path: str = './recordings/'):
         """
         Singleton constructor.
         """
