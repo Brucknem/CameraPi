@@ -117,7 +117,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         if webstreaming.sense_hat:
             values = webstreaming.sense_hat.read_sensors()
 
-            for (key, value) in values.items():
+            for key, value in values.items():
                 content += '<div style="font-size:xx-large">'.encode('utf-8')
                 content += str(key).encode('utf-8')
                 content += ': '.encode('utf-8')
@@ -153,35 +153,43 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 pass
             self.set_response()
         elif self.path == '/stream.mjpg':
-            self.send_response(200)
+            self.do_streaming()
 
-            if not webstreaming.camera or \
-                    not webstreaming.camera.is_real_camera():
-                self.end_headers()
-                return
-
-            self.send_header('Age', 0)
-            self.send_header('Cache-Control', 'no-cache, private')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Content-Type',
-                             'multipart/x-mixed-replace; boundary=FRAME')
-            self.end_headers()
-            try:
-                while True:
-                    with output.condition:
-                        output.condition.wait()
-                        frame = output.frame
-                    self.wfile.write(b'--FRAME\r\n')
-                    self.send_header('Content-Type', 'image/jpeg')
-                    self.send_header('Content-Length', len(frame))
-                    self.end_headers()
-                    self.wfile.write(frame)
-                    self.wfile.write(b'\r\n')
-            except Exception:
-                pass
         else:
             self.send_error(404)
             self.end_headers()
+
+    def do_streaming(self):
+        """
+        Writes the latest frame to the streaming output.
+        """
+        global webstreaming
+        self.send_response(200)
+
+        if not webstreaming.camera or \
+                not webstreaming.camera.is_real_camera():
+            self.end_headers()
+            return
+
+        self.send_header('Age', 0)
+        self.send_header('Cache-Control', 'no-cache, private')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Content-Type',
+                         'multipart/x-mixed-replace; boundary=FRAME')
+        self.end_headers()
+        try:
+            while True:
+                with output.condition:
+                    output.condition.wait()
+                    frame = output.frame
+                self.wfile.write(b'--FRAME\r\n')
+                self.send_header('Content-Type', 'image/jpeg')
+                self.send_header('Content-Length', len(frame))
+                self.end_headers()
+                self.wfile.write(frame)
+                self.wfile.write(b'\r\n')
+        except Exception:
+            pass
 
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
@@ -281,6 +289,9 @@ class WebStreaming(Observer):
 
 
 def get_webstreaming():
+    """
+    Gets the package internal webstreaming object.
+    """
     global webstreaming
     return webstreaming
 
