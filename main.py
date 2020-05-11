@@ -5,10 +5,7 @@ import sys
 import time
 import argparse
 
-from Camera import *
 from RecordingsFolder import *
-from SenseHatWrapper import SenseHatWrapper
-from SenseHatWrapperMock import SenseHatWrapperMock
 from WebStreaming import get_webstreaming
 
 out_path_default = './recordings'
@@ -25,10 +22,22 @@ logging.info('Started monitoring')
 
 recordingsFolder = RecordingsFolder(args.out if args.out else out_path_default)
 
-camera = Camera()
 try:
+    from Camera import *
+
+    camera = Camera()
+except:
+    from CameraMock import CameraMock
+
+    camera = CameraMock()
+
+try:
+    from SenseHatWrapper import SenseHatWrapper
+
     sense_hat_wrapper = SenseHatWrapper(camera)
 except:
+    from SenseHatWrapperMock import SenseHatWrapperMock
+
     sense_hat_wrapper = SenseHatWrapperMock()
 
 webstreaming = get_webstreaming()

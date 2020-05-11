@@ -5,26 +5,25 @@ import threading
 from http import server
 from threading import Condition
 
-from Camera import CameraState
+from ICamera import CameraState
 from ISenseHatWrapper import ISenseHatWrapper
 from Observer import Observer
 
-PAGE_TOP = """\
+PAGE_TOP = """
 <!doctype html>
 <html lang="en">
   <head>
-"""
-
-PAGE_REFRESH = """\
-<meta http-equiv="refresh" content="5" />
-"""
-
-PAGE_MIDDLE = """\
-</head>
+  </head>
 <body width="100%" style="text-align:center; content-align:center; font-size:xx-large">
 <h1>Nightsight Pi Streaming</h1>
+"""
+
+PAGE_STREAM = """
 <img src="stream.mjpg" width="100%" />
 <br><br>
+"""
+
+PAGE_FORM = """
 <form action = "" method = "get">
 """
 
@@ -93,10 +92,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
         content = PAGE_TOP.encode('utf-8')
 
-        if webstreaming.camera.camera_state is CameraState.STOPPING_RECORD:
-            content += PAGE_REFRESH.encode('utf-8')
+        if webstreaming.camera.is_real_camera():
+            content += PAGE_STREAM.encode('utf-8')
 
-        content = PAGE_MIDDLE.encode('utf-8')
+        content += PAGE_FORM.encode('utf-8')
 
         if webstreaming.camera.camera_state is CameraState.RECORDING:
             content += START_RECORDING_DISABLED.encode('utf-8')
@@ -113,8 +112,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         if webstreaming.sense_hat:
             values = webstreaming.sense_hat.read_sensors()
 
-            print(values)
-
             for (key, value) in values.items():
                 content += '<div style="font-size:xx-large">'.encode('utf-8')
                 content += str(key).encode('utf-8')
@@ -129,28 +126,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         self.send_header('Content-Length', len(content))
         self.end_headers()
         self.wfile.write(content)
-
-    def do_POST(self):
-        """
-        REST Post handler.
-        """
-        global webstreaming
-        print('in get!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
-
-        if self.path == '/index.html':
-            content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
-            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-
-            post_data = post_data.decode('utf-8')
-            if 'start' in post_data:
-                webstreaming.start_recording()
-            if 'stop' in post_data:
-                webstreaming.stop_recording()
-            self.set_response()
-
-        else:
-            self.send_error(404)
-            self.end_headers()
 
     def do_GET(self):
         """
@@ -177,6 +152,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.set_response()
         elif self.path == '/stream.mjpg':
             self.send_response(200)
+            self.end_headers()
+
+            if not webstreaming.camera or not webstreaming.camera.is_real_camera():
+                return
+
             self.send_header('Age', 0)
             self.send_header('Cache-Control', 'no-cache, private')
             self.send_header('Pragma', 'no-cache')

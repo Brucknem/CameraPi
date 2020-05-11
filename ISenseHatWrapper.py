@@ -1,4 +1,4 @@
-from Camera import CameraState
+from ICamera import CameraState
 from abc import ABC, abstractmethod
 
 

@@ -1,6 +1,7 @@
-from Camera import CameraState
 from Observer import Observer
 from ISenseHatWrapper import ISenseHatWrapper
+
+from sense_emu import SenseHat
 
 
 class SenseHatWrapperMock(Observer, ISenseHatWrapper):
