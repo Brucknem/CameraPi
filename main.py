@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import argparse
+import logging
 import signal
 import sys
 
-from RecordingsFolder import *
+from RecordingsFolder import RecordingsFolder
 from WebStreaming import get_webstreaming
 
 out_path_default = './recordings'
@@ -12,19 +13,21 @@ parser.add_argument('--out',
                     nargs='?',
                     const=out_path_default,
                     type=str,
-                    help='The output path for recordings and logs. Default: ' + out_path_default)
+                    help='The output path for recordings and logs. Default: '
+                         + out_path_default)
 args = parser.parse_args()
 
-logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
+                    level=logging.INFO)
 logging.info('Started monitoring')
 
 recordingsFolder = RecordingsFolder(args.out if args.out else out_path_default)
 
 try:
-    from Camera import *
+    from Camera import Camera
 
     camera = Camera()
-except:
+except Exception:
     from CameraMock import CameraMock
 
     camera = CameraMock()
@@ -33,7 +36,7 @@ try:
     from SenseHatWrapper import SenseHatWrapper
 
     sense_hat_wrapper = SenseHatWrapper(camera)
-except:
+except Exception:
     from SenseHatWrapperMock import SenseHatWrapperMock
 
     sense_hat_wrapper = SenseHatWrapperMock()

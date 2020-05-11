@@ -1,13 +1,12 @@
 import logging
 import os
-import time
 from enum import Enum
 from pathlib import Path
 from threading import Thread
 
 from Observable import Observable
 from RecordingsFolder import RecordingsFolder
-from Utils import *
+from Utils import get_datetime_now_file_string
 
 
 class CameraState(Enum):
@@ -22,7 +21,8 @@ class CameraState(Enum):
 
 camera_state_to_allowed_state_map: map = {
     CameraState.IDLE: (CameraState.RECORDING,),
-    CameraState.RECORDING: (CameraState.RECORDING, CameraState.STOPPING_RECORD),
+    CameraState.RECORDING: (CameraState.RECORDING,
+                            CameraState.STOPPING_RECORD),
     CameraState.STOPPING_RECORD: (CameraState.IDLE,)
 }
 
@@ -79,9 +79,11 @@ class ICamera(Observable):
 
         logging.info('Start recording')
         if self.is_real_camera():
-            self.current_recordings_folder = os.path.join(self.base_recordings_folder,
-                                                          get_datetime_now_file_string())
-            Path(self.current_recordings_folder).mkdir(parents=True, exist_ok=True)
+            self.current_recordings_folder = os.path.join(
+                self.base_recordings_folder,
+                get_datetime_now_file_string())
+            Path(self.current_recordings_folder).mkdir(parents=True,
+                                                       exist_ok=True)
 
         self.record_thread = Thread(target=self.record, args=())
         self.record_thread.daemon = True
@@ -120,7 +122,8 @@ class ICamera(Observable):
         Returns the full path to the current chunk.
         :return:
         """
-        return os.path.join(self.current_recordings_folder, get_datetime_now_file_string() + '.h264')
+        return os.path.join(self.current_recordings_folder,
+                            get_datetime_now_file_string() + '.h264')
 
     def is_real_camera(self):
         """

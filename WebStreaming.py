@@ -13,7 +13,8 @@ PAGE_TOP = """
 <html lang="en">
   <head>
   </head>
-<body width="100%" style="text-align:center; content-align:center; font-size:xx-large">
+<body width="100%" style="text-align:center; content-align:center; \
+font-size:xx-large">
 <h1>Camera Pi Streaming</h1>
 """
 
@@ -26,19 +27,24 @@ PAGE_FORM = """
 <form action = "" method = "get">
 """
 
-START_RECORDING = '<input style="font-size:xx-large" class="button" type="submit" value="Start recording" ' \
-                  'name="start" onclick=""></input> '
-STOP_RECORDING = '<input style="font-size:xx-large" class="button" type="submit" value="Stop recording" name="stop" ' \
-                 'onclick=""></input> '
+START_RECORDING = """
+<input style="font-size:xx-large" class="button" type="submit" \
+value="Start recording" name="start" onclick=""></input> """
+STOP_RECORDING = """
+<input style="font-size:xx-large" class="button" type="submit" \
+value="Stop recording" name="stop" 'onclick=""></input> """
 
-START_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="button" type="submit" value="Start ' \
-                           'recording" name="start" onclick=""></input> '
-STOP_RECORDING_DISABLED = '<input style="font-size:xx-large" disabled class="button" type="submit" value="Stop ' \
-                          'recording" name="stop" onclick=""></input> '
+START_RECORDING_DISABLED = """
+<input style="font-size:xx-large" disabled class="button" type="submit" \
+value="Start recording" name="start" onclick=""></input> """
+STOP_RECORDING_DISABLED = """
+<input style="font-size:xx-large" disabled class="button" type="submit" \
+value="Stop recording" name="stop" onclick=""></input> """
 
 PAGE_BOTTOM = """
 <br><br>
-<input style="font-size:xx-large" class="button" type="submit" value="Refresh page" name="refresh" onclick=""></input>
+<input style="font-size:xx-large" class="button" type="submit"
+value="Refresh page" name="refresh" onclick=""></input>
 </form>
 <br><br>
 """
@@ -143,20 +149,22 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 if 'stop' in get_data:
                     webstreaming.stop_recording()
 
-            except IndexError as e:
+            except IndexError:
                 pass
             self.set_response()
         elif self.path == '/stream.mjpg':
             self.send_response(200)
 
-            if not webstreaming.camera or not webstreaming.camera.is_real_camera():
+            if not webstreaming.camera or \
+                    not webstreaming.camera.is_real_camera():
                 self.end_headers()
                 return
 
             self.send_header('Age', 0)
             self.send_header('Cache-Control', 'no-cache, private')
             self.send_header('Pragma', 'no-cache')
-            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
+            self.send_header('Content-Type',
+                             'multipart/x-mixed-replace; boundary=FRAME')
             self.end_headers()
             try:
                 while True:
@@ -169,7 +177,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
-            except Exception as e:
+            except Exception:
                 pass
         else:
             self.send_error(404)
@@ -187,7 +195,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 class WebStreaming(Observer):
     """
     Wrapper for the camera web stream.
-    Runs an asynchron thread for the web view. 
+    Runs an asynchron thread for the web view.
     """
 
     def __init__(self):
@@ -255,7 +263,8 @@ class WebStreaming(Observer):
 
     def stream(self):
         """
-        Starts the camera in streaming mode and starts the webserver to stream to.
+        Starts the camera in streaming mode and
+        starts the webserver to stream to.
         """
         if self.camera.start_streaming(output):
             try:

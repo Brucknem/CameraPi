@@ -1,4 +1,5 @@
 import logging
+
 from picamera import PiCamera
 
 from ICamera import CameraState, ICamera
@@ -25,14 +26,14 @@ class Camera(ICamera):
         try:
             self.camera_state = CameraState.STOPPING_RECORD
             self.record_thread.join()
-        except:
+        except Exception:
             logging.info('No thread found')
 
         self.camera_state = old_state
 
         try:
             self.__camera.close()
-        except:
+        except Exception:
             logging.info('No camera found')
 
         self.__camera = PiCamera()
@@ -54,7 +55,7 @@ class Camera(ICamera):
         try:
             self.__camera.stop_recording()
             self.__camera.stop_preview()
-        except:
+        except Exception:
             pass
         finally:
             self.__camera.close()
@@ -75,7 +76,7 @@ class Camera(ICamera):
                 logging.info('Recording')
                 self.__camera.split_recording(self.get_chunk_path())
                 self.__camera.wait_recording(self.chunk_length)
-        except Exception as err:
+        except Exception:
             self.recover_camera()
 
     def stop_recording(self):
@@ -95,7 +96,9 @@ class Camera(ICamera):
         if not self.output:
             logging.info('Start streaming')
             self.output = output
-            self.__camera.start_recording(self.output, format='mjpeg', splitter_port=2)
+            self.__camera.start_recording(self.output,
+                                          format='mjpeg',
+                                          splitter_port=2)
             return True
         return False
 

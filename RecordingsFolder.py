@@ -1,8 +1,8 @@
-import logging
+import datetime
 import os
 from pathlib import Path
 
-from Utils import *
+from Utils import get_datetime_now_file_string
 
 
 class RecordingsFolder(object):
@@ -19,7 +19,10 @@ class RecordingsFolder(object):
             RecordingsFolder.__instance = object.__new__(cls)
 
             RecordingsFolder.__instance.datetime_now = datetime.now()
-            RecordingsFolder.__instance.log_dir = os.path.join(base_path, get_datetime_now_file_string())
-            Path(RecordingsFolder.__instance.log_dir).mkdir(parents=True, exist_ok=True)
-            RecordingsFolder.__instance.log_file_path = os.path.join(RecordingsFolder.__instance.log_dir, 'log.txt')
+            RecordingsFolder.__instance.log_dir = \
+                os.path.join(base_path, get_datetime_now_file_string())
+            Path(RecordingsFolder.__instance.log_dir).mkdir(parents=True,
+                                                            exist_ok=True)
+            RecordingsFolder.__instance.log_file_path = os.path.join(
+                RecordingsFolder.__instance.log_dir, 'log.txt')
         return RecordingsFolder.__instance
