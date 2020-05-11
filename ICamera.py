@@ -37,12 +37,12 @@ class ICamera(Observable):
         Constructor.
         """
         super().__init__()
-        self.__camera = None
+        self.real_camera = None
         self.camera_state = CameraState.IDLE
 
-        self.__base_recordings_folder = RecordingsFolder().log_dir
-        self.__current_recordings_folder = RecordingsFolder().log_dir
-        self.__chunk_length = chunk_length
+        self.base_recordings_folder = RecordingsFolder().log_dir
+        self.current_recordings_folder = RecordingsFolder().log_dir
+        self.chunk_length = chunk_length
 
         self.output = None
         self.record_thread = None
@@ -79,9 +79,9 @@ class ICamera(Observable):
 
         logging.info('Start recording')
         if self.is_real_camera():
-            self.__current_recordings_folder = os.path.join(self.__base_recordings_folder,
-                                                            get_datetime_now_file_string())
-            Path(self.__current_recordings_folder).mkdir(parents=True, exist_ok=True)
+            self.current_recordings_folder = os.path.join(self.base_recordings_folder,
+                                                          get_datetime_now_file_string())
+            Path(self.current_recordings_folder).mkdir(parents=True, exist_ok=True)
 
         self.record_thread = Thread(target=self.record, args=())
         self.record_thread.daemon = True
@@ -120,7 +120,7 @@ class ICamera(Observable):
         Returns the full path to the current chunk.
         :return:
         """
-        return os.path.join(self.__current_recordings_folder, get_datetime_now_file_string() + '.h264')
+        return os.path.join(self.current_recordings_folder, get_datetime_now_file_string() + '.h264')
 
     def is_real_camera(self):
         """

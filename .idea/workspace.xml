@@ -20,17 +20,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="20f0c1f2-6de2-4163-8580-be7b928e71fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/CameraMock.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ICamera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/webServers.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/webServers.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ISenseHatWrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/ISenseHatWrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SenseHatWrapperMock.py" beforeDir="false" afterPath="$PROJECT_DIR$/SenseHatWrapperMock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ICamera.py" beforeDir="false" afterPath="$PROJECT_DIR$/ICamera.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebStreaming.py" beforeDir="false" afterPath="$PROJECT_DIR$/WebStreaming.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +123,7 @@
       <workItem from="1586366951929" duration="917000" />
       <workItem from="1586450952524" duration="239000" />
       <workItem from="1589208079939" duration="2593000" />
-      <workItem from="1589210687755" duration="3223000" />
+      <workItem from="1589210687755" duration="4660000" />
     </task>
     <servers />
   </component>
@@ -235,10 +228,10 @@
       <screen x="0" y="27" width="2560" height="1413" />
     </state>
     <state x="1808" y="419" width="197" height="642" key="ftp.server.browser/0.27.2560.1413@0.27.2560.1413" timestamp="1586171468239" />
-    <state x="1570" y="333" width="672" height="691" key="search.everywhere.popup" timestamp="1589210170637">
+    <state x="1570" y="333" width="672" height="691" key="search.everywhere.popup" timestamp="1589215124780">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="1570" y="333" width="672" height="691" key="search.everywhere.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1589210170637" />
+    <state x="1570" y="333" width="672" height="691" key="search.everywhere.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1589215124780" />
     <state x="1570" y="354" width="672" height="678" key="search.everywhere.popup/0.27.2560.1413@0.27.2560.1413" timestamp="1586359146403" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">

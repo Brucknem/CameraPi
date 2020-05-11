@@ -131,9 +131,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         REST Get handler.
         """
-
-        print(self.path)
-
         if self.path == '/':
             self.send_response(301)
             self.send_header('Location', '/index.html')
@@ -152,9 +149,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.set_response()
         elif self.path == '/stream.mjpg':
             self.send_response(200)
-            self.end_headers()
 
             if not webstreaming.camera or not webstreaming.camera.is_real_camera():
+                self.end_headers()
                 return
 
             self.send_header('Age', 0)
