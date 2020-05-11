@@ -4,6 +4,7 @@ import socket
 from sense_hat import SenseHat
 
 from Camera import CameraState
+from ISenseHatWrapper import ISenseHatWrapper
 from Observer import Observer
 from RecordingsFolder import RecordingsFolder
 from Utils import function_name
@@ -29,7 +30,7 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
         logging.exception(err)
 
 
-class SenseHatWrapper(Observer):
+class SenseHatWrapper(Observer, ISenseHatWrapper):
     """
     Wrapper for the Sense Hat functions.
     """
@@ -62,8 +63,6 @@ class SenseHatWrapper(Observer):
     def read_sensors(self):
         """
         Read the pressure, temperature and humidity from the sense hat and log.
-    
-        :param event: the key input event
         """
         try:
             pixel_list = self.sense.get_pixels()
@@ -95,3 +94,7 @@ class SenseHatWrapper(Observer):
         except Exception as err:
             logging.exception('Show IP failed: ' + str(err))
             self.sense.clear(255, 0, 0)
+
+    def clear(self):
+        """ Overriding """
+        self.sense.clear()

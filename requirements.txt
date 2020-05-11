@@ -1,0 +1,6 @@
+numpy==1.18.4
+picamera==1.13
+Pillow==7.1.2
+pkg-resources==0.0.0
+RTIMULib==7.2.1
+sense-hat==2.2.0

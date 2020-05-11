@@ -3,6 +3,7 @@ import logging
 import signal
 import sys
 import time
+import argparse
 
 from Camera import *
 from RecordingsFolder import *
@@ -10,10 +11,19 @@ from SenseHatWrapper import SenseHatWrapper
 from SenseHatWrapperMock import SenseHatWrapperMock
 from WebStreaming import webstreaming
 
+out_path_default = './recordings'
+parser = argparse.ArgumentParser(description='Camera Pi.')
+parser.add_argument('--out',
+                    nargs='?',
+                    const=out_path_default,
+                    type=str,
+                    help='The output path for recordings and logs. Default: ' + out_path_default)
+args = parser.parse_args()
+
 logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
 logging.info('Started monitoring')
 
-recordingsFolder = RecordingsFolder()
+recordingsFolder = RecordingsFolder(args.out if args.out else out_path_default)
 
 camera = Camera()
 webstreaming.set_camera(camera)
@@ -36,7 +46,7 @@ def signal_handler(sig, frame):
     global camera
     logging.info('Terminating: Ctrl+C pressed')
     camera.close_camera()
-    sense_hat_wrapper.sense.clear()
+    sense_hat_wrapper.clear()
     sys.exit(0)
 
 
@@ -133,7 +143,7 @@ try:
     sense_hat_wrapper.sense.stick.direction_middle = show_ip  # Press the enter key
 
     sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
-    sense_hat_wrapper.sense.clear()
+    sense_hat_wrapper.clear()
 except:
     pass
 
