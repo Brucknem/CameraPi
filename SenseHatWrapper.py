@@ -98,3 +98,18 @@ class SenseHatWrapper(Observer, ISenseHatWrapper):
     def clear(self):
         """ Overriding """
         self.sense.clear()
+
+    def setup_callbacks(self, left=None, right=None, up=None, down=None, middle=None, message=None):
+        """ Overriding """
+        try:
+            self.sense.stick.direction_left = left
+            self.sense.stick.direction_right = right
+            self.sense.stick.direction_up = up
+            self.sense.stick.direction_down = down
+            self.sense.stick.direction_middle = middle  # Press the enter key
+
+            if message:
+                self.sense.show_message(message, scroll_speed=0.05)
+            self.clear()
+        except:
+            pass

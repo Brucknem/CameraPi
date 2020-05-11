@@ -258,5 +258,10 @@ class WebStreaming(Observer):
             pass
 
 
+def get_webstreaming():
+    global webstreaming
+    return webstreaming
+
+
 output = StreamingOutput()
 webstreaming = WebStreaming()

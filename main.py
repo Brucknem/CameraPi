@@ -9,7 +9,7 @@ from Camera import *
 from RecordingsFolder import *
 from SenseHatWrapper import SenseHatWrapper
 from SenseHatWrapperMock import SenseHatWrapperMock
-from WebStreaming import webstreaming
+from WebStreaming import get_webstreaming
 
 out_path_default = './recordings'
 parser = argparse.ArgumentParser(description='Camera Pi.')
@@ -26,6 +26,7 @@ logging.info('Started monitoring')
 recordingsFolder = RecordingsFolder(args.out if args.out else out_path_default)
 
 camera = Camera()
+webstreaming = get_webstreaming()
 webstreaming.set_camera(camera)
 try:
     sense_hat_wrapper = SenseHatWrapper(camera)
@@ -134,18 +135,12 @@ def show_ip(event):
     sense_hat_wrapper.show_ip()
 
 
-# Register joystick callbacks
-try:
-    sense_hat_wrapper.sense.stick.direction_left = start_camera
-    sense_hat_wrapper.sense.stick.direction_right = stop_camera
-    sense_hat_wrapper.sense.stick.direction_up = start_streaming
-    sense_hat_wrapper.sense.stick.direction_down = stop_streaming
-    sense_hat_wrapper.sense.stick.direction_middle = show_ip  # Press the enter key
-
-    sense_hat_wrapper.sense.show_message('Started Nightsight', scroll_speed=0.05)
-    sense_hat_wrapper.clear()
-except:
-    pass
+sense_hat_wrapper.setup_callbacks(left=start_camera,
+                                  right=stop_camera,
+                                  up=start_streaming,
+                                  down=stop_streaming,
+                                  middle=show_ip,
+                                  message='Started CameraPi')
 
 while True:
     pass

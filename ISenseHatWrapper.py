@@ -34,3 +34,9 @@ class ISenseHatWrapper(ABC):
         Clears the matrix.
         """
         pass
+
+    def setup_callbacks(self, left=None, right=None, up=None, down=None, middle=None, message=None):
+        """
+        Clears the matrix.
+        """
+        pass
