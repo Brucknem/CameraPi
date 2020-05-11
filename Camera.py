@@ -3,6 +3,7 @@ import logging
 from picamera import PiCamera
 
 from ICamera import CameraState, ICamera
+from RecordingsFolder import RecordingsFolder
 
 
 class Camera(ICamera):
@@ -66,15 +67,15 @@ class Camera(ICamera):
         """
         super().record()
 
-        print('Chunk lololololo', self.chunk_length)
         self.__camera.start_preview()
-        self.__camera.start_recording(self.get_chunk_path())
+        self.__camera.start_recording(RecordingsFolder().get_next_chunk_path())
         self.__camera.wait_recording(self.chunk_length)
 
         try:
             while self.camera_state is CameraState.RECORDING:
                 logging.info('Recording')
-                self.__camera.split_recording(self.get_chunk_path())
+                self.__camera.split_recording(
+                    RecordingsFolder().get_next_chunk_path())
                 self.__camera.wait_recording(self.chunk_length)
         except Exception:
             self.recover_camera()

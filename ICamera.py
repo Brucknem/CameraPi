@@ -1,12 +1,9 @@
 import logging
-import os
 from enum import Enum
-from pathlib import Path
 from threading import Thread
 
 from Observable import Observable
 from RecordingsFolder import RecordingsFolder
-from Utils import get_datetime_now_file_string
 
 
 class CameraState(Enum):
@@ -40,8 +37,6 @@ class ICamera(Observable):
         self.real_camera = None
         self.camera_state = CameraState.IDLE
 
-        self.base_recordings_folder = RecordingsFolder().log_dir
-        self.current_recordings_folder = RecordingsFolder().log_dir
         self.chunk_length = chunk_length
 
         self.output = None
@@ -79,11 +74,7 @@ class ICamera(Observable):
 
         logging.info('Start recording')
         if self.is_real_camera():
-            self.current_recordings_folder = os.path.join(
-                self.base_recordings_folder,
-                get_datetime_now_file_string())
-            Path(self.current_recordings_folder).mkdir(parents=True,
-                                                       exist_ok=True)
+            RecordingsFolder().create_new_recording()
 
         self.record_thread = Thread(target=self.record, args=())
         self.record_thread.daemon = True
@@ -103,7 +94,7 @@ class ICamera(Observable):
             return False
         logging.info('Stop recording')
         self.set_camera_state(CameraState.STOPPING_RECORD)
-        self.record_thread.join()
+        # self.record_thread.join()
         self.record_thread = None
         self.set_camera_state(CameraState.IDLE)
         return True
@@ -119,14 +110,6 @@ class ICamera(Observable):
         Stops the streaming.
         """
         pass
-
-    def get_chunk_path(self):
-        """
-        Returns the full path to the current chunk.
-        :return:
-        """
-        return os.path.join(self.current_recordings_folder,
-                            get_datetime_now_file_string() + '.h264')
 
     def is_real_camera(self):
         """

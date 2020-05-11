@@ -25,4 +25,23 @@ class RecordingsFolder(object):
                                                             exist_ok=True)
             RecordingsFolder.__instance.log_file_path = os.path.join(
                 RecordingsFolder.__instance.log_dir, 'log.txt')
+            RecordingsFolder.__instance.current_recordings_folder = None
         return RecordingsFolder.__instance
+
+    def create_new_recording(self):
+        """
+        Creates a new folder for recordings.
+        """
+        self.current_recordings_folder = os.path.join(
+            self.log_dir,
+            get_datetime_now_file_string())
+        Path(self.current_recordings_folder).mkdir(
+            parents=True, exist_ok=True)
+
+    def get_next_chunk_path(self):
+        """
+        Returns the full path to the current chunk.
+        :return:
+        """
+        return os.path.join(self.current_recordings_folder,
+                            get_datetime_now_file_string() + '.h264')
