@@ -5,6 +5,7 @@ import pytest
 from RecordingsFolder import RecordingsFolder
 
 tests_folder = './tests'
+RecordingsFolder(tests_folder)
 
 
 class TestRecordingsFolder:
@@ -33,8 +34,6 @@ class TestRecordingsFolder:
         """
         Test: Create a new folder for recordings.
         """
-
-        assert RecordingsFolder().current_recordings_folder is None
 
         for i in range(5):
             current_recordings_folder = \
