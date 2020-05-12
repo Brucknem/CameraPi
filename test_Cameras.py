@@ -8,9 +8,6 @@ from CameraMock import CameraMock
 from ICamera import ICamera, CameraState
 from RecordingsFolder import RecordingsFolder
 
-tests_folder = './tests'
-recordingsFolder = RecordingsFolder(tests_folder)
-
 
 class TestICamera:
     """
@@ -38,17 +35,6 @@ class TestICamera:
 
         mock_camera.stop_recording()
         assert mock_camera.camera_state == CameraState.IDLE
-    #
-    # def test_get_chunk_path(self):
-    #     """
-    #     Test: Formatting of the chunk path.
-    #     """
-    #     mock_camera = ICamera()
-    #
-    #     print(mock_camera.get_chunk_path())
-    #     assert str.startswith(mock_camera.get_chunk_path(), './tests')
-    #     assert len(mock_camera.get_chunk_path().split('/')) is 4
-    #     assert str.endswith(mock_camera.get_chunk_path(), '.h264')
 
 
 class TestCameraMock:
@@ -117,16 +103,3 @@ class TestCamera:
 
 if __name__ == '__main__':
     TestCameraMock().test_record()
-
-
-@pytest.yield_fixture(autouse=True, scope='session')
-def test_suite_cleanup_thing():
-    """
-    Cleanup for the tests folder.
-    """
-    # setup
-    yield
-    # teardown - put your command here
-    import shutil
-
-    shutil.rmtree(tests_folder)

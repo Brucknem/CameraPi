@@ -18,6 +18,8 @@ class RecordingsFolder(object):
         if RecordingsFolder.__instance is None:
             RecordingsFolder.__instance = object.__new__(cls)
 
+            RecordingsFolder.__instance.base_path = base_path
+
             RecordingsFolder.__instance.datetime_now = datetime.now()
             RecordingsFolder.__instance.log_dir = \
                 os.path.join(base_path, get_datetime_now_file_string())
