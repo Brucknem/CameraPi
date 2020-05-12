@@ -121,6 +121,9 @@ if __name__ == '__main__':
 
 @pytest.yield_fixture(autouse=True, scope='session')
 def test_suite_cleanup_thing():
+    """
+    Cleanup for the tests folder.
+    """
     # setup
     yield
     # teardown - put your command here
