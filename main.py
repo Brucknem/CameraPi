@@ -4,7 +4,6 @@ import logging
 import signal
 import sys
 
-from src.RecordingsFolder import RecordingsFolder
 from src.WebStreaming import get_web_streaming
 from src.camera.CameraBase import get_camera
 from src.sense_hat.ISenseHatWrapper import create_sense_hat
@@ -107,24 +106,32 @@ def show_ip(event):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-out_path_default = 'recordings'
+chunk_length = 5 * 60
 parser = argparse.ArgumentParser(description='Camera Pi.')
-parser.add_argument('--out',
+parser.add_argument('-c',
+                    '--chunk_length',
                     nargs='?',
-                    const=out_path_default,
+                    type=int,
+                    help='The length of the video chunks [s]. '
+                         'Default: ' + str(chunk_length) + ' s')
+recordings_path = './recordings'
+parser.add_argument('-o',
+                    '--out',
+                    nargs='?',
                     type=str,
                     help='The output path for recordings and logs. '
-                         'Default: ' + out_path_default)
+                         'Default: ' + recordings_path)
 args = parser.parse_args()
+chunk_length = \
+    args.chunk_length if args.chunk_length else chunk_length
+recordings_path = \
+    args.out if args.out else recordings_path
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
                     level=logging.INFO)
 logging.info('Started monitoring')
 
-recordings_folder = RecordingsFolder(
-    args.out if args.out else out_path_default)
-
-camera = get_camera()
+camera = get_camera(chunk_length, recordings_path)
 sense_hat = create_sense_hat()
 
 web_streaming = get_web_streaming()
@@ -140,5 +147,6 @@ sense_hat.setup_callbacks(left=start_camera,
                           down=stop_streaming,
                           middle=show_ip,
                           message='Started CameraPi')
-while True:
-    pass
+with camera:
+    while True:
+        pass
