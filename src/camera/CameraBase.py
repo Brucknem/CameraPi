@@ -73,7 +73,7 @@ class CameraBase(Observable):
         """
         Called when with ended
         """
-        self.close_camera()
+        self.stop_camera()
 
     def set_camera_state(self, new_mode: CameraState):
         """
@@ -89,11 +89,12 @@ class CameraBase(Observable):
         """
         self.set_camera_state(CameraState.IDLE)
 
-    def close_camera(self):
+    def stop_camera(self):
         """
         Closes the camera.
         """
         self.set_camera_state(CameraState.OFF)
+        self.real_camera = None
 
     def start_recording(self):
         """

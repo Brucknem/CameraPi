@@ -1,4 +1,5 @@
 import os
+import unittest
 from os import listdir
 from os.path import isfile
 from time import sleep
@@ -10,6 +11,7 @@ from src.camera.MockCamera import MockCamera
 from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
 
+chunk_length = 3
 test_recordings_path = './test_cameras'
 
 
@@ -117,7 +119,7 @@ class TestMockCamera:
 
     def test_record(self):
         """
-        Test: Start and stop recording on the mock camera.
+        Test: Recording of the mock camera.
         """
         mock_camera = MockCamera()
         assert mock_camera.camera_state == CameraState.OFF
@@ -135,26 +137,30 @@ class TestMockCamera:
             assert mock_camera.record_thread is None
 
 
-class TestPhysicalCamera:
+class TestPhysicalCamera(unittest.TestCase):
     """
     Tests for the camera mock.
     """
 
+    def test_start_stop_camera(self):
+        """
+        Test: Start and stop of camera.
+        """
+        camera = create_and_assert_physical_camera()
+
+        camera.start_camera()
+        assert camera.real_camera
+        assert camera.camera_state == CameraState.IDLE
+
+        camera.stop_camera()
+        assert not camera.real_camera
+        assert camera.camera_state == CameraState.OFF
+
     def test_record(self):
         """
-        Test: Start and stop recording on the mock camera.
+        Test: Recording of the physical camera.
         """
-        chunk_length = 3
-        camera = get_camera(chunk_length=chunk_length,
-                            recordings_path=test_recordings_path)
-
-        assert not camera.recordings_folder.current_recordings_folder
-        assert camera.camera_state == CameraState.OFF
-        assert camera.chunk_length is chunk_length
-
-        if not camera.is_real_camera():
-            pytest.skip("Camera can only be testes on raspbian.", )
-            return
+        camera = create_and_assert_physical_camera()
 
         with camera:
             assert camera.camera_state == CameraState.IDLE
@@ -169,6 +175,24 @@ class TestPhysicalCamera:
 
             camera.stop_recording()
             assert camera.record_thread is None
+
+
+def create_and_assert_physical_camera():
+    """
+    Helper: Tries to create a physical camera.
+    """
+    camera = get_camera(chunk_length=chunk_length,
+                        recordings_path=test_recordings_path)
+
+    assert not camera.recordings_folder.current_recordings_folder
+    assert camera.camera_state == CameraState.OFF
+    assert camera.chunk_length is chunk_length
+
+    if not camera.is_real_camera():
+        pytest.skip("Camera can only be testes on raspbian.", )
+        return None
+
+    return camera
 
 
 def wait_and_assert_chunk_created(camera, chunk_length, i):

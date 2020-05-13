@@ -25,7 +25,7 @@ class PhysicalCamera(CameraBase):
         self.real_camera.framerate = 30
         super().start_camera()
 
-    def close_camera(self):
+    def stop_camera(self):
         """
         Closes the camera.
         """
@@ -39,7 +39,7 @@ class PhysicalCamera(CameraBase):
         finally:
             self.real_camera.close()
 
-        super().close_camera()
+        super().stop_camera()
 
     def record(self):
         """
