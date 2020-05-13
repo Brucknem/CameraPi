@@ -107,7 +107,7 @@ def show_ip(event):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-out_path_default = '../recordings'
+out_path_default = 'recordings'
 parser = argparse.ArgumentParser(description='Camera Pi.')
 parser.add_argument('--out',
                     nargs='?',
