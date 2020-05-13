@@ -132,21 +132,20 @@ logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
 logging.info('Started monitoring')
 
 camera = get_camera(chunk_length, recordings_path)
-sense_hat = create_sense_hat()
-
 web_streaming = get_web_streaming()
-web_streaming.set_camera(camera)
+sense_hat = create_sense_hat()
 web_streaming.set_sense_hat(sense_hat)
 
-camera.attach(web_streaming)
-camera.attach(sense_hat)
-
-sense_hat.setup_callbacks(left=start_camera,
-                          right=stop_camera,
-                          up=start_streaming,
-                          down=stop_streaming,
-                          middle=show_ip,
-                          message='Started CameraPi')
 with camera:
+    web_streaming.set_camera(camera)
+    camera.attach(web_streaming)
+    camera.attach(sense_hat)
+
+    sense_hat.setup_callbacks(left=start_camera,
+                              right=stop_camera,
+                              up=start_streaming,
+                              down=stop_streaming,
+                              middle=show_ip,
+                              message='Started CameraPi')
     while True:
         pass

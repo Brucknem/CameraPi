@@ -145,3 +145,15 @@ class CameraBase(Observable):
         Returns weather there is a real camera or a mock
         """
         return False
+
+    def is_recording(self):
+        """
+        Is recording
+        """
+        return self.camera_state == CameraState.RECORDING
+
+    def is_idle(self):
+        """
+        Is idle
+        """
+        return self.camera_state == CameraState.IDLE

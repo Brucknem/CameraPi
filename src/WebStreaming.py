@@ -4,7 +4,6 @@ import threading
 from http import server
 from threading import Condition
 
-from src.camera.CameraBase import CameraState
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
 
@@ -102,10 +101,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
         content += PAGE_FORM.encode('utf-8')
 
-        if web_streaming.camera.camera_state is CameraState.RECORDING:
+        if web_streaming.camera.is_recording():
             content += START_RECORDING_DISABLED.encode('utf-8')
             content += STOP_RECORDING.encode('utf-8')
-        elif web_streaming.camera.camera_state is CameraState.IDLE:
+        elif web_streaming.camera.is_idle():
             content += START_RECORDING.encode('utf-8')
             content += STOP_RECORDING_DISABLED.encode('utf-8')
         else:
@@ -291,7 +290,7 @@ class WebStreaming(Observer):
 
 def get_web_streaming():
     """
-    Gets the package internal webstreaming object.
+    Gets the package internal web streaming object.
     """
     global web_streaming
     return web_streaming

@@ -6,6 +6,7 @@ from time import sleep
 
 import pytest
 
+from src.WebStreaming import StreamingOutput
 from src.camera.CameraBase import CameraBase, CameraState, get_camera
 from src.camera.MockCamera import MockCamera
 from src.utils.Observer import Observer
@@ -175,6 +176,21 @@ class TestPhysicalCamera(unittest.TestCase):
 
             camera.stop_recording()
             assert camera.record_thread is None
+
+    def test_start_stop_streaming(self):
+        """
+        Test: Start and stop of camera streaming.
+        """
+        camera = create_and_assert_physical_camera()
+
+        with camera:
+            assert camera.camera_state == CameraState.IDLE
+            output = StreamingOutput()
+            assert camera.start_streaming(output)
+            assert camera.output
+
+            camera.stop_streaming()
+            assert not camera.output
 
 
 def create_and_assert_physical_camera():

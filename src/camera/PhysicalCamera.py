@@ -23,6 +23,7 @@ class PhysicalCamera(CameraBase):
         self.real_camera = PiCamera()
         self.real_camera.resolution = 1200, 900
         self.real_camera.framerate = 30
+
         super().start_camera()
 
     def stop_camera(self):
