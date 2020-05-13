@@ -1,6 +1,7 @@
 import logging
 
-from ISenseHatWrapper import ISenseHatWrapper, single_sensor_measurement
+from src.sense_hat import ISenseHatWrapper, \
+    single_sensor_measurement
 
 
 class SenseHatWrapper(ISenseHatWrapper):
@@ -13,7 +14,7 @@ class SenseHatWrapper(ISenseHatWrapper):
         Constructor.
         """
         super().__init__()
-        from sense_hat import SenseHat
+        from src.sense_hat import SenseHat
         self.sense = SenseHat()
 
     def read_sensors(self):
@@ -41,3 +42,7 @@ class SenseHatWrapper(ISenseHatWrapper):
         except Exception as err:
             logging.exception(err)
         return values
+
+    def is_real_sense_hat(self):
+        """ Overriding """
+        return True

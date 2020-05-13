@@ -1,4 +1,4 @@
-from ISenseHatWrapper import ISenseHatWrapper
+from src.sense_hat import ISenseHatWrapper
 
 
 class SenseHatWrapperMock(ISenseHatWrapper):

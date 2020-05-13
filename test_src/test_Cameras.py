@@ -1,12 +1,16 @@
+import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 from time import sleep
 
 import pytest
 
-from CameraMock import CameraMock
-from ICamera import ICamera, CameraState
-from RecordingsFolder import RecordingsFolder
+from src.RecordingsFolder import RecordingsFolder
+from src.camera.CameraMock import CameraMock
+from src.camera.ICamera import ICamera, CameraState, create_camera
+
+tests_folder = './test_cameras'
+recordings_folder = RecordingsFolder(tests_folder)
 
 
 class TestICamera:
@@ -68,38 +72,46 @@ class TestCamera:
         """
         Test: Start and stop recording on the mock camera.
         """
-        try:
-            from Camera import Camera
-        except Exception:
+        camera = create_camera()
+        if not camera.is_real_camera():
             pytest.skip("Camera can only be testes on raspbian.")
             return
 
-        assert RecordingsFolder().current_recordings_folder is None
+        assert recordings_folder.current_recordings_folder is None
 
         chunk_length = 3
-        mock_camera = Camera(chunk_length)
-        assert mock_camera.camera_state == CameraState.IDLE
-        assert mock_camera.chunk_length is chunk_length
+        assert camera.camera_state == CameraState.IDLE
+        assert camera.chunk_length is chunk_length
 
-        mock_camera.start_recording()
+        camera.start_recording()
 
-        print(RecordingsFolder().current_recordings_folder)
+        print(recordings_folder.current_recordings_folder)
 
         for i in range(5):
-            assert mock_camera.record_thread is not None
+            assert camera.record_thread is not None
             sleep(chunk_length)
-            recordings = [f for f in
-                          listdir(RecordingsFolder().current_recordings_folder)
-                          if isfile(join(RecordingsFolder().
-                                         current_recordings_folder, f))]
+            recordings = \
+                [f for f in
+                 listdir(recordings_folder.current_recordings_folder)
+                 if isfile(os.path.join(
+                    str(recordings_folder.current_recordings_folder), f))]
             print(recordings)
             assert len(recordings) == (i + 1)
             for recording in recordings:
                 assert str(recording).endswith('.h264')
 
-        mock_camera.stop_recording()
-        assert mock_camera.record_thread is None
+        camera.stop_recording()
+        assert camera.record_thread is None
 
 
-if __name__ == '__main__':
-    TestCameraMock().test_record()
+@pytest.fixture(autouse=True, scope='session')
+def test_suite_before_and_after_all():
+    """
+    Before all and After all for the RecordingsFolder.
+    """
+    # setup
+    yield
+    # teardown - put your command here
+    import shutil
+
+    shutil.rmtree(tests_folder)

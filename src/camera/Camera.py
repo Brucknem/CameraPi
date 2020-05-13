@@ -2,8 +2,8 @@ import logging
 
 from picamera import PiCamera
 
-from ICamera import CameraState, ICamera
-from RecordingsFolder import RecordingsFolder
+from src.RecordingsFolder import RecordingsFolder
+from src.camera.ICamera import CameraState, ICamera
 
 
 class Camera(ICamera):

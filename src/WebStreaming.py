@@ -4,9 +4,9 @@ import threading
 from http import server
 from threading import Condition
 
-from ICamera import CameraState
-from ISenseHatWrapper import ISenseHatWrapper
-from Observer import Observer
+from src.camera.ICamera import CameraState
+from src.sense_hat import ISenseHatWrapper
+from src.utils import Observer
 
 PAGE_TOP = """
 <!doctype html>
@@ -93,19 +93,19 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         Sets the common response headers and content.
         :return:
         """
-        global webstreaming
+        global web_streaming
 
         content = PAGE_TOP.encode('utf-8')
 
-        if webstreaming.camera.is_real_camera():
+        if web_streaming.camera.is_real_camera():
             content += PAGE_STREAM.encode('utf-8')
 
         content += PAGE_FORM.encode('utf-8')
 
-        if webstreaming.camera.camera_state is CameraState.RECORDING:
+        if web_streaming.camera.camera_state is CameraState.RECORDING:
             content += START_RECORDING_DISABLED.encode('utf-8')
             content += STOP_RECORDING.encode('utf-8')
-        elif webstreaming.camera.camera_state is CameraState.IDLE:
+        elif web_streaming.camera.camera_state is CameraState.IDLE:
             content += START_RECORDING.encode('utf-8')
             content += STOP_RECORDING_DISABLED.encode('utf-8')
         else:
@@ -114,8 +114,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
         content += PAGE_BOTTOM.encode('utf-8')
 
-        if webstreaming.sense_hat:
-            values = webstreaming.sense_hat.read_sensors()
+        if web_streaming.sense_hat:
+            values = web_streaming.sense_hat.read_sensors()
 
             for key, value in values.items():
                 content += '<div style="font-size:xx-large">'.encode('utf-8')
@@ -145,9 +145,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             try:
                 get_data = parse_qs(str.split(self.path, '?')[1])
                 if 'start' in get_data:
-                    webstreaming.start_recording()
+                    web_streaming.start_recording()
                 if 'stop' in get_data:
-                    webstreaming.stop_recording()
+                    web_streaming.stop_recording()
 
             except IndexError:
                 pass
@@ -163,11 +163,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         Writes the latest frame to the streaming output.
         """
-        global webstreaming
+        global web_streaming
         self.send_response(200)
 
-        if not webstreaming.camera or \
-                not webstreaming.camera.is_real_camera():
+        if not web_streaming.camera or \
+                not web_streaming.camera.is_real_camera():
             self.end_headers()
             return
 
@@ -288,13 +288,13 @@ class WebStreaming(Observer):
             pass
 
 
-def get_webstreaming():
+def get_web_streaming():
     """
     Gets the package internal webstreaming object.
     """
-    global webstreaming
-    return webstreaming
+    global web_streaming
+    return web_streaming
 
 
 output = StreamingOutput()
-webstreaming = WebStreaming()
+web_streaming = WebStreaming()

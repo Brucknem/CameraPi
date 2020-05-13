@@ -2,8 +2,8 @@ import logging
 from enum import Enum
 from threading import Thread
 
-from Observable import Observable
-from RecordingsFolder import RecordingsFolder
+from src.RecordingsFolder import RecordingsFolder
+from src.utils.Observable import Observable
 
 
 class CameraState(Enum):
@@ -22,6 +22,26 @@ camera_state_to_allowed_state_map: map = {
                             CameraState.STOPPING_RECORD),
     CameraState.STOPPING_RECORD: (CameraState.IDLE,)
 }
+
+
+def create_camera():
+    """
+    Factory method for the camera interface
+    """
+    try:
+        from src.camera.Camera import Camera
+
+        return Camera()
+    except Exception:
+        from src.camera.CameraMock import CameraMock
+
+        return CameraMock()
+
+
+class CameraFactory:
+    """
+    Factory for the camera interface
+    """
 
 
 class ICamera(Observable):

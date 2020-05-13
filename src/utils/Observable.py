@@ -1,4 +1,4 @@
-from Observer import Observer
+from src.utils import Observer
 
 
 class Observable:

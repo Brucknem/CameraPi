@@ -1,7 +1,7 @@
 import logging
 import time
 
-from ICamera import CameraState, ICamera
+from src.camera.ICamera import CameraState, ICamera
 
 
 class CameraMock(ICamera):

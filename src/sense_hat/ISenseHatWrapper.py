@@ -1,14 +1,29 @@
 import logging
 import socket
 
-from ICamera import CameraState
-from Observer import Observer
+from src.camera.ICamera import CameraState
+from src.utils import Observer
 
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
     CameraState.RECORDING: (0, 25, 0),
     CameraState.STOPPING_RECORD: (25, 25, 0)
 }
+
+
+def create_sense_hat():
+    """
+    Factory method for the sense hat interface
+    """
+
+    try:
+        from src.sense_hat import SenseHatWrapper
+
+        return SenseHatWrapper()
+    except Exception:
+        from src.sense_hat import SenseHatWrapperMock
+
+        return SenseHatWrapperMock()
 
 
 def single_sensor_measurement(measurement_name: str, measurement_function):
@@ -109,3 +124,9 @@ class ISenseHatWrapper(Observer):
             self.clear()
         except Exception:
             pass
+
+    def is_real_sense_hat(self):
+        """
+        Check if instance is physical device
+        """
+        return False
