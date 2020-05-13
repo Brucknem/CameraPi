@@ -6,7 +6,7 @@ import sys
 
 from src.RecordingsFolder import RecordingsFolder
 from src.WebStreaming import get_web_streaming
-from src.camera.ICamera import create_camera
+from src.camera.CameraBase import get_camera
 from src.sense_hat.ISenseHatWrapper import create_sense_hat
 
 
@@ -124,7 +124,7 @@ logging.info('Started monitoring')
 recordings_folder = RecordingsFolder(
     args.out if args.out else out_path_default)
 
-camera = create_camera()
+camera = get_camera()
 sense_hat = create_sense_hat()
 
 web_streaming = get_web_streaming()

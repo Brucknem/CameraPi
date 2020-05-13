@@ -4,7 +4,7 @@ import threading
 from http import server
 from threading import Condition
 
-from src.camera.ICamera import CameraState
+from src.camera.CameraBase import CameraState
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
 

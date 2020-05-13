@@ -1,12 +1,13 @@
 import logging
 import time
 
-from src.camera.ICamera import CameraState, ICamera
+from src.camera.CameraBase import CameraState, CameraBase
 
 
-class CameraMock(ICamera):
+class MockCamera(CameraBase):
     """
     Wrapper for the picamera.
+    Never call directly. Call Camera.get_camera() to keep singleton.
     """
 
     def __init__(self, chunk_length: int = 5 * 60,

@@ -5,13 +5,28 @@ from time import sleep
 
 import pytest
 
-from src.camera.CameraMock import CameraMock
-from src.camera.ICamera import ICamera, CameraState, create_camera
+from src.camera.CameraBase import CameraBase, CameraState, get_camera
+from src.camera.MockCamera import MockCamera
+from src.utils.Utils import is_raspbian
 
-tests_folder = './test_cameras'
+test_recordings_path = './test_cameras'
 
 
-class TestICamera:
+class TestCameraFactory:
+    """
+    Tests for the camera factory
+    """
+
+    def test_get_camera(self):
+        """
+        Test: Create a camera on different platforms
+        """
+        camera = get_camera(recordings_path=test_recordings_path)
+        assert camera
+        assert is_raspbian() is camera.is_real_camera()
+
+
+class TestCameraBase:
     """
     Tests for the camera interface.
     """
@@ -20,8 +35,8 @@ class TestICamera:
         """
         Test: Constructor generates camera in correct state.
         """
-        mock_camera = ICamera(chunk_length=75)
-        assert mock_camera.camera_state == CameraState.IDLE
+        mock_camera = CameraBase(chunk_length=75)
+        assert mock_camera.camera_state == CameraState.OFF
         assert not mock_camera.is_real_camera()
         assert mock_camera.chunk_length == 75
 
@@ -29,17 +44,22 @@ class TestICamera:
         """
         Test: Camera state transition working.
         """
-        mock_camera = ICamera()
-        assert mock_camera.camera_state == CameraState.IDLE
+        camera = CameraBase()
+        assert camera.camera_state == CameraState.OFF
 
-        mock_camera.start_recording()
-        assert mock_camera.camera_state == CameraState.RECORDING
+        with camera:
+            assert camera.camera_state == CameraState.IDLE
 
-        mock_camera.stop_recording()
-        assert mock_camera.camera_state == CameraState.IDLE
+            camera.start_recording()
+            assert camera.camera_state == CameraState.RECORDING
+
+            camera.stop_recording()
+            assert camera.camera_state == CameraState.IDLE
+
+        assert camera.camera_state == CameraState.OFF
 
 
-class TestCameraMock:
+class TestMockCamera:
     """
     Tests for the camera mock.
     """
@@ -48,20 +68,23 @@ class TestCameraMock:
         """
         Test: Start and stop recording on the mock camera.
         """
-        mock_camera = CameraMock()
-        assert mock_camera.camera_state == CameraState.IDLE
+        mock_camera = MockCamera()
+        assert mock_camera.camera_state == CameraState.OFF
 
-        mock_camera.start_recording()
+        with mock_camera:
+            assert mock_camera.camera_state == CameraState.IDLE
 
-        assert mock_camera.record_thread is not None
-        sleep(3)
-        assert mock_camera.record_thread is not None
+            mock_camera.start_recording()
 
-        mock_camera.stop_recording()
-        assert mock_camera.record_thread is None
+            assert mock_camera.record_thread is not None
+            sleep(3)
+            assert mock_camera.record_thread is not None
+
+            mock_camera.stop_recording()
+            assert mock_camera.record_thread is None
 
 
-class TestCamera:
+class TestPhysicalCamera:
     """
     Tests for the camera mock.
     """
@@ -71,36 +94,42 @@ class TestCamera:
         Test: Start and stop recording on the mock camera.
         """
         chunk_length = 3
-        camera = create_camera(chunk_length=chunk_length,
-                               recordings_path=tests_folder)
-        if not camera.is_real_camera():
-            pytest.skip("Camera can only be testes on raspbian.")
-            return
+        camera = get_camera(chunk_length=chunk_length,
+                            recordings_path=test_recordings_path)
 
         assert not camera.recordings_folder.current_recordings_folder
-        assert camera.camera_state == CameraState.IDLE
+        assert camera.camera_state == CameraState.OFF
         assert camera.chunk_length is chunk_length
 
-        camera.start_recording()
-        assert camera.recordings_folder.current_recordings_folder
+        if not camera.is_real_camera():
+            pytest.skip("Camera can only be testes on raspbian.", )
+            return
 
-        print(camera.recordings_folder.current_recordings_folder)
+        with camera:
+            assert camera.camera_state == CameraState.IDLE
+            camera.start_recording()
+            assert camera.camera_state == CameraState.RECORDING
+            assert camera.recordings_folder.current_recordings_folder
 
-        for i in range(5):
-            assert camera.record_thread is not None
-            sleep(chunk_length)
-            recordings = \
-                [f for f in
-                 listdir(camera.recordings_folder.current_recordings_folder)
-                 if isfile(os.path.join(
-                    camera.recordings_folder.current_recordings_folder, f))]
-            print(recordings)
-            assert len(recordings) == (i + 1)
-            for recording in recordings:
-                assert str(recording).endswith('.h264')
+            print(camera.recordings_folder.current_recordings_folder)
 
-        camera.stop_recording()
-        assert camera.record_thread is None
+            for i in range(5):
+                assert camera.record_thread is not None
+                sleep(chunk_length)
+                recordings = \
+                    [f for f in
+                     listdir(
+                         camera.recordings_folder.current_recordings_folder)
+                     if isfile(os.path.join(
+                        camera.recordings_folder.current_recordings_folder,
+                        f))]
+                print(recordings)
+                assert len(recordings) == (i + 1)
+                for recording in recordings:
+                    assert str(recording).endswith('.h264')
+
+            camera.stop_recording()
+            assert camera.record_thread is None
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -113,4 +142,8 @@ def test_suite_before_and_after_all():
     # teardown - put your command here
     import shutil
 
-    shutil.rmtree(tests_folder)
+    shutil.rmtree(test_recordings_path)
+
+
+if __name__ == '__main__':
+    TestPhysicalCamera().test_record()

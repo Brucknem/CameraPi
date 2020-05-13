@@ -25,7 +25,8 @@ class RecordingsFolder:
         """
         self.base_path = base_path
         self.datetime_now = datetime.now()
-        self.log_dir = os.path.join(base_path, get_datetime_now_file_string())
+        self \
+            .log_dir = os.path.join(base_path, get_datetime_now_file_string())
         Path(self.log_dir).mkdir(parents=True, exist_ok=True)
         self.log_file_path = os.path.join(self.log_dir, 'log.txt')
         self.current_recordings_folder: str = ''

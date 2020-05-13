@@ -27,3 +27,15 @@ def function_name(stack_depth: int = 1) -> str:
     :return:
     """
     return str(inspect.stack()[stack_depth][3])
+
+
+def is_raspbian():
+    """
+    Checks if the platform is a raspbian device
+    """
+    with open('/proc/cpuinfo', 'r') as cpuinfo:
+        import re
+        if len(re.findall(r"ARMv\d Processor", cpuinfo.read())) > 0:
+            return True
+        else:
+            return False

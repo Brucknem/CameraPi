@@ -4,12 +4,14 @@ from threading import Thread
 
 from src.RecordingsFolder import RecordingsFolder
 from src.utils.Observable import Observable
+from src.utils.Utils import is_raspbian
 
 
 class CameraState(Enum):
     """
     The camera state
     """
+    OFF = 0
     IDLE = 1
     RECORDING = 2
     STOPPING_RECORD = 3
@@ -17,37 +19,31 @@ class CameraState(Enum):
 
 
 camera_state_to_allowed_state_map: map = {
-    CameraState.IDLE: (CameraState.RECORDING,),
+    CameraState.OFF: (CameraState.IDLE,),
+    CameraState.IDLE: (CameraState.RECORDING, CameraState.OFF),
     CameraState.RECORDING: (CameraState.RECORDING,
                             CameraState.STOPPING_RECORD),
     CameraState.STOPPING_RECORD: (CameraState.IDLE,)
 }
 
 
-def create_camera(chunk_length=300,
-                  recordings_path: str = './recordings'):
+def get_camera(chunk_length=300,
+               recordings_path: str = './recordings'):
     """
     Factory method for the camera interface
     """
-    try:
-        from src.camera.Camera import Camera
-
-        return Camera(chunk_length, recordings_path)
-    except Exception:
-        from src.camera.CameraMock import CameraMock
-
-        return CameraMock(chunk_length, recordings_path)
+    if is_raspbian():
+        from src.camera.PhysicalCamera import PhysicalCamera
+        return PhysicalCamera(chunk_length, recordings_path)
+    else:
+        from src.camera.MockCamera import MockCamera
+        return MockCamera(chunk_length, recordings_path)
 
 
-class CameraFactory:
-    """
-    Factory for the camera interface
-    """
-
-
-class ICamera(Observable):
+class CameraBase(Observable):
     """
     Wrapper for the picamera.
+    Never call directly. Call Camera.get_camera() to keep singleton.
     """
 
     def __init__(self, chunk_length: int = 5 * 60,
@@ -57,7 +53,7 @@ class ICamera(Observable):
         """
         super().__init__()
         self.real_camera = None
-        self.camera_state = CameraState.IDLE
+        self.camera_state = CameraState.OFF
 
         self.chunk_length = chunk_length
 
@@ -65,8 +61,20 @@ class ICamera(Observable):
         self.record_thread: Thread = None
         self.is_recording: bool = False
 
-        self.recover_camera()
         self.recordings_folder = RecordingsFolder(recordings_path)
+
+    def __enter__(self):
+        """
+        Called via with
+        """
+        self.start_camera()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Called when with ended
+        """
+        self.close_camera()
 
     def set_camera_state(self, new_mode: CameraState):
         """
@@ -82,11 +90,17 @@ class ICamera(Observable):
         """
         pass
 
+    def start_camera(self):
+        """
+        Starts the camera.
+        """
+        self.set_camera_state(CameraState.IDLE)
+
     def close_camera(self):
         """
         Closes the camera.
         """
-        pass
+        self.set_camera_state(CameraState.OFF)
 
     def start_recording(self):
         """
