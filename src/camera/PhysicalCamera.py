@@ -18,34 +18,6 @@ class PhysicalCamera(CameraBase):
         """
         super().__init__(chunk_length, recordings_path)
 
-    def recover_camera(self):
-        """
-        Recovers the camera state after a failure
-        """
-        logging.error('Recovering camera not implemented in PhysicalCamera')
-
-        # old_state = self.camera_state
-        #
-        # try:
-        #     self.camera_state = CameraState.STOPPING_RECORD
-        #     self.record_thread.join()
-        # except Exception:
-        #     logging.info('No thread found')
-        #
-        # self.camera_state = old_state
-        #
-        # try:
-        #     self.real_camera.close()
-        # except Exception:
-        #     logging.info('No camera found')
-        #
-        #
-        # if old_state is CameraState.RECORDING:
-        #     self.start_recording()
-        #
-        # if self.output:
-        #     self.start_streaming(self.output)
-
     def start_camera(self):
         """ Overriding """
         self.real_camera = PiCamera()
@@ -86,8 +58,8 @@ class PhysicalCamera(CameraBase):
                 self.real_camera.split_recording(
                     self.recordings_folder.get_next_chunk_path())
                 self.real_camera.wait_recording(self.chunk_length)
-        except Exception:
-            self.recover_camera()
+        except Exception as e:
+            logging.error('Error in record thread', e=e)
 
     def stop_recording(self):
         """

@@ -41,6 +41,30 @@ class TestCameraBase:
         assert not mock_camera.is_real_camera()
         assert mock_camera.chunk_length == 75
 
+    def test_set_camera_state(self):
+        """
+        Test: Camera state set correctly and observers notified.
+        """
+        camera = CameraBase()
+        observer = Observer()
+        camera.attach(observer)
+
+        assert observer.notification
+        assert 'attached_to' in observer.notification
+        assert observer.notification['attached_to'] == camera
+
+        camera.set_camera_state(CameraState.IDLE)
+        assert observer.notification['state'] == CameraState.IDLE
+
+        camera.set_camera_state(CameraState.OFF)
+        assert observer.notification['state'] == CameraState.OFF
+
+        camera.set_camera_state(CameraState.STOPPING_RECORD)
+        assert observer.notification['state'] == CameraState.STOPPING_RECORD
+
+        camera.set_camera_state(CameraState.RECORDING)
+        assert observer.notification['state'] == CameraState.RECORDING
+
     def test_start_stop_record_transition(self):
         """
         Test: Camera state transition working.

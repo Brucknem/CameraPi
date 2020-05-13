@@ -15,7 +15,6 @@ class CameraState(Enum):
     IDLE = 1
     RECORDING = 2
     STOPPING_RECORD = 3
-    CLOSED = 4
 
 
 camera_state_to_allowed_state_map: map = {
@@ -83,12 +82,6 @@ class CameraBase(Observable):
         logging.debug(str(new_mode))
         self.camera_state = new_mode
         self.notify(state=self.camera_state)
-
-    def recover_camera(self):
-        """
-        Recovers the camera state after a failure
-        """
-        pass
 
     def start_camera(self):
         """
