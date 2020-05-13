@@ -67,6 +67,8 @@ class PhysicalCamera(CameraBase):
         finally:
             self.real_camera.close()
 
+        super().close_camera()
+
     def record(self):
         """
         Record functionality of the camera.

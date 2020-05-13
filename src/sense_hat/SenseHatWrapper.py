@@ -1,7 +1,23 @@
 import logging
 
-from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper, \
-    single_sensor_measurement
+from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
+
+
+def single_sensor_measurement(measurement_name: str, measurement_function):
+    """
+    Reads a measurement from the sense hat and logs it.
+
+    :param measurement_name: The name of the measurement
+    :param measurement_function: The measurement function
+    """
+    output = {measurement_name: None}
+    try:
+        value = measurement_function()
+        logging.info(str(measurement_name) + ': ' + str(value))
+        output[measurement_name] = value
+    except Exception as err:
+        logging.exception(err)
+    return output
 
 
 class SenseHatWrapper(ISenseHatWrapper):
@@ -21,15 +37,15 @@ class SenseHatWrapper(ISenseHatWrapper):
         values = super().read_sensors()
 
         try:
-            pixel_list = self.physical_sense_hat.get_pixels()
-            self.physical_sense_hat.clear(0, 0, 255)
+            pixel_list = self.actual_sense_hat.get_pixels()
+            self.actual_sense_hat.clear(0, 0, 255)
 
-            pressure = self.physical_sense_hat.get_pressure
-            humidity = self.physical_sense_hat.get_humidity
+            pressure = self.actual_sense_hat.get_pressure
+            humidity = self.actual_sense_hat.get_humidity
             temperature_humidity = \
-                self.physical_sense_hat.get_temperature_from_humidity
+                self.actual_sense_hat.get_temperature_from_humidity
             temperature_pressure = \
-                self.physical_sense_hat.get_temperature_from_pressure
+                self.actual_sense_hat.get_temperature_from_pressure
 
             values.update(single_sensor_measurement('Temperature (Pressure)',
                                                     temperature_pressure))
@@ -37,8 +53,8 @@ class SenseHatWrapper(ISenseHatWrapper):
                                                     temperature_humidity))
             values.update(single_sensor_measurement('Pressure', pressure))
             values.update(single_sensor_measurement('Humidity', humidity))
-            self.physical_sense_hat.clear()
-            self.physical_sense_hat.set_pixels(pixel_list)
+            self.actual_sense_hat.clear()
+            self.actual_sense_hat.set_pixels(pixel_list)
 
         except Exception as err:
             logging.exception(err)

@@ -7,6 +7,7 @@ import pytest
 
 from src.camera.CameraBase import CameraBase, CameraState, get_camera
 from src.camera.MockCamera import MockCamera
+from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
 
 test_recordings_path = './test_cameras'
@@ -40,23 +41,49 @@ class TestCameraBase:
         assert not mock_camera.is_real_camera()
         assert mock_camera.chunk_length == 75
 
-    def test_set_camera_state(self):
+    def test_start_stop_record_transition(self):
         """
         Test: Camera state transition working.
         """
-        camera = CameraBase()
-        assert camera.camera_state == CameraState.OFF
+        start_stop_transition(CameraBase())
 
-        with camera:
-            assert camera.camera_state == CameraState.IDLE
+    def test_start_stop_record_transition_with_observer(self):
+        """
+        Test: Camera state transition working with observer.
+        """
+        start_stop_transition(CameraBase(), [Observer()])
 
-            camera.start_recording()
-            assert camera.camera_state == CameraState.RECORDING
 
-            camera.stop_recording()
-            assert camera.camera_state == CameraState.IDLE
+def start_stop_transition(camera, observers=[]):
+    """
+    Helper for the start stop transition.
+    """
+    assert camera.camera_state == CameraState.OFF
+    for observer in observers:
+        camera.attach(observer)
 
-        assert camera.camera_state == CameraState.OFF
+    with camera:
+        assert camera.camera_state == CameraState.IDLE
+
+        camera.start_recording()
+        assert camera.camera_state == CameraState.RECORDING
+        check_camera_state_in_observer(camera, CameraState.RECORDING)
+
+        camera.stop_recording()
+        assert camera.camera_state == CameraState.IDLE
+        check_camera_state_in_observer(camera, CameraState.IDLE)
+
+    assert camera.camera_state == CameraState.OFF
+    check_camera_state_in_observer(camera, CameraState.OFF)
+
+
+def check_camera_state_in_observer(camera, camera_state):
+    """
+    Helper to check if given state is in notifications of all observers.
+    """
+    for observer in camera.observers:
+        assert 'state' in observer.notification
+        assert observer.notification['state'] == camera_state
 
 
 class TestMockCamera:
@@ -114,22 +141,29 @@ class TestPhysicalCamera:
             print(camera.recordings_folder.current_recordings_folder)
 
             for i in range(5):
-                assert camera.record_thread is not None
-                sleep(chunk_length)
-                recordings = \
-                    [f for f in
-                     listdir(
-                         camera.recordings_folder.current_recordings_folder)
-                     if isfile(os.path.join(
-                        camera.recordings_folder.current_recordings_folder,
-                        f))]
-                print(recordings)
-                assert len(recordings) == (i + 1)
-                for recording in recordings:
-                    assert str(recording).endswith('.h264')
+                wait_and_assert_chunk_created(camera, chunk_length, i)
 
             camera.stop_recording()
             assert camera.record_thread is None
+
+
+def wait_and_assert_chunk_created(camera, chunk_length, i):
+    """
+    Waits until chunk is finished and new one is created
+    """
+    assert camera.record_thread is not None
+    sleep(chunk_length)
+    recordings = \
+        [f for f in
+         listdir(
+             camera.recordings_folder.current_recordings_folder)
+         if isfile(os.path.join(
+            camera.recordings_folder.current_recordings_folder,
+            f))]
+    print(recordings)
+    assert len(recordings) == (i + 1)
+    for recording in recordings:
+        assert str(recording).endswith('.h264')
 
 
 @pytest.fixture(autouse=True, scope='session')

@@ -26,23 +26,6 @@ def create_sense_hat():
         return SenseHatWrapperMock()
 
 
-def single_sensor_measurement(measurement_name: str, measurement_function):
-    """
-    Reads a measurement from the sense hat and logs it.
-
-    :param measurement_name: The name of the measurement
-    :param measurement_function: The measurement function
-    """
-    output = {measurement_name: None}
-    try:
-        value = measurement_function()
-        logging.info(str(measurement_name) + ': ' + str(value))
-        output[measurement_name] = value
-    except Exception as err:
-        logging.exception(err)
-    return output
-
-
 class ISenseHatWrapper(Observer):
     """
     Wrapper for the Sense Hat functions.
@@ -70,6 +53,7 @@ class ISenseHatWrapper(Observer):
         """
         @inheritdoc
         """
+        super().update(kwargs)
         if 'state' in kwargs:
             self.display_camera_state(kwargs['state'])
 
@@ -118,7 +102,7 @@ class ISenseHatWrapper(Observer):
             self.actual_sense_hat.stick.direction_right = right
             self.actual_sense_hat.stick.direction_up = up
             self.actual_sense_hat.stick.direction_down = down
-            self.actual_sense_hat.stick.direction_middle = middle  # Press the enter key
+            self.actual_sense_hat.stick.direction_middle = middle
 
             if message:
                 self.actual_sense_hat.show_message(message,

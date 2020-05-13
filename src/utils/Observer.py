@@ -7,10 +7,10 @@ class Observer:
         """
         Constructor.
         """
-        pass
+        self.notification = None
 
     def update(self, **kwargs):
         """
         Observer update.
         """
-        pass
+        self.notification = kwargs

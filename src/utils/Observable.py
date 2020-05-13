@@ -17,12 +17,14 @@ class Observable:
         Attaches an observer
         """
         self.observers.append(observer)
+        observer.update(attached_to=self)
 
     def detach(self, observer: Observer):
         """
         Detaches an observer
         """
         self.observers.remove(observer)
+        observer.update(detached_from=self)
 
     def notify(self, **kwargs):
         """

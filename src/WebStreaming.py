@@ -284,6 +284,7 @@ class WebStreaming(Observer):
         """
         @inheritdoc
         """
+        super().update(kwargs)
         if 'restart' in kwargs:
             pass
 

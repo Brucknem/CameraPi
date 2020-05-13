@@ -130,8 +130,6 @@ class CameraBase(Observable):
         if self.camera_state is not CameraState.RECORDING:
             return False
         logging.info('Stop recording')
-        self.set_camera_state(CameraState.STOPPING_RECORD)
-        # self.record_thread.join()
         self.record_thread = None
         self.set_camera_state(CameraState.IDLE)
         return True
