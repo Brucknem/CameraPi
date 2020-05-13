@@ -1,21 +1,10 @@
 import logging
-from enum import Enum
 from threading import Thread
 
 from src.RecordingsFolder import RecordingsFolder
+from src.camera.CameraState import CameraState
 from src.utils.Observable import Observable
 from src.utils.Utils import is_raspbian
-
-
-class CameraState(Enum):
-    """
-    The camera state
-    """
-    OFF = 0
-    IDLE = 1
-    RECORDING = 2
-    STOPPING_RECORD = 3
-
 
 camera_state_to_allowed_state_map: map = {
     CameraState.OFF: (CameraState.IDLE,),
