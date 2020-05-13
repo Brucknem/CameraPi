@@ -105,41 +105,40 @@ def show_ip(event):
     sense_hat.show_ip()
 
 
-if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
-    out_path_default = '../recordings'
-    parser = argparse.ArgumentParser(description='Camera Pi.')
-    parser.add_argument('--out',
-                        nargs='?',
-                        const=out_path_default,
-                        type=str,
-                        help='The output path for recordings and logs. '
-                             'Default: ' + out_path_default)
-    args = parser.parse_args()
+out_path_default = '../recordings'
+parser = argparse.ArgumentParser(description='Camera Pi.')
+parser.add_argument('--out',
+                    nargs='?',
+                    const=out_path_default,
+                    type=str,
+                    help='The output path for recordings and logs. '
+                         'Default: ' + out_path_default)
+args = parser.parse_args()
 
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
-                        level=logging.INFO)
-    logging.info('Started monitoring')
+logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
+                    level=logging.INFO)
+logging.info('Started monitoring')
 
-    recordings_folder = RecordingsFolder(
-        args.out if args.out else out_path_default)
+recordings_folder = RecordingsFolder(
+    args.out if args.out else out_path_default)
 
-    camera = create_camera()
-    sense_hat = create_sense_hat()
+camera = create_camera()
+sense_hat = create_sense_hat()
 
-    web_streaming = get_web_streaming()
-    web_streaming.set_camera(camera)
-    web_streaming.set_sense_hat(sense_hat)
+web_streaming = get_web_streaming()
+web_streaming.set_camera(camera)
+web_streaming.set_sense_hat(sense_hat)
 
-    camera.attach(web_streaming)
-    camera.attach(sense_hat)
+camera.attach(web_streaming)
+camera.attach(sense_hat)
 
-    sense_hat.setup_callbacks(left=start_camera,
-                              right=stop_camera,
-                              up=start_streaming,
-                              down=stop_streaming,
-                              middle=show_ip,
-                              message='Started CameraPi')
-    while True:
-        pass
+sense_hat.setup_callbacks(left=start_camera,
+                          right=stop_camera,
+                          up=start_streaming,
+                          down=stop_streaming,
+                          middle=show_ip,
+                          message='Started CameraPi')
+while True:
+    pass

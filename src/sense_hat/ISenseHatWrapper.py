@@ -2,7 +2,7 @@ import logging
 import socket
 
 from src.camera.ICamera import CameraState
-from src.utils import Observer
+from src.utils.Observer import Observer
 
 camera_state_to_color_map: map = {
     CameraState.IDLE: (0, 0, 0),
@@ -17,11 +17,11 @@ def create_sense_hat():
     """
 
     try:
-        from src.sense_hat import SenseHatWrapper
+        from src.sense_hat.SenseHatWrapper import SenseHatWrapper
 
         return SenseHatWrapper()
     except Exception:
-        from src.sense_hat import SenseHatWrapperMock
+        from src.sense_hat.SenseHatWrapperMock import SenseHatWrapperMock
 
         return SenseHatWrapperMock()
 
@@ -48,20 +48,21 @@ class ISenseHatWrapper(Observer):
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self):
+    def __init__(self, actual_sense_hat):
         """
         Constructor.
         """
         super().__init__()
-        self.sense = None
+        self.actual_sense_hat = actual_sense_hat
 
     def display_camera_state(self, camera_state: CameraState):
         """
         Sets the sense hat matrix according to the recording state.
         """
         try:
-            self.sense.clear(camera_state_to_color_map[camera_state])
-            self.sense.low_light = True
+            self.actual_sense_hat.clear(
+                camera_state_to_color_map[camera_state])
+            self.actual_sense_hat.low_light = True
         except Exception as err:
             logging.exception(err)
 
@@ -94,14 +95,14 @@ class ISenseHatWrapper(Observer):
             s.close()
             output_string = str(ip) + ':' + str(8080)
             logging.info('IP: ' + output_string)
-            self.sense.show_message(output_string)
+            self.actual_sense_hat.show_message(output_string)
         except Exception as err:
             logging.exception('Show IP failed: ' + str(err))
-            self.sense.clear(255, 0, 0)
+            self.actual_sense_hat.clear(255, 0, 0)
 
     def clear(self):
         """ Overriding """
-        self.sense.clear()
+        self.actual_sense_hat.clear()
 
     def setup_callbacks(self,
                         left=None,
@@ -113,14 +114,15 @@ class ISenseHatWrapper(Observer):
         """ Overriding """
 
         try:
-            self.sense.stick.direction_left = left
-            self.sense.stick.direction_right = right
-            self.sense.stick.direction_up = up
-            self.sense.stick.direction_down = down
-            self.sense.stick.direction_middle = middle  # Press the enter key
+            self.actual_sense_hat.stick.direction_left = left
+            self.actual_sense_hat.stick.direction_right = right
+            self.actual_sense_hat.stick.direction_up = up
+            self.actual_sense_hat.stick.direction_down = down
+            self.actual_sense_hat.stick.direction_middle = middle  # Press the enter key
 
             if message:
-                self.sense.show_message(message, scroll_speed=0.05)
+                self.actual_sense_hat.show_message(message,
+                                                   scroll_speed=0.05)
             self.clear()
         except Exception:
             pass

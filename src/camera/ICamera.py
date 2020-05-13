@@ -24,18 +24,19 @@ camera_state_to_allowed_state_map: map = {
 }
 
 
-def create_camera():
+def create_camera(chunk_length=300,
+                  recordings_path: str = './recordings'):
     """
     Factory method for the camera interface
     """
     try:
         from src.camera.Camera import Camera
 
-        return Camera()
+        return Camera(chunk_length, recordings_path)
     except Exception:
         from src.camera.CameraMock import CameraMock
 
-        return CameraMock()
+        return CameraMock(chunk_length, recordings_path)
 
 
 class CameraFactory:
@@ -49,7 +50,8 @@ class ICamera(Observable):
     Wrapper for the picamera.
     """
 
-    def __init__(self, chunk_length: int = 5 * 60):
+    def __init__(self, chunk_length: int = 5 * 60,
+                 recordings_path: str = './recordings'):
         """
         Constructor.
         """
@@ -64,6 +66,7 @@ class ICamera(Observable):
         self.is_recording: bool = False
 
         self.recover_camera()
+        self.recordings_folder = RecordingsFolder(recordings_path)
 
     def set_camera_state(self, new_mode: CameraState):
         """
@@ -94,7 +97,7 @@ class ICamera(Observable):
 
         logging.info('Start recording')
         if self.is_real_camera():
-            RecordingsFolder().create_new_recording()
+            self.recordings_folder.create_new_recording()
 
         self.record_thread = Thread(target=self.record, args=())
         self.record_thread.daemon = True

@@ -2,7 +2,6 @@ import logging
 
 from picamera import PiCamera
 
-from src.RecordingsFolder import RecordingsFolder
 from src.camera.ICamera import CameraState, ICamera
 
 
@@ -11,11 +10,12 @@ class Camera(ICamera):
     Wrapper for the picamera.
     """
 
-    def __init__(self, chunk_length: int = 5 * 60):
+    def __init__(self, chunk_length: int = 5 * 60,
+                 recordings_path: str = './recordings'):
         """
         Constructor.
         """
-        super().__init__(chunk_length)
+        super().__init__(chunk_length, recordings_path)
 
     def recover_camera(self):
         """
@@ -68,14 +68,15 @@ class Camera(ICamera):
         super().record()
 
         self.__camera.start_preview()
-        self.__camera.start_recording(RecordingsFolder().get_next_chunk_path())
+        self.__camera.start_recording(
+            self.recordings_folder.get_next_chunk_path())
         self.__camera.wait_recording(self.chunk_length)
 
         try:
             while self.camera_state is CameraState.RECORDING:
                 logging.info('Recording')
                 self.__camera.split_recording(
-                    RecordingsFolder().get_next_chunk_path())
+                    self.recordings_folder.get_next_chunk_path())
                 self.__camera.wait_recording(self.chunk_length)
         except Exception:
             self.recover_camera()

@@ -5,12 +5,10 @@ from time import sleep
 
 import pytest
 
-from src.RecordingsFolder import RecordingsFolder
 from src.camera.CameraMock import CameraMock
 from src.camera.ICamera import ICamera, CameraState, create_camera
 
 tests_folder = './test_cameras'
-recordings_folder = RecordingsFolder(tests_folder)
 
 
 class TestICamera:
@@ -72,29 +70,30 @@ class TestCamera:
         """
         Test: Start and stop recording on the mock camera.
         """
-        camera = create_camera()
+        chunk_length = 3
+        camera = create_camera(chunk_length=chunk_length,
+                               recordings_path=tests_folder)
         if not camera.is_real_camera():
             pytest.skip("Camera can only be testes on raspbian.")
             return
 
-        assert recordings_folder.current_recordings_folder is None
-
-        chunk_length = 3
+        assert not camera.recordings_folder.current_recordings_folder
         assert camera.camera_state == CameraState.IDLE
         assert camera.chunk_length is chunk_length
 
         camera.start_recording()
+        assert camera.recordings_folder.current_recordings_folder
 
-        print(recordings_folder.current_recordings_folder)
+        print(camera.recordings_folder.current_recordings_folder)
 
         for i in range(5):
             assert camera.record_thread is not None
             sleep(chunk_length)
             recordings = \
                 [f for f in
-                 listdir(recordings_folder.current_recordings_folder)
+                 listdir(camera.recordings_folder.current_recordings_folder)
                  if isfile(os.path.join(
-                    str(recordings_folder.current_recordings_folder), f))]
+                    camera.recordings_folder.current_recordings_folder, f))]
             print(recordings)
             assert len(recordings) == (i + 1)
             for recording in recordings:

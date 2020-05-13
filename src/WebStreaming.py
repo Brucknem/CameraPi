@@ -5,8 +5,8 @@ from http import server
 from threading import Condition
 
 from src.camera.ICamera import CameraState
-from src.sense_hat import ISenseHatWrapper
-from src.utils import Observer
+from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
+from src.utils.Observer import Observer
 
 PAGE_TOP = """
 <!doctype html>
