@@ -60,7 +60,7 @@ class TestWebStreaming(unittest.TestCase):
         Set up web streaming and driver.
         """
         setup_camera_and_web_streaming()
-        path = '/opt/'
+        path = '/usr/local/bin/'
         if is_raspbian():
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
