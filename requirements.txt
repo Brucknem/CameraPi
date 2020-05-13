@@ -26,6 +26,7 @@ pytest-cov==2.8.1
 requests==2.23.0
 RPIO==0.10.0
 RTIMULib==7.2.1
+selenium==3.141.0
 sense-emu==1.1
 sense-hat==2.2.0
 six==1.14.0
