@@ -40,6 +40,7 @@ class PhysicalCamera(CameraBase):
         finally:
             self.real_camera.close()
 
+        self.real_camera = None
         super().stop_camera()
 
     def record(self):

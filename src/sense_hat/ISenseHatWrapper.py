@@ -53,7 +53,7 @@ class ISenseHatWrapper(Observer):
         """
         @inheritdoc
         """
-        super().update(kwargs)
+        super().update(**kwargs)
         if 'state' in kwargs:
             self.display_camera_state(kwargs['state'])
 

@@ -58,7 +58,6 @@ class CameraBase(Observable):
 
         self.output = None
         self.record_thread: Thread = None
-        self.is_recording: bool = False
 
         self.recordings_folder = RecordingsFolder(recordings_path)
 

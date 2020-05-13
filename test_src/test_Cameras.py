@@ -143,54 +143,52 @@ class TestPhysicalCamera(unittest.TestCase):
     Tests for the camera mock.
     """
 
+    def setUp(self):
+        """ Setup """
+        self.camera = create_and_assert_physical_camera()
+
     def test_start_stop_camera(self):
         """
         Test: Start and stop of camera.
         """
-        camera = create_and_assert_physical_camera()
+        self.camera.start_camera()
+        assert self.camera.real_camera
+        assert self.camera.camera_state == CameraState.IDLE
 
-        camera.start_camera()
-        assert camera.real_camera
-        assert camera.camera_state == CameraState.IDLE
-
-        camera.stop_camera()
-        assert not camera.real_camera
-        assert camera.camera_state == CameraState.OFF
+        self.camera.stop_camera()
+        assert not self.camera.real_camera
+        assert self.camera.camera_state == CameraState.OFF
 
     def test_record(self):
         """
         Test: Recording of the physical camera.
         """
-        camera = create_and_assert_physical_camera()
+        with self.camera:
+            assert self.camera.camera_state == CameraState.IDLE
+            self.camera.start_recording()
+            assert self.camera.camera_state == CameraState.RECORDING
+            assert self.camera.recordings_folder.current_recordings_folder
 
-        with camera:
-            assert camera.camera_state == CameraState.IDLE
-            camera.start_recording()
-            assert camera.camera_state == CameraState.RECORDING
-            assert camera.recordings_folder.current_recordings_folder
-
-            print(camera.recordings_folder.current_recordings_folder)
+            print(self.camera.recordings_folder.current_recordings_folder)
 
             for i in range(5):
-                wait_and_assert_chunk_created(camera, chunk_length, i)
+                wait_and_assert_chunk_created(self.camera, i)
 
-            camera.stop_recording()
-            assert camera.record_thread is None
+            self.camera.stop_recording()
+            assert self.camera.record_thread is None
 
     def test_start_stop_streaming(self):
         """
         Test: Start and stop of camera streaming.
         """
-        camera = create_and_assert_physical_camera()
-
-        with camera:
-            assert camera.camera_state == CameraState.IDLE
+        with self.camera:
+            assert self.camera.camera_state == CameraState.IDLE
             output = StreamingOutput()
-            assert camera.start_streaming(output)
-            assert camera.output
+            assert self.camera.start_streaming(output)
+            assert self.camera.output
 
-            camera.stop_streaming()
-            assert not camera.output
+            self.camera.stop_streaming()
+            assert not self.camera.output
 
 
 def create_and_assert_physical_camera():
@@ -211,7 +209,7 @@ def create_and_assert_physical_camera():
     return camera
 
 
-def wait_and_assert_chunk_created(camera, chunk_length, i):
+def wait_and_assert_chunk_created(camera, i):
     """
     Waits until chunk is finished and new one is created
     """
@@ -241,7 +239,3 @@ def test_suite_before_and_after_all():
     import shutil
 
     shutil.rmtree(test_recordings_path)
-
-
-if __name__ == '__main__':
-    TestPhysicalCamera().test_record()

@@ -11,6 +11,7 @@ PAGE_TOP = """
 <!doctype html>
 <html lang="en">
   <head>
+    <title>Camera Pi</title>
   </head>
 <body width="100%" style="text-align:center; content-align:center; \
 font-size:xx-large">
@@ -283,7 +284,7 @@ class WebStreaming(Observer):
         """
         @inheritdoc
         """
-        super().update(kwargs)
+        super().update(**kwargs)
         if 'restart' in kwargs:
             pass
 
