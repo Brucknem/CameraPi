@@ -1,7 +1,9 @@
 from flask import Flask, render_template, Response
 
+from src.camera.camera_base import CameraBase
+
 app = Flask(__name__)
-camera = None
+camera: CameraBase = None
 
 
 @app.route('/')
@@ -26,7 +28,7 @@ def video_feed():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-def run(actual_camera):
+def run(actual_camera: CameraBase):
     global camera
     camera = actual_camera
     app.run(host='0.0.0.0', threaded=True)

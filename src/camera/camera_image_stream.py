@@ -17,24 +17,21 @@ class Camera(CameraBase):
     https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
     """
 
+    @staticmethod
+    def get_default_images():
+        my_path = join(pathlib.Path(__file__).parent.absolute(), 'stream_mock')
+        stream_mock_files = [join(my_path, f) for f in listdir(my_path) if
+                             isfile(join(my_path, f))]
+        return [open(stream_mock_file, 'rb').read()
+                for stream_mock_file in stream_mock_files]
+
     def __init__(self, chunk_length: int = 5 * 60,
                  recordings_path: str = './recordings'):
         """
         Constructor
         """
         super().__init__(chunk_length, recordings_path)
-
-        print(pathlib.Path(__file__))
-        self.images = [open(join(
-            pathlib.Path(__file__).parent.absolute(),
-            'stream_mock',
-            stream_mock_file
-        ), 'rb').read() for stream_mock_file in [f for f in listdir(
-            join(pathlib.Path(__file__).parent.absolute(), 'stream_mock')) if
-                                                 isfile(join(join(pathlib.Path(
-                                                     __file__).parent.absolute(),
-                                                                  'stream_mock'),
-                                                             f))]]
+        self.images = Camera.get_default_images()
 
     def frames(self):
         """ Overriding """

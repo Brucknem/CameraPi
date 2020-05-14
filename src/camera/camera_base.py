@@ -2,6 +2,8 @@ import logging
 import threading
 import time
 
+from PIL import Image
+
 from src.RecordingsFolder import RecordingsFolder
 from src.camera.camera_state import CameraState
 from src.utils.Observable import Observable
@@ -89,8 +91,13 @@ class CameraBase(Observable):
     https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
     """
 
+    default_image = Image.new('RGB', (1200, 900), (228, 150, 150)).tobytes()
+
     def __init__(self, chunk_length: int = 5 * 60,
                  recordings_path: str = './recordings'):
+        """
+        Constructor
+        """
         super().__init__()
         # Actual camera
         self.camera_state = CameraState.IDLE
@@ -100,6 +107,7 @@ class CameraBase(Observable):
         self.frame = None
         self.last_access = 0
         self.event = CameraEvent()
+        self.allow_streaming = True
 
         # Recording
         self.chunk_length = chunk_length
@@ -187,7 +195,10 @@ class CameraBase(Observable):
         self.event.wait()
         self.event.clear()
 
-        return self.frame
+        if self.allow_streaming:
+            return self.frame
+        else:
+            return CameraBase.default_image
 
     def frames(self):
         """"
@@ -199,7 +210,7 @@ class CameraBase(Observable):
         """
         Camera streaming background thread.
         """
-        print('Starting camera thread.')
+        logging.info('Starting camera thread.')
         frames_iterator = self.frames()
         for frame in frames_iterator:
             self.frame = frame
@@ -210,7 +221,7 @@ class CameraBase(Observable):
             # the last 10 seconds then stop the thread
             if time.time() - self.last_access > 10:
                 frames_iterator.close()
-                print('Stopping camera thread due to inactivity.')
+                logging.info('Stopping camera thread due to inactivity.')
                 break
         self.streaming_thread = None
 
