@@ -25,8 +25,11 @@ class Camera(CameraBase):
         my_path = join(pathlib.Path(__file__).parent.absolute(), 'stream_mock')
         stream_mock_files = [join(my_path, f) for f in listdir(my_path) if
                              isfile(join(my_path, f))]
-        return [open(stream_mock_file, 'rb').read()
-                for stream_mock_file in stream_mock_files]
+        file_contents = []
+        for file in stream_mock_files:
+            with open(file, 'rb') as f:
+                file_contents.append(f.read())
+        return file_contents
 
     def __init__(self, chunk_length: int = 5 * 60,
                  recordings_path: str = './recordings'):

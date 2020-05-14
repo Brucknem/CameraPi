@@ -36,7 +36,6 @@ def get_camera(chunk_length=300,
                             recordings_path=recordings_path)
     else:
         __instance.chunk_length = chunk_length
-        __instance.recordings_folder = RecordingsFolder(recordings_path)
     return __instance
 
 

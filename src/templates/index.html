@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Camera Pi</title>
+</head>
+<body>
+<h1>Video Streaming Demonstration</h1>
+<img style="width: 100%" src="{{ url_for('video_feed') }}">
+
+<form method="get">
+    <button name="start" type="submit" value="start" {{
+    'disabled' if is_recording }}>
+    Start recording
+    </button>
+    <button name="stop" type="submit" value="stop" {{
+    'disabled' if not
+    is_recording }}>
+    Stop recording
+    </button>
+</form>
+</body>
+</html>
