@@ -243,6 +243,13 @@ class TestCameraPi(unittest.TestCase):
         assert frame != CameraBase.default_image
         # assert is_jpg(frame)
 
+    def test_destructor(self):
+        """
+        Test: Destructor working
+        """
+        assert self.camera
+        del self.camera
+
     def tearDown(self):
         """ Tear down """
         self.camera = None
