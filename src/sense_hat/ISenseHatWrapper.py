@@ -1,8 +1,7 @@
 import logging
 import socket
 
-from src.camera.CameraState import CameraState
-
+from src.camera.camera_state import CameraState
 from src.utils.Observer import Observer
 
 camera_state_to_color_map: map = {
