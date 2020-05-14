@@ -19,6 +19,9 @@ class Camera(CameraBase):
 
     @staticmethod
     def get_default_images():
+        """
+        Loads the default images for the camera stream from disk.
+        """
         my_path = join(pathlib.Path(__file__).parent.absolute(), 'stream_mock')
         stream_mock_files = [join(my_path, f) for f in listdir(my_path) if
                              isfile(join(my_path, f))]

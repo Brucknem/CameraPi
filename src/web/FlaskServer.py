@@ -29,6 +29,9 @@ def video_feed():
 
 
 def run(actual_camera: CameraBase):
+    """
+    Starts the server with the given camera as streaming source
+    """
     global camera
     camera = actual_camera
     app.run(host='0.0.0.0', threaded=True)

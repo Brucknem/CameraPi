@@ -1,9 +1,6 @@
 import io
 import logging
-import pathlib
 import time
-from os import listdir
-from os.path import join, isfile
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
@@ -17,14 +14,6 @@ class Camera(CameraBase):
     https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
     """
 
-    @staticmethod
-    def get_default_images():
-        my_path = join(pathlib.Path(__file__).parent.absolute(), 'stream_mock')
-        stream_mock_files = [join(my_path, f) for f in listdir(my_path) if
-                             isfile(join(my_path, f))]
-        return [open(stream_mock_file, 'rb').read()
-                for stream_mock_file in stream_mock_files]
-
     def __init__(self, chunk_length: int = 5 * 60,
                  recordings_path: str = './recordings'):
         """
@@ -37,8 +26,6 @@ class Camera(CameraBase):
         self.pi_camera.resolution = 1200, 900
         self.pi_camera.framerate = 30
         self.pi_camera.start_preview()
-
-        self.default_images = Camera.get_default_images()
 
     def __del__(self):
         """ Destructor """

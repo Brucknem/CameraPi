@@ -46,6 +46,9 @@ class CameraEvent(object):
     """
 
     def __init__(self):
+        """
+        Constructor
+        """
         self.events = {}
 
     def wait(self):
