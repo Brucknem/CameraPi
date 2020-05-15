@@ -16,9 +16,9 @@ chunk_length = 3
 test_recordings_path = './test_cameras'
 
 
-class TestCameraSingletonPattern(unittest.TestCase):
+class TestCameraFactory(unittest.TestCase):
     """
-    Tests for the camera singleton pattern
+    Tests for the camera factory
     """
 
     def setUp(self):
@@ -26,16 +26,11 @@ class TestCameraSingletonPattern(unittest.TestCase):
         self.camera = get_camera(recordings_path=test_recordings_path)
         assert self.camera
 
-    def test_singleton(self):
+    def test_get_camera(self):
         """
         Test: Create a camera on different platforms
         """
         assert is_raspbian() is self.camera.is_real_camera()
-        camera_copies = [get_camera(recordings_path=test_recordings_path) for
-                         i in range(5)]
-        for camera_copy_a in camera_copies:
-            for camera_copy_b in camera_copies:
-                assert camera_copy_a is camera_copy_b
 
     def tearDown(self):
         """ Tear down """
