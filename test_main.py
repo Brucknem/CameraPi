@@ -10,7 +10,7 @@ if __name__ == '__main__':
     server.start()
 
     print('runnning')
-    for i in range(10):
+    for i in range(120):
         sleep(1)
 
     server.terminate()

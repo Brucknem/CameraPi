@@ -196,7 +196,6 @@ class CameraBase(Observable):
         # wait for a signal from the camera thread
         self.event.wait()
         self.event.clear()
-
         if self.allow_streaming:
             return self.frame
         else:
