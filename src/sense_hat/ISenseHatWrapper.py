@@ -2,10 +2,10 @@ import logging
 import socket
 
 from src.camera.CameraState import CameraState
-
 from src.utils.Observer import Observer
 
 camera_state_to_color_map: map = {
+    CameraState.OFF: (0, 0, 25),
     CameraState.IDLE: (0, 0, 0),
     CameraState.RECORDING: (0, 25, 0),
     CameraState.STOPPING_RECORD: (25, 25, 0)
