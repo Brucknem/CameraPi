@@ -40,7 +40,6 @@ class CameraBase(Observable):
         Constructor.
         """
         super().__init__()
-        self.real_camera = None
         self.camera_state = CameraState.OFF
 
         self.chunk_length = chunk_length
@@ -82,7 +81,6 @@ class CameraBase(Observable):
         Closes the camera.
         """
         self.set_camera_state(CameraState.OFF)
-        self.real_camera = None
 
     def start_recording(self):
         """

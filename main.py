@@ -18,7 +18,7 @@ def signal_handler(sig, frame):
     """
     global camera
     logging.info('Terminating: Ctrl+C pressed')
-    camera.close_camera()
+    camera.stop_camera()
     sense_hat.clear()
     sys.exit(0)
 

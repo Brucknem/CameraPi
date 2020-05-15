@@ -17,6 +17,7 @@ class PhysicalCamera(CameraBase):
         Constructor.
         """
         super().__init__(chunk_length, recordings_path)
+        self.real_camera = None
 
     def start_camera(self):
         """ Overriding """
