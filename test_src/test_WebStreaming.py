@@ -11,6 +11,8 @@ from src.WebStreaming import get_web_streaming
 from src.camera.CameraBase import get_camera
 from src.utils.Utils import is_raspbian
 
+base_url = 'http://0.0.0.0:8080/index.html'
+
 enter = Keys.RETURN
 
 chunk_length = 3
@@ -50,7 +52,86 @@ def web_streaming_thread():
             pass
 
 
+def curl(url):
+    """
+    Helper: Returns the curl result if host responds else None.
+    """
+    import pycurl
+    from io import BytesIO
+
+    b_obj = BytesIO()
+    crl = pycurl.Curl()
+
+    # Set URL value
+    crl.setopt(crl.URL, base_url)
+    crl.setopt(pycurl.TIMEOUT, 1)
+
+    # Write bytes that are utf-8 encoded
+    crl.setopt(crl.WRITEDATA, b_obj)
+
+    try:
+        # Perform a file transfer
+        crl.perform()
+
+        # Get the content stored in the BytesIO object (in byte characters)
+        get_body = b_obj.getvalue()
+
+        # Decode the bytes stored in get_body to HTML and print the result
+        output = get_body.decode('utf8')
+
+        print('Output of GET request:\n%s' % output)
+        return output
+    except Exception:
+        return None
+    finally:
+        # End curl session
+        crl.close()
+
+
 class TestWebStreaming(unittest.TestCase):
+    """
+    UI Tests for the web streaming.
+    """
+
+    def setUp(self):
+        """
+        Set up web streaming and driver.
+        """
+        path = '/usr/local/bin'
+        if is_raspbian():
+            path = '/usr/lib/chromium-browser/'
+        self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
+
+    def test_start_stop_streaming(self):
+        """
+        Tests if server is really not reachable if streaming is stopped.
+        """
+        camera = get_camera(chunk_length, test_recordings_path)
+        web_streaming = get_web_streaming()
+
+        with camera:
+            web_streaming.set_camera(camera)
+            camera.attach(web_streaming)
+
+            self.driver.get(base_url)
+            assert 'Camera Pi' in self.driver.title
+
+            web_streaming.stop_streaming()
+            assert not curl(base_url)
+
+            web_streaming.start_streaming()
+            self.driver.get(base_url)
+            assert 'Camera Pi' in self.driver.title
+
+    def tearDown(self):
+        """
+        Tear down web streaming and driver.
+        """
+        self.driver.close()
+        shutil.rmtree(test_recordings_path)
+
+
+class TestUI(unittest.TestCase):
     """
     UI Tests for the web streaming.
     """
@@ -65,18 +146,27 @@ class TestWebStreaming(unittest.TestCase):
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
 
+    def tearDown(self):
+        """
+        Tear down web streaming and driver.
+        """
+        global web_streaming_is_running
+        web_streaming_is_running = False
+        self.driver.close()
+        shutil.rmtree(test_recordings_path)
+
     def test_open_web_streaming(self):
         """
         Test: Page is opened correct.
         """
-        self.driver.get('http://localhost:8080')
+        self.driver.get(base_url)
         assert 'Camera Pi' in self.driver.title
 
     def test_recording(self):
         """
         Test: Page is opened correct.
         """
-        self.driver.get('http://localhost:8080')
+        self.driver.get(base_url)
         assert 'Camera Pi' in self.driver.title
 
         self.click_start()
@@ -124,15 +214,6 @@ class TestWebStreaming(unittest.TestCase):
         stop_recording = self.get_stop_recording()
         stop_recording.click()
         self.assert_start_stop_recording(True, False)
-
-    def tearDown(self):
-        """
-        Tear down web streaming and driver.
-        """
-        global web_streaming_is_running
-        web_streaming_is_running = False
-        self.driver.close()
-        shutil.rmtree(test_recordings_path)
 
     def extract_get_values(self):
         """

@@ -23,6 +23,7 @@ class PhysicalCamera(CameraBase):
         self.real_camera = PiCamera()
         self.real_camera.resolution = 1200, 900
         self.real_camera.framerate = 30
+        self.real_camera.start_preview()
 
         super().start_camera()
 
@@ -49,7 +50,6 @@ class PhysicalCamera(CameraBase):
         """
         super().record()
 
-        self.real_camera.start_preview()
         self.real_camera.start_recording(
             self.recordings_folder.get_next_chunk_path())
         self.real_camera.wait_recording(self.chunk_length)
@@ -70,7 +70,6 @@ class PhysicalCamera(CameraBase):
         if not super().stop_recording():
             return
         self.real_camera.stop_recording()
-        self.real_camera.stop_preview()
         self.record_thread = None
 
     def start_streaming(self, output):
