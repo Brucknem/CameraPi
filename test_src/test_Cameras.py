@@ -7,7 +7,7 @@ from time import sleep
 import pytest
 
 from src.camera.camera_base import CameraBase, get_camera
-from src.camera.camera_pi import Camera
+from src.camera.camera_image_stream import Camera as MockCamera
 from src.camera.camera_state import CameraState
 from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
@@ -89,6 +89,12 @@ class TestCameraBase:
         """
         start_stop_transition(CameraBase(), [Observer()])
 
+    def test_start_stop_streaming(self):
+        """
+        Test: Start and stop of camera streaming.
+        """
+        pytest.skip('Please re implement after switch to flask')
+
 
 def start_stop_transition(camera, observers=[]):
     """
@@ -115,71 +121,31 @@ def check_camera_state_in_observer(camera, camera_state):
         assert observer.notification['state'] == camera_state
 
 
-class TestCameraImageStream(unittest.TestCase):
+class TestCameraImageStream:
     """
     Tests for the camera mock.
     """
-
-    def setUp(self):
-        """ Setup """
-        from src.camera.camera_image_stream import Camera
-        self.camera = Camera()
-        assert self.camera.camera_state == CameraState.IDLE
 
     def test_record(self):
         """
         Test: Recording of the mock camera.
         """
+        mock_camera = MockCamera()
+        assert mock_camera.camera_state == CameraState.IDLE
 
-        with self.camera:
-            assert self.camera.camera_state == CameraState.RECORDING
-            assert self.camera.record_thread is not None
+        with mock_camera:
+            assert mock_camera.camera_state == CameraState.RECORDING
+            assert mock_camera.record_thread is not None
             sleep(3)
-            assert self.camera.record_thread is not None
+            assert mock_camera.record_thread is not None
 
-        assert self.camera.record_thread is None
-
-    def check_correct_frame_stream(self):
-        """
-        Helper: Check if the mock camera images are from the stream.
-        """
-        from src.camera.camera_image_stream import Camera
-        stream_mock_files = Camera.get_default_images()
-
-        for i in range(5):
-            frame = self.camera.get_frame()
-            if frame not in stream_mock_files:
-                return False
-        return True
-
-    def test_stream_returns_correct_frames(self):
-        """
-        Test: Stream correct giving frames.
-        """
-        assert self.check_correct_frame_stream()
+        assert mock_camera.record_thread is None
 
     def test_start_stop_streaming(self):
         """
         Test: Start and stop of camera streaming.
         """
-
-        assert self.camera.allow_streaming
-        assert self.check_correct_frame_stream()
-
-        self.camera.allow_streaming = False
-        assert not self.camera.allow_streaming
-        assert not self.check_correct_frame_stream()
-
-        assert self.camera.get_frame() == CameraBase.default_image
-
-        self.camera.allow_streaming = True
-        assert self.camera.allow_streaming
-        assert self.check_correct_frame_stream()
-        assert self.camera.get_frame() != CameraBase.default_image
-
-    def tearDown(self):
-        """ Tear down """
-        self.camera = None
+        pytest.skip('Please re implement after switch to flask')
 
 
 class TestCameraPi(unittest.TestCase):
@@ -213,42 +179,18 @@ class TestCameraPi(unittest.TestCase):
 
         assert self.camera.record_thread is None
 
-    def test_stream_returns_correct_frames(self):
-        """
-        Test: Stream correct giving frames.
-        """
-
-        for i in range(10):
-            frame = self.camera.get_frame()
-            assert is_jpg(frame)
-            yield None
-
     def test_start_stop_streaming(self):
         """
         Test: Start and stop of camera streaming.
         """
-
-        assert self.camera.allow_streaming
-        frame = self.camera.get_frame()
-        assert frame != CameraBase.default_image
-        # assert is_jpg(frame)
-
-        self.camera.allow_streaming = False
-        frame = self.camera.get_frame()
-        assert frame == CameraBase.default_image
-        # assert is_jpg(frame)
-
-        self.camera.allow_streaming = True
-        frame = self.camera.get_frame()
-        assert frame != CameraBase.default_image
-        # assert is_jpg(frame)
+        pytest.skip('Please re implement after switch to flask')
 
     def tearDown(self):
         """ Tear down """
         self.camera = None
 
 
-def create_and_assert_physical_camera() -> Camera or None:
+def create_and_assert_physical_camera():
     """
     Helper: Tries to create a physical camera.
     """
@@ -283,18 +225,6 @@ def wait_and_assert_chunk_created(camera, i):
     assert len(recordings) == (i + 1)
     for recording in recordings:
         assert str(recording).endswith('.h264')
-
-
-def is_jpg(image_data):
-    """
-    Helper: Is the given image_data valid JPEG
-    """
-    try:
-        from PIL import Image
-        image = Image.frombytes('RGB', (1200, 900), image_data, 'raw')
-        return image.format == 'JPEG'
-    except IOError:
-        return False
 
 
 @pytest.fixture(autouse=True, scope='session')
