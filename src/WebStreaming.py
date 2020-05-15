@@ -4,6 +4,7 @@ import threading
 from http import server
 from threading import Condition
 
+from src.camera.CameraBase import CameraBase
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
 
@@ -212,7 +213,7 @@ class WebStreaming(Observer):
         """
         super().__init__()
         self.address = '', 8080
-        self.camera = None
+        self.camera: CameraBase = None
         self.server = StreamingServer(self.address, StreamingHandler)
         self.sense_hat: ISenseHatWrapper = None
 
