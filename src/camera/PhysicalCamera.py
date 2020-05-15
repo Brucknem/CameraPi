@@ -77,6 +77,9 @@ class PhysicalCamera(CameraBase):
         """
         Starts a stream to an output stream object.
         """
+        if not super().start_streaming():
+            return False
+
         if not self.output:
             logging.info('Start streaming')
             self.output = output
@@ -90,6 +93,7 @@ class PhysicalCamera(CameraBase):
         """
         Stops the streaming.
         """
+        super().stop_streaming()
         if self.output:
             logging.info('Stop streaming')
 
