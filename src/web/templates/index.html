@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Camera Pi</title>
+</head>
+<body width="100%"
+      style="text-align:center;
+      content-align:center;
+      font-size:xx-large">
+
+<h1>Camera Pi Streaming</h1>
+<img src="stream.mjpg" width="100%"/>
+<br><br>
+
+<form action="" method="get">
+    <input style="font-size:xx-large" class="button" type="submit"
+           value="start" name="start"
+           {{'disabled' if not is_recording }}
+    >Start Recording</input>
+    <input style="font-size:xx-large" class="button" type="submit"
+           value="stop" name="stop"
+           {{'disabled' if is_recording }}
+    >Stop recording</input>
+    <br><br>
+
+    <input style="font-size:xx-large" class="button" type="submit"
+           value="refresh" name="refresh" onclick="">Refresh Page</input>
+</form>
+<br><br>
+{% for key, value in measurements.items() %}
+{% endfor %}
+
+</body>
+</html>

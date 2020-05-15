@@ -8,53 +8,6 @@ from src.camera.CameraBase import CameraBase
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
 
-PAGE_TOP = """
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Camera Pi</title>
-  </head>
-<body width="100%" style="text-align:center; content-align:center; \
-font-size:xx-large">
-<h1>Camera Pi Streaming</h1>
-"""
-
-PAGE_STREAM = """
-<img src="stream.mjpg" width="100%" />
-<br><br>
-"""
-
-PAGE_FORM = """
-<form action = "" method = "get">
-"""
-
-START_RECORDING = """
-<input style="font-size:xx-large" class="button" type="submit" \
-value="Start recording" name="start" onclick=""></input> """
-STOP_RECORDING = """
-<input style="font-size:xx-large" class="button" type="submit" \
-value="Stop recording" name="stop" 'onclick=""></input> """
-
-START_RECORDING_DISABLED = """
-<input style="font-size:xx-large" disabled class="button" type="submit" \
-value="Start recording" name="start" onclick=""></input> """
-STOP_RECORDING_DISABLED = """
-<input style="font-size:xx-large" disabled class="button" type="submit" \
-value="Stop recording" name="stop" onclick=""></input> """
-
-PAGE_BOTTOM = """
-<br><br>
-<input style="font-size:xx-large" class="button" type="submit"
-value="Refresh page" name="refresh" onclick=""></input>
-</form>
-<br><br>
-"""
-
-PAGE_END = """
-</body>
-</html>
-"""
-
 
 class StreamingOutput(object):
     """
