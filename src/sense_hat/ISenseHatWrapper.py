@@ -39,6 +39,12 @@ class ISenseHatWrapper(Observer):
         super().__init__()
         self.actual_sense_hat = actual_sense_hat
 
+    def __del__(self):
+        """
+        Destructor.
+        """
+        self.clear()
+
     def display_camera_state(self, camera_state: CameraState):
         """
         Sets the sense hat matrix according to the recording state.
@@ -86,7 +92,9 @@ class ISenseHatWrapper(Observer):
             self.actual_sense_hat.clear(255, 0, 0)
 
     def clear(self):
-        """ Overriding """
+        """
+        Clears the sense hat matrix.
+        """
         self.actual_sense_hat.clear()
 
     def setup_callbacks(self,

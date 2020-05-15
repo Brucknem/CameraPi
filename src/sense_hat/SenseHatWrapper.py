@@ -1,5 +1,7 @@
 import logging
 
+from sense_hat import SenseHat
+
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 
 
@@ -29,7 +31,6 @@ class SenseHatWrapper(ISenseHatWrapper):
         """
         Constructor.
         """
-        from sense_hat import SenseHat
         super().__init__(SenseHat())
 
     def read_sensors(self):
