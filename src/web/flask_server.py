@@ -1,19 +1,8 @@
-from threading import Thread
+import os
 
 from flask import Flask, render_template, Response, request
 
 app = Flask(__name__)
-
-
-def run_threaded(camera):
-    thread = Thread(target=_thread, args=(FlaskAppWrapper('wrap', camera),))
-    thread.daemon = True
-    thread.start()
-    return thread
-
-
-def _thread(server):
-    server.run()
 
 
 class EndpointAction(object):
@@ -26,8 +15,11 @@ class EndpointAction(object):
 
 
 class FlaskAppWrapper(object):
-    def __init__(self, name, camera):
-        self.app = Flask(name)
+    def __init__(self, camera):
+        template_dir = os.path.dirname(
+            os.path.abspath(os.path.dirname(__file__)))
+        template_dir = os.path.join(template_dir, 'templates')
+        self.app = Flask('Camera Pi Server', template_folder=template_dir)
         self.camera = camera
         self.add_endpoint('/', 'index', self.index_handler)
         self.add_endpoint('/video_feed', 'video_feed', self.video_feed)
