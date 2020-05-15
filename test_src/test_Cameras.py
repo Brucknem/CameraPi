@@ -6,35 +6,28 @@ from time import sleep
 
 import pytest
 
-from src.camera.camera_base import CameraBase, get_camera
-from src.camera.camera_image_stream import Camera as MockCamera
-from src.camera.camera_state import CameraState
+from src.camera.CameraBase import CameraBase, CameraState, get_camera
+from src.camera.MockCamera import MockCamera
 from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
+from src.web.WebStreaming import StreamingOutput
 
 chunk_length = 3
 test_recordings_path = './test_cameras'
 
 
-class TestCameraFactory(unittest.TestCase):
+class TestCameraFactory:
     """
     Tests for the camera factory
     """
-
-    def setUp(self):
-        """ Setup """
-        self.camera = get_camera(recordings_path=test_recordings_path)
-        assert self.camera
 
     def test_get_camera(self):
         """
         Test: Create a camera on different platforms
         """
-        assert is_raspbian() is self.camera.is_real_camera()
-
-    def tearDown(self):
-        """ Tear down """
-        self.camera = None
+        camera = get_camera(recordings_path=test_recordings_path)
+        assert camera
+        assert is_raspbian() is camera.is_real_camera()
 
 
 class TestCameraBase:
@@ -47,7 +40,7 @@ class TestCameraBase:
         Test: Constructor generates camera in correct state.
         """
         mock_camera = CameraBase(chunk_length=75)
-        assert mock_camera.camera_state == CameraState.IDLE
+        assert mock_camera.camera_state == CameraState.OFF
         assert not mock_camera.is_real_camera()
         assert mock_camera.chunk_length == 75
 
@@ -65,6 +58,9 @@ class TestCameraBase:
 
         camera.set_camera_state(CameraState.IDLE)
         assert observer.notification['state'] == CameraState.IDLE
+
+        camera.set_camera_state(CameraState.OFF)
+        assert observer.notification['state'] == CameraState.OFF
 
         camera.set_camera_state(CameraState.STOPPING_RECORD)
         assert observer.notification['state'] == CameraState.STOPPING_RECORD
@@ -84,27 +80,28 @@ class TestCameraBase:
         """
         start_stop_transition(CameraBase(), [Observer()])
 
-    def test_start_stop_streaming(self):
-        """
-        Test: Start and stop of camera streaming.
-        """
-        pytest.skip('Please re implement after switch to flask')
-
 
 def start_stop_transition(camera, observers=[]):
     """
     Helper for the start stop transition.
     """
-    assert camera.camera_state == CameraState.IDLE
+    assert camera.camera_state == CameraState.OFF
     for observer in observers:
         camera.attach(observer)
 
     with camera:
+        assert camera.camera_state == CameraState.IDLE
+
+        camera.start_recording()
         assert camera.camera_state == CameraState.RECORDING
         check_camera_state_in_observer(camera, CameraState.RECORDING)
 
-    assert camera.camera_state == CameraState.IDLE
-    check_camera_state_in_observer(camera, CameraState.IDLE)
+        camera.stop_recording()
+        assert camera.camera_state == CameraState.IDLE
+        check_camera_state_in_observer(camera, CameraState.IDLE)
+
+    assert camera.camera_state == CameraState.OFF
+    check_camera_state_in_observer(camera, CameraState.OFF)
 
 
 def check_camera_state_in_observer(camera, camera_state):
@@ -116,7 +113,7 @@ def check_camera_state_in_observer(camera, camera_state):
         assert observer.notification['state'] == camera_state
 
 
-class TestCameraImageStream:
+class TestMockCamera:
     """
     Tests for the camera mock.
     """
@@ -126,24 +123,22 @@ class TestCameraImageStream:
         Test: Recording of the mock camera.
         """
         mock_camera = MockCamera()
-        assert mock_camera.camera_state == CameraState.IDLE
+        assert mock_camera.camera_state == CameraState.OFF
 
         with mock_camera:
-            assert mock_camera.camera_state == CameraState.RECORDING
+            assert mock_camera.camera_state == CameraState.IDLE
+
+            mock_camera.start_recording()
+
             assert mock_camera.record_thread is not None
             sleep(3)
             assert mock_camera.record_thread is not None
 
-        assert mock_camera.record_thread is None
-
-    def test_start_stop_streaming(self):
-        """
-        Test: Start and stop of camera streaming.
-        """
-        pytest.skip('Please re implement after switch to flask')
+            mock_camera.stop_recording()
+            assert mock_camera.record_thread is None
 
 
-class TestCameraPi(unittest.TestCase):
+class TestPhysicalCamera(unittest.TestCase):
     """
     Tests for the camera mock.
     """
@@ -152,18 +147,25 @@ class TestCameraPi(unittest.TestCase):
         """ Setup """
         self.camera = create_and_assert_physical_camera()
 
-    def test_start(self):
+    def test_start_stop_camera(self):
         """
         Test: Start and stop of camera.
         """
-        assert self.camera.pi_camera
+        self.camera.start_camera()
+        assert self.camera.real_camera
         assert self.camera.camera_state == CameraState.IDLE
+
+        self.camera.stop_camera()
+        assert not self.camera.real_camera
+        assert self.camera.camera_state == CameraState.OFF
 
     def test_record(self):
         """
         Test: Recording of the physical camera.
         """
         with self.camera:
+            assert self.camera.camera_state == CameraState.IDLE
+            self.camera.start_recording()
             assert self.camera.camera_state == CameraState.RECORDING
             assert self.camera.recordings_folder.current_recordings_folder
 
@@ -172,17 +174,21 @@ class TestCameraPi(unittest.TestCase):
             for i in range(5):
                 wait_and_assert_chunk_created(self.camera, i)
 
-        assert self.camera.record_thread is None
+            self.camera.stop_recording()
+            assert self.camera.record_thread is None
 
     def test_start_stop_streaming(self):
         """
         Test: Start and stop of camera streaming.
         """
-        pytest.skip('Please re implement after switch to flask')
+        with self.camera:
+            assert self.camera.camera_state == CameraState.IDLE
+            output = StreamingOutput()
+            assert self.camera.start_streaming(output)
+            assert self.camera.output
 
-    def tearDown(self):
-        """ Tear down """
-        self.camera = None
+            self.camera.stop_streaming()
+            assert not self.camera.output
 
 
 def create_and_assert_physical_camera():
@@ -193,7 +199,7 @@ def create_and_assert_physical_camera():
                         recordings_path=test_recordings_path)
 
     assert not camera.recordings_folder.current_recordings_folder
-    assert camera.camera_state == CameraState.IDLE
+    assert camera.camera_state == CameraState.OFF
     assert camera.chunk_length is chunk_length
 
     if not camera.is_real_camera():

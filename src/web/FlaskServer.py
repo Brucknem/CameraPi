@@ -1,4 +1,9 @@
+#!/usr/bin/env python
+
 from flask import Flask, render_template, Response
+
+# Raspberry Pi camera module (requires picamera package)
+# from camera_pi import Camera
 
 app = Flask(__name__)
 camera = None
@@ -10,9 +15,8 @@ def index():
     return render_template('index.html')
 
 
-def gen():
+def gen(camera):
     """Video streaming generator function."""
-    global camera
     while True:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
@@ -22,7 +26,7 @@ def gen():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(),
+    return Response(gen(camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 

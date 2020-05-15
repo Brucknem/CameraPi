@@ -1,29 +1,20 @@
-import logging
 import pathlib
 import time
 from os import listdir
 from os.path import join, isfile
 
-from src.camera.camera_base import CameraBase
-from src.camera.camera_state import CameraState
+from src.camera.base_camera import BaseCamera
 
 
-class Camera(CameraBase):
+class Camera(BaseCamera):
+    """An emulated camera implementation that streams a repeated sequence of
+    files 1.jpg, 2.jpg and 3.jpg at a rate of one frame per second."""
     """
-    An emulated camera implementation that streams a repeated sequence of
-    files at a rate of one frame per second.
-
-    Taken from:
     https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
     """
 
-    def __init__(self, chunk_length: int = 5 * 60,
-                 recordings_path: str = './recordings'):
-        """
-        Constructor
-        """
-        super().__init__(chunk_length, recordings_path)
-
+    def __init__(self):
+        super().__init__()
         print(pathlib.Path(__file__))
         self.images = [open(join(
             pathlib.Path(__file__).parent.absolute(),
@@ -37,16 +28,7 @@ class Camera(CameraBase):
                                                              f))]]
 
     def frames(self):
-        """ Overriding """
         while True:
             time.sleep(1)
             yield self.images[
                 int(time.time()) % len(self.images)]
-
-    def record(self):
-        """ Overriding """
-        super().record()
-
-        while self.camera_state is CameraState.RECORDING:
-            logging.info('Recording')
-            time.sleep(1)
