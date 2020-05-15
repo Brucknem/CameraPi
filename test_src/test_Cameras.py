@@ -42,7 +42,7 @@ class TestCameraSingletonPattern(unittest.TestCase):
         self.camera = None
 
 
-class TestCameraBase(unittest.TestCase):
+class TestCameraBase:
     """
     Tests for the camera interface.
     """
@@ -88,13 +88,6 @@ class TestCameraBase(unittest.TestCase):
         Test: Camera state transition working with observer.
         """
         start_stop_transition(CameraBase(), [Observer()])
-
-    def test_exception_on_frames(self):
-        """
-        Test: frames() raises exception
-        """
-        with self.assertRaises(RuntimeError):
-            CameraBase().frames()
 
 
 def start_stop_transition(camera, observers=[]):
