@@ -7,9 +7,9 @@ from threading import Thread
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+from src.WebStreaming import get_web_streaming
 from src.camera.CameraBase import get_camera
 from src.utils.Utils import is_raspbian
-from src.web.WebStreaming import get_web_streaming
 
 enter = Keys.RETURN
 
@@ -48,8 +48,6 @@ def web_streaming_thread():
 
         while web_streaming_is_running:
             pass
-
-    web_streaming.stop_streaming()
 
 
 class TestWebStreaming(unittest.TestCase):

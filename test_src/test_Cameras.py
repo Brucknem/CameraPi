@@ -6,11 +6,11 @@ from time import sleep
 
 import pytest
 
+from src.WebStreaming import StreamingOutput
 from src.camera.CameraBase import CameraBase, CameraState, get_camera
 from src.camera.MockCamera import MockCamera
 from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
-from src.web.WebStreaming import StreamingOutput
 
 chunk_length = 3
 test_recordings_path = './test_cameras'
