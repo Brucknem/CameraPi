@@ -1,25 +1,22 @@
 import os
 import shutil
-from multiprocessing import Process
-from time import sleep
 from unittest import TestCase
 
 from selenium import webdriver
 
-from src.camera.camera_base import get_camera
 from src.utils.Utils import is_raspbian
-from src.web.flask_server import FlaskAppWrapper
+from src.web.flask_server import run_threaded
 
 chunk_length = 3
 test_flask_server_path = 'test_flask_server'
-
-flask_app_wrapper = FlaskAppWrapper(get_camera())
 
 
 class TestFlaskServer(TestCase):
     """
     Tests for the flask ui server
     """
+
+    ThreadSet = None
 
     def setUp(self) -> None:
         """ Setup"""
@@ -28,19 +25,20 @@ class TestFlaskServer(TestCase):
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
 
-        self.server = Process(target=flask_app_wrapper.run)
-        self.server.start()
-        sleep(3)
+        if not TestFlaskServer.ThreadSet:
+            if is_raspbian():
+                from src.camera.camera_pi import Camera
+            else:
+                from src.camera.camera_image_stream import Camera
+
+            TestFlaskServer.ThreadSet = run_threaded(Camera())
 
     def tearDown(self):
         """
         Tear down web streaming and driver.
         """
         self.driver.close()
-
-        self.server.terminate()
-        self.server.join()
-
+        self.thread = None
         shutil.rmtree(test_flask_server_path, ignore_errors=True)
 
     def test_open_web_streaming(self):

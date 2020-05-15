@@ -1,17 +1,13 @@
-from multiprocessing import Process
-from time import sleep
-
-from src.camera.camera_base import get_camera
-from src.web.flask_server import FlaskAppWrapper
+from src.utils.Utils import is_raspbian
+from src.web.flask_server import run_threaded
 
 if __name__ == '__main__':
-    flask_app_wrapper = FlaskAppWrapper(get_camera())
-    server = Process(target=flask_app_wrapper.run)
-    server.start()
+    if is_raspbian():
+        from src.camera.camera_pi import Camera
+    else:
+        from src.camera.camera_image_stream import Camera
 
-    print('runnning')
-    for i in range(10):
-        sleep(1)
+    run_threaded(Camera())
 
-    server.terminate()
-    server.join()
+    while True:
+        pass
