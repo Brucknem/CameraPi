@@ -28,3 +28,15 @@ def is_raspbian():
             return True
         else:
             return False
+
+
+def read_cpu_temperature():
+    """
+    Read the pressure, temperature and humidity from the sense hat and log.
+    """
+
+    f = open("/sys/class/thermal/thermal_zone0/temp", "r")
+    cpu = f.readline()
+    values = {'Temperature (Chip)': str(int(cpu) / 1000) + ' \'C'}
+
+    return values

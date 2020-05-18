@@ -1,59 +1,23 @@
 import io
+import os
 import socketserver
 import threading
 from http import server
+from os.path import dirname
 from threading import Condition
+
+from jinja2 import Template
 
 from src.camera.CameraBase import CameraBase
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
+from src.utils.Utils import read_cpu_temperature
 
-PAGE_TOP = """
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Camera Pi</title>
-  </head>
-<body width="100%" style="text-align:center; content-align:center; \
-font-size:xx-large">
-<h1>Camera Pi Streaming</h1>
-"""
-
-PAGE_STREAM = """
-<img src="stream.mjpg" width="100%" />
-<br><br>
-"""
-
-PAGE_FORM = """
-<form action = "" method = "get">
-"""
-
-START_RECORDING = """
-<input style="font-size:xx-large" class="button" type="submit" \
-value="Start recording" name="start" onclick=""></input> """
-STOP_RECORDING = """
-<input style="font-size:xx-large" class="button" type="submit" \
-value="Stop recording" name="stop" 'onclick=""></input> """
-
-START_RECORDING_DISABLED = """
-<input style="font-size:xx-large" disabled class="button" type="submit" \
-value="Start recording" name="start" onclick=""></input> """
-STOP_RECORDING_DISABLED = """
-<input style="font-size:xx-large" disabled class="button" type="submit" \
-value="Stop recording" name="stop" onclick=""></input> """
-
-PAGE_BOTTOM = """
-<br><br>
-<input style="font-size:xx-large" class="button" type="submit"
-value="Refresh page" name="refresh" onclick=""></input>
-</form>
-<br><br>
-"""
-
-PAGE_END = """
-</body>
-</html>
-"""
+index_template_string = open(
+    os.path.join(dirname(os.path.abspath(__file__)),
+                 "web/templates/index.html"),
+    'rb').read().decode("utf-8")
+template = Template(index_template_string)
 
 
 class StreamingOutput(object):
@@ -96,42 +60,21 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         global web_streaming
 
-        content = PAGE_TOP.encode('utf-8')
-
-        if web_streaming.camera.is_real_camera():
-            content += PAGE_STREAM.encode('utf-8')
-
-        content += PAGE_FORM.encode('utf-8')
-
-        if web_streaming.camera.is_recording():
-            content += START_RECORDING_DISABLED.encode('utf-8')
-            content += STOP_RECORDING.encode('utf-8')
-        elif web_streaming.camera.is_idle():
-            content += START_RECORDING.encode('utf-8')
-            content += STOP_RECORDING_DISABLED.encode('utf-8')
-        else:
-            content += START_RECORDING_DISABLED.encode('utf-8')
-            content += STOP_RECORDING_DISABLED.encode('utf-8')
-
-        content += PAGE_BOTTOM.encode('utf-8')
-
         if web_streaming.sense_hat:
-            values = web_streaming.sense_hat.read_sensors()
+            measurements = web_streaming.sense_hat.read_sensors()
+        else:
+            measurements = read_cpu_temperature()
 
-            for key, value in values.items():
-                content += '<div style="font-size:xx-large">'.encode('utf-8')
-                content += str(key).encode('utf-8')
-                content += ': '.encode('utf-8')
-                content += str(value).encode('utf-8')
-                content += '</div>'.encode('utf-8')
-
-        content += PAGE_END.encode('utf-8')
-
+        # Render HTML Template String
+        html_template_string = template.render(
+            is_recording=web_streaming.camera.is_recording(),
+            measurements=measurements)
+        html_template_string = html_template_string.encode('utf-8')
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
-        self.send_header('Content-Length', len(content))
+        self.send_header('Content-Length', str(len(html_template_string)))
         self.end_headers()
-        self.wfile.write(content)
+        self.wfile.write(html_template_string)
 
     def do_GET(self):
         """
