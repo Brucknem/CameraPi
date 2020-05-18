@@ -75,12 +75,16 @@ class PhysicalCamera(CameraBase):
         self.record_thread = None
 
     def streaming_allowed(self, output):
-        self.real_camera.start_recording(output,
-                                         format='mjpeg',
-                                         splitter_port=2)
-        self.real_camera.wait_recording(self.streaming_chunk_length,
-                                        splitter_port=2)
-        self.real_camera.stop_recording(splitter_port=2)
+        """ Overriding """
+        try:
+            self.real_camera.start_recording(output,
+                                             format='mjpeg',
+                                             splitter_port=2)
+            self.real_camera.wait_recording(self.streaming_chunk_length,
+                                            splitter_port=2)
+            self.real_camera.stop_recording(splitter_port=2)
+        except Exception:
+            logging.info('Non critical error while streaming')
 
     def is_real_camera(self):
         """ Overriding """
