@@ -1,9 +1,7 @@
 import io
-import os
 import socketserver
 import threading
 from http import server
-from os.path import dirname
 from threading import Condition
 
 from jinja2 import Template
@@ -11,12 +9,10 @@ from jinja2 import Template
 from src.camera.CameraBase import CameraBase
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 from src.utils.Observer import Observer
-from src.utils.Utils import read_cpu_temperature
+from src.utils.Utils import read_cpu_temperature, read_file_relative_to
 
-index_template_string = open(
-    os.path.join(dirname(os.path.abspath(__file__)),
-                 "web/templates/index.html"),
-    'rb').read().decode("utf-8")
+index_template_string = read_file_relative_to("templates/index.html",
+                                              __file__, decode=True)
 template = Template(index_template_string)
 
 
@@ -110,11 +106,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         global web_streaming
         self.send_response(200)
 
-        if not web_streaming.camera or \
-                not web_streaming.camera.is_real_camera():
-            self.end_headers()
-            return
-
         self.send_header('Age', 0)
         self.send_header('Cache-Control', 'no-cache, private')
         self.send_header('Pragma', 'no-cache')
@@ -159,6 +150,7 @@ class WebStreaming(Observer):
         self.camera: CameraBase = None
         self.server = StreamingServer(self.address, StreamingHandler)
         self.sense_hat: ISenseHatWrapper = None
+        self.thread = None
 
     def set_camera(self, camera):
         """
@@ -194,35 +186,24 @@ class WebStreaming(Observer):
 
     def start_streaming(self):
         """
-        Starts the webserver.
-        :return:
+        Starts the camera stream.
         """
-        if not self.camera:
-            return
+        if not self.thread:
+            self.thread = threading.Thread(target=self.stream, args=())
+            self.thread.daemon = True
+            self.thread.start()
 
-        thread = threading.Thread(target=self.stream, args=())
-        thread.daemon = True
-        thread.start()
-
-    def stop_streaming(self):
-        """
-        Stops the webserver.
-        """
-        if not self.camera:
-            return
-
-        self.server.shutdown()
+        self.camera.start_streaming(output)
 
     def stream(self):
         """
         Starts the camera in streaming mode and
         starts the webserver to stream to.
         """
-        if self.camera.start_streaming(output):
-            try:
-                self.server.serve_forever()
-            finally:
-                self.camera.stop_streaming()
+        try:
+            self.server.serve_forever()
+        finally:
+            self.camera.stop_streaming()
 
     def update(self, **kwargs):
         """
@@ -233,11 +214,14 @@ class WebStreaming(Observer):
             pass
 
 
-def get_web_streaming():
+def get_web_streaming(camera: CameraBase, sense_hat: ISenseHatWrapper = None):
     """
     Gets the package internal web streaming object.
     """
     global web_streaming
+    web_streaming.set_camera(camera)
+    web_streaming.sense_hat = sense_hat
+
     return web_streaming
 
 

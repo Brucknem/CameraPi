@@ -1,10 +1,11 @@
 import logging
 from threading import Thread
+from time import sleep
 
-from src.RecordingsFolder import RecordingsFolder
 from src.camera.CameraState import CameraState
 from src.utils.Observable import Observable
-from src.utils.Utils import is_raspbian
+from src.utils.RecordingsFolder import RecordingsFolder
+from src.utils.Utils import is_raspbian, read_file_relative_to
 
 camera_state_to_allowed_state_map: map = {
     CameraState.OFF: (CameraState.IDLE,),
@@ -43,11 +44,16 @@ class CameraBase(Observable):
         self.camera_state = CameraState.OFF
 
         self.chunk_length = chunk_length
-
-        self.output = None
         self.record_thread: Thread = None
 
         self.recordings_folder = RecordingsFolder(recordings_path)
+
+        self.default_image = read_file_relative_to(
+            "default_image.jpeg",
+            __file__)
+        self.streaming_thread = None
+        self.is_streaming = False
+        self.is_streaming_allowed = True
 
     def __enter__(self):
         """
@@ -118,7 +124,38 @@ class CameraBase(Observable):
         """
         Starts a stream to an output stream object.
         """
-        return True
+        if self.streaming_thread:
+            self.is_streaming = False
+            self.streaming_thread.join()
+
+        self.streaming_thread = Thread(target=self._streaming_thread,
+                                       args=(output,))
+        self.streaming_thread.daemon = True
+        self.streaming_thread.start()
+
+    def _streaming_thread(self, output):
+        """
+        The default streaming thread.
+        """
+        self.is_streaming = True
+        while self.is_streaming:
+            if self.is_streaming_allowed:
+                self.streaming_allowed(output)
+            else:
+                self.streaming_not_allowed(output)
+                sleep(0.1)
+
+    def streaming_allowed(self, output):
+        """
+        Writes to the buffer if the streaming is allowed
+        """
+        pass
+
+    def streaming_not_allowed(self, output):
+        """
+        Writes to the buffer if the streaming is allowed
+        """
+        output.write(self.default_image)
 
     def stop_streaming(self):
         """

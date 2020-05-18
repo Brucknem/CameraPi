@@ -1,4 +1,6 @@
+import os
 from datetime import datetime
+from os.path import dirname
 
 file_date_format_string = '%Y_%m_%d_%H_%M_%S'
 log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
@@ -40,3 +42,19 @@ def read_cpu_temperature():
     values = {'Temperature (Chip)': str(int(cpu) / 1000) + ' \'C'}
 
     return values
+
+
+def read_file_relative_to(filename: str, relative_to: str,
+                          decode: bool = False):
+    """
+    Reads a file relative to another file.
+    """
+    with open(
+            os.path.join(dirname(os.path.abspath(relative_to)), filename),
+            'rb') as f:
+        file = f.read()
+
+    if not decode:
+        return file
+    else:
+        return file.decode("utf-8")

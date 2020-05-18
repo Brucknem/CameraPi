@@ -1,31 +1,17 @@
 import logging
 import socket
 
+from src.camera.CameraBase import CameraBase
 from src.camera.CameraState import CameraState
 from src.utils.Observer import Observer
 from src.utils.Utils import read_cpu_temperature
 
 camera_state_to_color_map: map = {
-    CameraState.OFF: (0, 0, 25),
-    CameraState.IDLE: (0, 0, 0),
+    CameraState.OFF: (0, 0, 0),
+    CameraState.IDLE: (0, 0, 25),
     CameraState.RECORDING: (0, 25, 0),
     CameraState.STOPPING_RECORD: (25, 25, 0)
 }
-
-
-def create_sense_hat():
-    """
-    Factory method for the sense hat interface
-    """
-
-    try:
-        from src.sense_hat.SenseHatWrapper import SenseHatWrapper
-
-        return SenseHatWrapper()
-    except Exception:
-        from src.sense_hat.SenseHatWrapperMock import SenseHatWrapperMock
-
-        return SenseHatWrapperMock()
 
 
 class ISenseHatWrapper(Observer):
@@ -33,12 +19,19 @@ class ISenseHatWrapper(Observer):
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self, actual_sense_hat):
+    def __init__(self, actual_sense_hat, camera: CameraBase):
         """
         Constructor.
         """
         super().__init__()
         self.actual_sense_hat = actual_sense_hat
+        self.camera = camera
+        self.setup_callbacks(left=start_camera,
+                             right=stop_camera,
+                             up=start_streaming,
+                             down=stop_streaming,
+                             middle=show_ip,
+                             message='Started CameraPi')
 
     def __del__(self):
         """
@@ -123,3 +116,110 @@ class ISenseHatWrapper(Observer):
         Check if instance is physical device
         """
         return False
+
+
+sense_hat: ISenseHatWrapper = None
+
+
+def get_sense_hat(camera: CameraBase = None):
+    """
+    Factory method for the sense hat interface
+    """
+    global sense_hat
+    if not sense_hat:
+        if not camera:
+            raise ValueError(
+                'A camera must be given when instantiating a sense hat.')
+        try:
+            from src.sense_hat.SenseHatWrapper import SenseHatWrapper
+
+            sense_hat = SenseHatWrapper(camera)
+        except Exception:
+            from src.sense_hat.SenseHatWrapperMock import SenseHatWrapperMock
+
+            sense_hat = SenseHatWrapperMock(camera)
+    return sense_hat
+
+
+def read_sensors(event):
+    """
+    Read the pressure, temperature and humidity from the sense hat and log.
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        return sense_hat.read_sensors()
+    except Exception:
+        return read_cpu_temperature()
+
+
+def start_camera(event):
+    """
+    Method stub for camera starting later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        sense_hat.camera.start_recording()
+    except Exception as err:
+        logging.exception(err)
+
+
+def stop_camera(event):
+    """
+    Method stub for camera stopping later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        sense_hat.camera.stop_recording()
+    except Exception as err:
+        logging.exception(err)
+
+
+def start_streaming(event):
+    """
+    Starts the web stream.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    sense_hat.camera.is_streaming_allowed = True
+
+
+def stop_streaming(event):
+    """
+    Stops the web stream.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+    
+    sense_hat.camera.is_streaming_allowed = False
+
+
+def show_ip(event):
+    """
+    Displays the own ip for easy connect.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    sense_hat.show_ip()

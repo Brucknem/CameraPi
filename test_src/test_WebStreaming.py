@@ -3,13 +3,14 @@ import os
 import shutil
 import unittest
 from threading import Thread
+from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from src.WebStreaming import get_web_streaming
 from src.camera.CameraBase import get_camera
 from src.utils.Utils import is_raspbian
+from src.web.WebStreaming import get_web_streaming
 
 base_url = 'http://0.0.0.0:8080/index.html'
 
@@ -42,10 +43,9 @@ def web_streaming_thread():
     logging.info('Started monitoring')
 
     camera = get_camera(chunk_length, test_recordings_path)
-    web_streaming = get_web_streaming()
+    web_streaming = get_web_streaming(camera)
 
     with camera:
-        web_streaming.set_camera(camera)
         camera.attach(web_streaming)
 
         while web_streaming_is_running:
@@ -63,7 +63,7 @@ def curl(url):
     crl = pycurl.Curl()
 
     # Set URL value
-    crl.setopt(crl.URL, base_url)
+    crl.setopt(crl.URL, url)
     crl.setopt(pycurl.TIMEOUT, 1)
 
     # Write bytes that are utf-8 encoded
@@ -107,21 +107,34 @@ class TestWebStreaming(unittest.TestCase):
         Tests if server is really not reachable if streaming is stopped.
         """
         camera = get_camera(chunk_length, test_recordings_path)
-        web_streaming = get_web_streaming()
+        web_streaming = get_web_streaming(camera)
+        camera.attach(web_streaming)
 
         with camera:
-            web_streaming.set_camera(camera)
-            camera.attach(web_streaming)
-
             self.driver.get(base_url)
             assert 'Camera Pi' in self.driver.title
+            size = self.driver.find_element_by_id('stream_image').size
+            if camera.is_real_camera():
+                assert (size['height'] - size['width'] / 2) > 3
+            else:
+                assert (size['height'] - size['width'] / 2) < 3
 
-            web_streaming.stop_streaming()
-            assert not curl(base_url)
-
-            web_streaming.start_streaming()
+            web_streaming.camera.is_streaming_allowed = False
+            sleep(2)
             self.driver.get(base_url)
             assert 'Camera Pi' in self.driver.title
+            size = self.driver.find_element_by_id('stream_image').size
+            assert (size['height'] - size['width'] / 2) < 3
+
+            web_streaming.camera.is_streaming_allowed = True
+            sleep(2)
+            self.driver.get(base_url)
+            assert 'Camera Pi' in self.driver.title
+            size = self.driver.find_element_by_id('stream_image').size
+            if camera.is_real_camera():
+                assert (size['height'] - size['width'] / 2) > 3
+            else:
+                assert (size['height'] - size['width'] / 2) < 3
 
     def tearDown(self):
         """

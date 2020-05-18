@@ -4,9 +4,9 @@ import logging
 import signal
 import sys
 
-from src.WebStreaming import get_web_streaming
 from src.camera.CameraBase import get_camera
-from src.sense_hat.ISenseHatWrapper import create_sense_hat
+from src.sense_hat.ISenseHatWrapper import get_sense_hat
+from src.web.WebStreaming import get_web_streaming
 
 
 def signal_handler(sig, frame):
@@ -19,87 +19,6 @@ def signal_handler(sig, frame):
     global camera
     logging.info('Terminating: Ctrl+C pressed')
     sys.exit(0)
-
-
-def read_sensors(event):
-    """
-    Read the pressure, temperature and humidity from the sense hat and log.
-    (Joystick key callback)
-
-    :param event: the key input event
-    """
-    global camera
-    if event.action != 'released':
-        return
-
-    sense_hat.read_cpu_temperature()
-
-
-def start_camera(event):
-    """
-    Method stub for camera starting later on
-    (Joystick key callback)
-
-    :param event: the key input event
-    """
-    global camera
-
-    if event.action != 'released':
-        return
-
-    try:
-        camera.start_recording()
-    except Exception as err:
-        logging.exception(err)
-
-
-def stop_camera(event):
-    """
-    Method stub for camera stopping later on
-    (Joystick key callback)
-
-    :param event: the key input event
-    """
-    global camera
-    if event.action != 'released':
-        return
-
-    try:
-        camera.stop_recording()
-    except Exception as err:
-        logging.exception(err)
-
-
-def start_streaming(event):
-    """
-    Starts the web stream.
-    """
-    global web_streaming
-    if event.action != 'released':
-        return
-
-    web_streaming.start_streaming()
-
-
-def stop_streaming(event):
-    """
-    Stops the web stream.
-    """
-    global web_streaming
-    if event.action != 'released':
-        return
-
-    web_streaming.stop_streaming()
-
-
-def show_ip(event):
-    """
-    Displays the own ip for easy connect.
-    """
-    if event.action != 'released':
-        return
-
-    sense_hat.show_ip()
 
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -130,20 +49,11 @@ logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
 logging.info('Started monitoring')
 
 camera = get_camera(chunk_length, recordings_path)
-web_streaming = get_web_streaming()
-sense_hat = create_sense_hat()
-web_streaming.set_sense_hat(sense_hat)
+sense_hat = get_sense_hat(camera)
+web_streaming = get_web_streaming(camera, sense_hat)
 
 with camera:
-    web_streaming.set_camera(camera)
     camera.attach(web_streaming)
     camera.attach(sense_hat)
-
-    sense_hat.setup_callbacks(left=start_camera,
-                              right=stop_camera,
-                              up=start_streaming,
-                              down=stop_streaming,
-                              middle=show_ip,
-                              message='Started CameraPi')
     while True:
         pass

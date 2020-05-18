@@ -24,3 +24,7 @@ class MockCamera(CameraBase):
         while self.camera_state is CameraState.RECORDING:
             logging.info('Recording')
             time.sleep(1)
+
+    def streaming_allowed(self, output):
+        """ Overriding """
+        super().streaming_not_allowed(output)

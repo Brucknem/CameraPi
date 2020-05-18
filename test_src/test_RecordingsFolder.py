@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from src.RecordingsFolder import RecordingsFolder
+from src.utils.RecordingsFolder import RecordingsFolder
 
 tests_folder = './test_recordings_folder'
 recordings_folder = RecordingsFolder(tests_folder)

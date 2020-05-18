@@ -2,6 +2,7 @@ import logging
 
 from sense_hat import SenseHat
 
+from src.camera.CameraBase import CameraBase
 from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
 
 
@@ -27,11 +28,11 @@ class SenseHatWrapper(ISenseHatWrapper):
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self):
+    def __init__(self, camera: CameraBase):
         """
         Constructor.
         """
-        super().__init__(SenseHat())
+        super().__init__(SenseHat(), camera)
 
     def read_sensors(self):
         """ Overriding """

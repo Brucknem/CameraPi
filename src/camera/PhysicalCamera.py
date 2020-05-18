@@ -73,32 +73,28 @@ class PhysicalCamera(CameraBase):
         self.real_camera.stop_recording()
         self.record_thread = None
 
+    def _streaming_thread(self, output):
+        if not self.is_streaming:
+            logging.info('Start streaming')
+            self.real_camera.start_recording(output,
+                                             format='mjpeg',
+                                             splitter_port=2)
+
     def start_streaming(self, output):
         """
         Starts a stream to an output stream object.
         """
-        if not super().start_streaming(output):
-            return False
-
-        if not self.output:
-            logging.info('Start streaming')
-            self.output = output
-            self.real_camera.start_recording(self.output,
-                                             format='mjpeg',
-                                             splitter_port=2)
-            return True
-        return False
+        super().stop_streaming()
 
     def stop_streaming(self):
         """
         Stops the streaming.
         """
         super().stop_streaming()
-        if self.output:
+        if self.is_streaming:
             logging.info('Stop streaming')
-
             self.real_camera.stop_recording(splitter_port=2)
-            self.output = None
+        super().start_streaming()
 
     def is_real_camera(self):
         """ Overriding """
