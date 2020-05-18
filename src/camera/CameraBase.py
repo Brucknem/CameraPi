@@ -31,7 +31,7 @@ def get_camera(chunk_length=300,
 class CameraBase(Observable):
     """
     Wrapper for the picamera.
-    Never call directly. Call Camera.get_camera() to keep singleton.
+    Never call directly. Call CameraBase.get_camera() to keep singleton.
     """
 
     def __init__(self, chunk_length: int = 5 * 60,

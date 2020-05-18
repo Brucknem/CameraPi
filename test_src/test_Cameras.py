@@ -30,55 +30,58 @@ class TestCameraFactory:
         assert is_raspbian() is camera.is_real_camera()
 
 
-class TestCameraBase:
+class TestCameraBase(unittest.TestCase):
     """
     Tests for the camera interface.
     """
+
+    def setUp(self) -> None:
+        """ Setup """
+        self.camera = CameraBase(chunk_length=75,
+                                 recordings_path=test_recordings_path)
 
     def test_create_mock_camera(self):
         """
         Test: Constructor generates camera in correct state.
         """
-        mock_camera = CameraBase(chunk_length=75)
-        assert mock_camera.camera_state == CameraState.OFF
-        assert not mock_camera.is_real_camera()
-        assert mock_camera.chunk_length == 75
+        assert self.camera.camera_state == CameraState.OFF
+        assert not self.camera.is_real_camera()
+        assert self.camera.chunk_length == 75
 
     def test_set_camera_state(self):
         """
         Test: Camera state set correctly and observers notified.
         """
-        camera = CameraBase()
         observer = Observer()
-        camera.attach(observer)
+        self.camera.attach(observer)
 
         assert observer.notification
         assert 'attached_to' in observer.notification
-        assert observer.notification['attached_to'] == camera
+        assert observer.notification['attached_to'] == self.camera
 
-        camera.set_camera_state(CameraState.IDLE)
+        self.camera.set_camera_state(CameraState.IDLE)
         assert observer.notification['state'] == CameraState.IDLE
 
-        camera.set_camera_state(CameraState.OFF)
+        self.camera.set_camera_state(CameraState.OFF)
         assert observer.notification['state'] == CameraState.OFF
 
-        camera.set_camera_state(CameraState.STOPPING_RECORD)
+        self.camera.set_camera_state(CameraState.STOPPING_RECORD)
         assert observer.notification['state'] == CameraState.STOPPING_RECORD
 
-        camera.set_camera_state(CameraState.RECORDING)
+        self.camera.set_camera_state(CameraState.RECORDING)
         assert observer.notification['state'] == CameraState.RECORDING
 
     def test_start_stop_record_transition(self):
         """
         Test: Camera state transition working.
         """
-        start_stop_transition(CameraBase())
+        start_stop_transition(self.camera)
 
     def test_start_stop_record_transition_with_observer(self):
         """
         Test: Camera state transition working with observer.
         """
-        start_stop_transition(CameraBase(), [Observer()])
+        start_stop_transition(self.camera, [Observer()])
 
 
 def start_stop_transition(camera, observers=[]):
@@ -113,29 +116,32 @@ def check_camera_state_in_observer(camera, camera_state):
         assert observer.notification['state'] == camera_state
 
 
-class TestMockCamera:
+class TestMockCamera(unittest.TestCase):
     """
     Tests for the camera mock.
     """
+
+    def setUp(self) -> None:
+        """ Setup """
+        self.camera = MockCamera(recordings_path=test_recordings_path)
 
     def test_record(self):
         """
         Test: Recording of the mock camera.
         """
-        mock_camera = MockCamera()
-        assert mock_camera.camera_state == CameraState.OFF
+        assert self.camera.camera_state == CameraState.OFF
 
-        with mock_camera:
-            assert mock_camera.camera_state == CameraState.IDLE
+        with self.camera:
+            assert self.camera.camera_state == CameraState.IDLE
 
-            mock_camera.start_recording()
+            self.camera.start_recording()
 
-            assert mock_camera.record_thread is not None
+            assert self.camera.record_thread is not None
             sleep(3)
-            assert mock_camera.record_thread is not None
+            assert self.camera.record_thread is not None
 
-            mock_camera.stop_recording()
-            assert mock_camera.record_thread is None
+            self.camera.stop_recording()
+            assert self.camera.record_thread is None
 
 
 class TestPhysicalCamera(unittest.TestCase):
