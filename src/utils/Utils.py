@@ -39,7 +39,7 @@ def read_cpu_temperature():
 
     f = open("/sys/class/thermal/thermal_zone0/temp", "r")
     cpu = f.readline()
-    values = {'Temperature (Chip)': str(int(cpu) / 1000) + ' \'C'}
+    values = {'Temperature (Chip)': str(round(int(cpu) / 1000, 2)) + ' \'C'}
 
     return values
 

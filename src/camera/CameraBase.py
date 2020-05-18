@@ -124,7 +124,7 @@ class CameraBase(Observable):
         """
         Starts a stream to an output stream object.
         """
-        logging.info('************************** Start streaming')
+        logging.info('Start streaming')
         if self.streaming_thread:
             self.is_streaming = False
             self.streaming_thread.join()

@@ -30,9 +30,24 @@
     </button>
 </form>
 <hr>
-{% for key, value in measurements.items() %}
-<div>{{key}}: {{value}}</div>
-{% endfor %}
+<div style="width: 100%; text-align: center;">
+    <div style="display: inline-block">
+        <table>
+            <tr>
+                <th>Measurement</th>
+                <th></th>
+                <th>Value</th>
+            </tr>
+            {% for key, value in measurements.items() %}
+            <tr>
+                <td>{{key}}</td>
+                <td style="padding: 0 1em"></td>
+                <td>{{value}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
 
 </body>
 </html>

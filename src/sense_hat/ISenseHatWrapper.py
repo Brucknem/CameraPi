@@ -210,7 +210,7 @@ def stop_streaming(event):
     global sense_hat
     if event.action != 'released':
         return
-
+    
     sense_hat.camera.is_streaming_allowed = False
 
 
