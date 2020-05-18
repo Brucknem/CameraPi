@@ -3,6 +3,7 @@ import socket
 
 from src.camera.CameraState import CameraState
 from src.utils.Observer import Observer
+from src.utils.Utils import read_cpu_temperature
 
 camera_state_to_color_map: map = {
     CameraState.OFF: (0, 0, 25),
@@ -64,17 +65,6 @@ class ISenseHatWrapper(Observer):
         if 'state' in kwargs:
             self.display_camera_state(kwargs['state'])
 
-    def read_sensors(self):
-        """
-        Read the pressure, temperature and humidity from the sense hat and log.
-        """
-
-        f = open("/sys/class/thermal/thermal_zone0/temp", "r")
-        cpu = f.readline()
-        values = {'Temperature (Chip)': str(int(cpu) / 1000) + ' \'C'}
-
-        return values
-
     def show_ip(self):
         """
         Displays the own ip for easy connect.
@@ -96,6 +86,14 @@ class ISenseHatWrapper(Observer):
         Clears the sense hat matrix.
         """
         self.actual_sense_hat.clear()
+
+    def read_sensors(self):
+        """
+        Read the pressure, temperature and humidity from the sense hat and log.
+        """
+
+        values = read_cpu_temperature()
+        return values
 
     def setup_callbacks(self,
                         left=None,

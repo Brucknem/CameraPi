@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <title>Camera Pi</title>
 </head>
-<body width="100%"
-      style="text-align:center;
-      content-align:center;
+<body
+        style="text-align:center;
       font-size:xx-large">
 
 <h1>Camera Pi Streaming</h1>
@@ -14,21 +13,25 @@
 <br><br>
 
 <form action="" method="get">
-    <input style="font-size:xx-large" class="button" type="submit"
-           value="start" name="start"
-           {{'disabled' if not is_recording }}
-    >Start Recording</input>
-    <input style="font-size:xx-large" class="button" type="submit"
-           value="stop" name="stop"
-           {{'disabled' if is_recording }}
-    >Stop recording</input>
-    <br><br>
+    <button style="font-size:xx-large" name="start" type="submit" value="True"
+            {% if is_recording %} disabled {% endif %}>
+        Start recording
+    </button>
+    <button style="font-size:xx-large" name="stop" type="submit" value="True"
+            {% if not is_recording %} disabled {% endif %}>
+        Stop recording
+    </button>
+    <br>
+    <br>
 
-    <input style="font-size:xx-large" class="button" type="submit"
-           value="refresh" name="refresh" onclick="">Refresh Page</input>
+    <button style="font-size:xx-large" name="refresh" type="submit"
+            value="True">
+        Refresh Page
+    </button>
 </form>
-<br><br>
+<hr>
 {% for key, value in measurements.items() %}
+<div>{{key}}: {{value}}</div>
 {% endfor %}
 
 </body>

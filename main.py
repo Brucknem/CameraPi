@@ -32,7 +32,7 @@ def read_sensors(event):
     if event.action != 'released':
         return
 
-    sense_hat.read_sensors()
+    sense_hat.read_cpu_temperature()
 
 
 def start_camera(event):
