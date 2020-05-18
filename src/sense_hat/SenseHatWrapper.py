@@ -15,8 +15,9 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
     """
     output = {measurement_name: None}
     try:
-        value = measurement_function()
-        logging.info(str(measurement_name) + ': ' + str(value))
+        value = round(float(measurement_function()), 3)
+        logging.info(
+            str(measurement_name) + ': ' + str(value))
         output[measurement_name] = value
     except Exception as err:
         logging.exception(err)
