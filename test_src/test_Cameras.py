@@ -10,7 +10,6 @@ from src.camera.CameraBase import CameraBase, CameraState, get_camera
 from src.camera.MockCamera import MockCamera
 from src.utils.Observer import Observer
 from src.utils.Utils import is_raspbian
-from src.web.WebStreaming import StreamingOutput
 
 chunk_length = 3
 test_recordings_path = './test_cameras'
@@ -182,19 +181,6 @@ class TestPhysicalCamera(unittest.TestCase):
 
             self.camera.stop_recording()
             assert self.camera.record_thread is None
-
-    def test_start_stop_streaming(self):
-        """
-        Test: Start and stop of camera streaming.
-        """
-        with self.camera:
-            assert self.camera.camera_state == CameraState.IDLE
-            output = StreamingOutput()
-            assert self.camera.start_streaming(output)
-            assert self.camera.output
-
-            self.camera.stop_streaming()
-            assert not self.camera.output
 
 
 def create_and_assert_physical_camera():

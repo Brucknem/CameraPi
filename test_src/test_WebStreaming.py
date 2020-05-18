@@ -43,9 +43,9 @@ def web_streaming_thread():
     logging.info('Started monitoring')
 
     camera = get_camera(chunk_length, test_recordings_path)
-    web_streaming = get_web_streaming(camera)
 
     with camera:
+        web_streaming = get_web_streaming(camera)
         camera.attach(web_streaming)
 
         while web_streaming_is_running:
@@ -101,23 +101,16 @@ class TestWebStreaming(unittest.TestCase):
         if is_raspbian():
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
+        self.camera = get_camera(chunk_length, test_recordings_path)
 
     def test_start_stop_streaming(self):
         """
         Tests if server is really not reachable if streaming is stopped.
         """
-        camera = get_camera(chunk_length, test_recordings_path)
-        web_streaming = get_web_streaming(camera)
-        camera.attach(web_streaming)
-
-        with camera:
-            self.driver.get(base_url)
-            assert 'Camera Pi' in self.driver.title
-            size = self.driver.find_element_by_id('stream_image').size
-            if camera.is_real_camera():
-                assert (size['height'] - size['width'] / 2) > 3
-            else:
-                assert (size['height'] - size['width'] / 2) < 3
+        self.camera.streaming_chunk_length = 1
+        with self.camera:
+            web_streaming = get_web_streaming(self.camera)
+            self.assert_correct_camera_view_shown()
 
             web_streaming.camera.is_streaming_allowed = False
             sleep(2)
@@ -127,14 +120,19 @@ class TestWebStreaming(unittest.TestCase):
             assert (size['height'] - size['width'] / 2) < 3
 
             web_streaming.camera.is_streaming_allowed = True
-            sleep(2)
-            self.driver.get(base_url)
-            assert 'Camera Pi' in self.driver.title
-            size = self.driver.find_element_by_id('stream_image').size
-            if camera.is_real_camera():
-                assert (size['height'] - size['width'] / 2) > 3
-            else:
-                assert (size['height'] - size['width'] / 2) < 3
+            self.assert_correct_camera_view_shown()
+
+    def assert_correct_camera_view_shown(self):
+        """
+        Asserts that the image stream is the correct image.
+        """
+        self.driver.get(base_url)
+        assert 'Camera Pi' in self.driver.title
+        size = self.driver.find_element_by_id('stream_image').size
+        if self.camera.is_real_camera():
+            assert (size['height'] - size['width'] / 2) > 3
+        else:
+            assert (size['height'] - size['width'] / 2) < 3
 
     def tearDown(self):
         """

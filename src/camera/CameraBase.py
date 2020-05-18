@@ -124,6 +124,7 @@ class CameraBase(Observable):
         """
         Starts a stream to an output stream object.
         """
+        logging.info('************************** Start streaming')
         if self.streaming_thread:
             self.is_streaming = False
             self.streaming_thread.join()
@@ -143,7 +144,7 @@ class CameraBase(Observable):
                 self.streaming_allowed(output)
             else:
                 self.streaming_not_allowed(output)
-                sleep(0.1)
+        sleep(0.1)
 
     def streaming_allowed(self, output):
         """

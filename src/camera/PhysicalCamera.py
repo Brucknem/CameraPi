@@ -18,6 +18,7 @@ class PhysicalCamera(CameraBase):
         """
         super().__init__(chunk_length, recordings_path)
         self.real_camera = None
+        self.streaming_chunk_length = 5
 
     def start_camera(self):
         """ Overriding """
@@ -73,28 +74,13 @@ class PhysicalCamera(CameraBase):
         self.real_camera.stop_recording()
         self.record_thread = None
 
-    def _streaming_thread(self, output):
-        if not self.is_streaming:
-            logging.info('Start streaming')
-            self.real_camera.start_recording(output,
-                                             format='mjpeg',
-                                             splitter_port=2)
-
-    def start_streaming(self, output):
-        """
-        Starts a stream to an output stream object.
-        """
-        super().stop_streaming()
-
-    def stop_streaming(self):
-        """
-        Stops the streaming.
-        """
-        super().stop_streaming()
-        if self.is_streaming:
-            logging.info('Stop streaming')
-            self.real_camera.stop_recording(splitter_port=2)
-        super().start_streaming()
+    def streaming_allowed(self, output):
+        self.real_camera.start_recording(output,
+                                         format='mjpeg',
+                                         splitter_port=2)
+        self.real_camera.wait_recording(self.streaming_chunk_length,
+                                        splitter_port=2)
+        self.real_camera.stop_recording(splitter_port=2)
 
     def is_real_camera(self):
         """ Overriding """

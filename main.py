@@ -49,10 +49,10 @@ logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
 logging.info('Started monitoring')
 
 camera = get_camera(chunk_length, recordings_path)
-sense_hat = get_sense_hat(camera)
-web_streaming = get_web_streaming(camera, sense_hat)
 
 with camera:
+    sense_hat = get_sense_hat(camera)
+    web_streaming = get_web_streaming(camera, sense_hat)
     camera.attach(web_streaming)
     camera.attach(sense_hat)
     while True:
