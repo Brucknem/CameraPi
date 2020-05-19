@@ -54,6 +54,9 @@ class Camera(CameraBase):
         Record functionality of the camera.
         """
         super().record()
+        if not self.can_write_recordings():
+            logging.info('Fallback folder')
+            self.set_recordings_folder(get_default_recordings_path())
 
         self.real_camera.start_recording(
             self.recordings_folder.get_next_chunk_path())
@@ -67,8 +70,10 @@ class Camera(CameraBase):
                 self.real_camera.split_recording(
                     self.recordings_folder.get_next_chunk_path())
                 self.real_camera.wait_recording(self.chunk_length)
-        except Exception as e:
-            logging.error('Error in record thread', e=e)
+        except Exception:
+            logging.error('Error in record thread')
+            self.stop_recording()
+            self.start_recording()
 
     def stop_recording(self):
         """
@@ -76,8 +81,10 @@ class Camera(CameraBase):
         """
         if not super().stop_recording():
             return
-        self.real_camera.stop_recording()
-        self.record_thread = None
+        try:
+            self.real_camera.stop_recording()
+        except Exception:
+            pass
 
     def streaming_allowed(self, output):
         """ Overriding """
