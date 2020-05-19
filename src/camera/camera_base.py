@@ -127,6 +127,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
             return False
         logging.info('Stop recording')
         self.set_camera_state(CameraState.IDLE)
+        self.record_thread = None
         return True
 
     def start_streaming(self, output):
