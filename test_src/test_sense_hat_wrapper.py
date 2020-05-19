@@ -177,6 +177,12 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         sleep(2)
         assert self.camera.camera_state == CameraState.OFF
 
+    def test_show_ip(self):
+        """
+        Test: Show ip
+        """
+        assert self.sense_hat.show_ip(ReleaseEvent())
+
 
 def assert_sense_hat_matrix_color(sense_hat: SenseHatWrapperBase, color):
     """
