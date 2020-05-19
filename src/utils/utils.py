@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from os.path import dirname
+from pathlib import Path
 
 file_date_format_string = '%Y_%m_%d_%H_%M_%S'
 log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
@@ -60,3 +61,27 @@ def read_file_relative_to(filename: str, relative_to: str,
             return file
         else:
             return file.decode("utf-8")
+
+
+def assert_can_write_to_dir(base_path):
+    """
+    Checks if the base dir can be written.
+    """
+    try:
+        Path(base_path).mkdir(parents=True, exist_ok=True)
+
+        if not os.path.exists(base_path):
+            return False
+        test_file_path = os.path.join(base_path,
+                                      'write_access_test_file')
+        with open(test_file_path, 'w') as file:
+            file.write('assert can write')
+        if not os.path.exists(test_file_path):
+            return False
+        with open(test_file_path, 'r') as file:
+            if not file.read() == 'assert can write':
+                return False
+        os.remove(test_file_path)
+        return True
+    except Exception:
+        return False

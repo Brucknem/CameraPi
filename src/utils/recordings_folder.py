@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from src.utils.utils import get_datetime_now_file_string
+from src.utils.utils import get_datetime_now_file_string, \
+    assert_can_write_to_dir
 
 
 class RecordingsFolder:
@@ -19,17 +20,22 @@ class RecordingsFolder:
         self.current_recordings_folder: str = ''
         self.set_base_path(base_path)
 
-    def set_base_path(self, base_path: str = './recordings/'):
+    def set_base_path(self, base_path):
         """
         Sets the base path and setups the necessary followup paths.
         """
-        self.base_path = base_path
-        self.datetime_now = datetime.now()
-        self \
-            .log_dir = os.path.join(base_path, get_datetime_now_file_string())
-        Path(self.log_dir).mkdir(parents=True, exist_ok=True)
-        self.log_file_path = os.path.join(self.log_dir, 'log.txt')
-        self.current_recordings_folder: str = ''
+        try:
+            if not assert_can_write_to_dir(base_path):
+                base_path = './recordings'
+            self.base_path: str = base_path
+            self.datetime_now: datetime = datetime.now()
+            self.current_recordings_folder: str = ''
+            self.log_dir = os.path.join(base_path,
+                                        get_datetime_now_file_string())
+            Path(self.log_dir).mkdir(parents=True, exist_ok=True)
+            self.log_file_path = os.path.join(self.log_dir, 'log.txt')
+        except Exception:
+            self.set_base_path('./recordings')
 
     def create_new_recording(self):
         """
@@ -44,5 +50,7 @@ class RecordingsFolder:
         Returns the full path to the current chunk.
         :return:
         """
+        if not self.current_recordings_folder:
+            self.create_new_recording()
         return os.path.join(self.current_recordings_folder,
                             get_datetime_now_file_string() + '.h264')

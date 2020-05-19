@@ -12,6 +12,14 @@
 <img src="stream.mjpg" width="100%" id="stream_image"/>
 <br><br>
 
+{% if not can_write_recordings %}
+<hr>
+<div style="font-size:xx-large">Cannot write to directory: {{ base_path
+    }}
+</div>
+<hr>
+{% endif %}
+
 <form action="" method="get">
     <button style="font-size:xx-large" name="start" type="submit" value="True"
             {% if is_recording %} disabled {% endif %}
@@ -25,9 +33,7 @@
     >
         Stop recording
     </button>
-    <br>
-    <br>
-
+    <hr>
     <button style="font-size:xx-large" name="refresh" type="submit"
             value="True">
         Refresh Page
@@ -52,6 +58,7 @@
         </table>
     </div>
 </div>
+
 
 </body>
 </html>

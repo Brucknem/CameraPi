@@ -65,7 +65,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         html_template_string = template.render(
             is_recording=web_streaming.camera.is_recording(),
             measurements=measurements,
-            is_streaming_allowed=web_streaming.camera.is_output_allowed)
+            is_streaming_allowed=web_streaming.camera.is_output_allowed,
+            can_write_recordings=web_streaming.camera.can_write_recordings(),
+            base_path=web_streaming.camera.recordings_folder.base_path)
         html_template_string = html_template_string.encode('utf-8')
         self.send_response(200)
         self.send_header('Content-type', 'text/html')

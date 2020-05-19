@@ -6,7 +6,8 @@ from time import sleep
 from src.camera.camera_state import CameraState
 from src.utils.observable import Observable
 from src.utils.recordings_folder import RecordingsFolder
-from src.utils.utils import is_raspbian, read_file_relative_to
+from src.utils.utils import is_raspbian, read_file_relative_to, \
+    assert_can_write_to_dir
 
 camera_state_to_allowed_state_map: map = {
     CameraState.OFF: (CameraState.IDLE,),
@@ -46,7 +47,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         self.chunk_length = chunk_length
         self.record_thread: Thread = None
 
-        self.recordings_folder = None
+        self.recordings_folder: RecordingsFolder = None
         self.set_recordings_folder(recordings_path)
 
         self.default_image = read_file_relative_to(
@@ -187,3 +188,9 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         Is idle
         """
         return self.camera_state == CameraState.IDLE
+
+    def can_write_recordings(self):
+        """
+        Checks if the recordings folder is writable
+        """
+        return assert_can_write_to_dir(self.recordings_folder.base_path)
