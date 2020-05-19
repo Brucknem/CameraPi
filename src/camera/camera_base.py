@@ -54,7 +54,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
             __file__)
         self.streaming_thread = None
         self.is_streaming = False
-        self.is_streaming_allowed = True
+        self.is_output_allowed = True
 
     def set_recordings_folder(self, recordings_path):
         """ Setter: recordings_folder """
@@ -101,8 +101,6 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         logging.info('Start recording')
         if not self.camera_state == CameraState.IDLE:
-            logging.info('Camera not idle. Aborting.',
-                         self.camera_state)
             return
 
         if self.is_real_camera():
@@ -146,7 +144,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         self.is_streaming = True
         while self.is_streaming:
-            if self.is_streaming_allowed:
+            if self.is_output_allowed:
                 self.streaming_allowed(output)
             else:
                 self.streaming_not_allowed(output)

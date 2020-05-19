@@ -14,11 +14,15 @@
 
 <form action="" method="get">
     <button style="font-size:xx-large" name="start" type="submit" value="True"
-            {% if is_recording %} disabled {% endif %}>
+            {% if is_recording %} disabled {% endif %}
+            {% if not is_streaming_allowed %} disabled {% endif %}
+    >
         Start recording
     </button>
     <button style="font-size:xx-large" name="stop" type="submit" value="True"
-            {% if not is_recording %} disabled {% endif %}>
+            {% if not is_recording %} disabled {% endif %}
+            {% if not is_streaming_allowed %} disabled {% endif %}
+    >
         Stop recording
     </button>
     <br>

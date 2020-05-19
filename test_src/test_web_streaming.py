@@ -113,14 +113,17 @@ class TestWebStreaming(unittest.TestCase):
             web_streaming = get_web_streaming(self.camera)
             self.assert_correct_camera_view_shown()
 
-            web_streaming.camera.is_streaming_allowed = False
+            web_streaming.camera.is_output_allowed = False
             sleep(2)
             self.driver.get(base_url)
             assert 'Camera Pi' in self.driver.title
             size = self.driver.find_element_by_id('stream_image').size
             assert (size['height'] - size['width'] / 2) < 3
 
-            web_streaming.camera.is_streaming_allowed = True
+            assert not get_start_recording(self.driver).is_enabled()
+            assert not get_stop_recording(self.driver).is_enabled()
+
+            web_streaming.camera.is_output_allowed = True
             self.assert_correct_camera_view_shown()
 
     def assert_correct_camera_view_shown(self):
@@ -194,29 +197,15 @@ class TestUI(unittest.TestCase):
         """
         Asserts the given button setting.
         """
-        assert self.get_start_recording().is_enabled() == start
-        assert self.get_stop_recording().is_enabled() == stop
-
-    def get_start_recording(self):
-        """
-        Checks if the start button is enabled.
-        """
-        start_recording = self.driver.find_element_by_name('start')
-        return start_recording
-
-    def get_stop_recording(self):
-        """
-        Checks if the start button is enabled.
-        """
-        stop_recording = self.driver.find_element_by_name('stop')
-        return stop_recording
+        assert get_start_recording(self.driver).is_enabled() == start
+        assert get_stop_recording(self.driver).is_enabled() == stop
 
     def click_start(self):
         """
         Clicks on the start button.
         """
         self.assert_start_stop_recording(True, False)
-        start_recording = self.get_start_recording()
+        start_recording = get_start_recording(self.driver)
         start_recording.click()
         self.assert_start_stop_recording(False, True)
 
@@ -224,7 +213,7 @@ class TestUI(unittest.TestCase):
         """
         Clicks on the stop button.
         """
-        stop_recording = self.get_stop_recording()
+        stop_recording = get_stop_recording(self.driver)
         stop_recording.click()
         sleep(2)
         self.assert_start_stop_recording(True, False)
@@ -250,3 +239,19 @@ class TestUI(unittest.TestCase):
             values[raw_values[i]] = raw_values[i + 1]
 
         return values
+
+
+def get_start_recording(driver):
+    """
+    Checks if the start button is enabled.
+    """
+    start_recording = driver.find_element_by_name('start')
+    return start_recording
+
+
+def get_stop_recording(driver):
+    """
+    Checks if the start button is enabled.
+    """
+    stop_recording = driver.find_element_by_name('stop')
+    return stop_recording

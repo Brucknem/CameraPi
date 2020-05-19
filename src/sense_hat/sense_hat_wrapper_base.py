@@ -201,7 +201,7 @@ def start_streaming(event):
     if event.action != 'released':
         return
 
-    sense_hat.camera.is_streaming_allowed = True
+    sense_hat.camera.is_output_allowed = True
 
 
 def stop_streaming(event):
@@ -212,7 +212,7 @@ def stop_streaming(event):
     if event.action != 'released':
         return
 
-    sense_hat.camera.is_streaming_allowed = False
+    sense_hat.camera.is_output_allowed = False
 
 
 def show_ip(event):

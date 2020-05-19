@@ -18,7 +18,7 @@ class Camera(CameraBase):
         """
         super().__init__(chunk_length, recordings_path)
         self.real_camera = None
-        self.streaming_chunk_length = 5
+        self.streaming_chunk_length = 2
 
     def start_camera(self):
         """ Overriding """

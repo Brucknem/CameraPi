@@ -64,7 +64,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         # Render HTML Template String
         html_template_string = template.render(
             is_recording=web_streaming.camera.is_recording(),
-            measurements=measurements)
+            measurements=measurements,
+            is_streaming_allowed=web_streaming.camera.is_output_allowed)
         html_template_string = html_template_string.encode('utf-8')
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -81,15 +82,16 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Location', '/index.html')
             self.end_headers()
         elif str.startswith(str(self.path), '/index.html'):
-            from urllib.parse import parse_qs
-            try:
-                get_data = parse_qs(str.split(self.path, '?')[1])
-                if 'start' in get_data:
-                    web_streaming.start_recording()
-                if 'stop' in get_data:
-                    web_streaming.stop_recording()
-            except IndexError:
-                pass
+            if web_streaming.camera.is_output_allowed:
+                from urllib.parse import parse_qs
+                try:
+                    get_data = parse_qs(str.split(self.path, '?')[1])
+                    if 'start' in get_data:
+                        web_streaming.start_recording()
+                    if 'stop' in get_data:
+                        web_streaming.stop_recording()
+                except IndexError:
+                    pass
             self.set_response()
         elif self.path == '/stream.mjpg':
             self.do_streaming()
