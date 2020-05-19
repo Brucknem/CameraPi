@@ -9,8 +9,8 @@ from src.camera.camera_state import CameraState
 from src.sense_hat_wrapper.sense_hat_wrapper import TEMPERATURE_PRESSURE_KEY, \
     TEMPERATURE_HUMIDITY_KEY, PRESSURE, HUMIDITY
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase, \
-    camera_state_to_color_map
-from src.utils.utils import TEMPERATURE_CHIP_KEY
+    camera_state_to_color_map, get_sense_hat
+from src.utils.utils import TEMPERATURE_CHIP_KEY, is_raspbian
 
 chunk_length = 3
 tests_folder = './test_sense_hat_folder'
@@ -26,6 +26,13 @@ class TestSenseHatWrapperBase(unittest.TestCase):
         """ Setup """
         self.camera = get_camera(chunk_length, tests_folder)
         self.sense_hat = SenseHatWrapperBase(self.camera, message='')
+
+    def test_get_sense_hat(self):
+        """
+        Test: Get sense hat function.
+        """
+        sense_hat = get_sense_hat(self.camera, 'test')
+        assert sense_hat.is_real_sense_hat() == is_raspbian()
 
     def test_display_camera_state(self):
         """
