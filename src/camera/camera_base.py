@@ -16,18 +16,28 @@ camera_state_to_allowed_state_map: map = {
     CameraState.STOPPING_RECORD: (CameraState.IDLE,)
 }
 
+camera = None
 
-def get_camera(chunk_length=300,
-               recordings_path: str = './recordings'):
+
+def get_camera(chunk_length=None,
+               recordings_path: str = ''):
     """
     Factory method for the camera interface
     """
-    if is_raspbian():
-        from src.camera.camera_pi import Camera
-        return Camera(chunk_length, recordings_path)
+    global camera
+    if camera:
+        if recordings_path:
+            camera.set_recordings_folder(recordings_path)
+        if chunk_length:
+            camera.chunk_length = chunk_length
     else:
-        from src.camera.camera_mock import Camera
-        return Camera(chunk_length, recordings_path)
+        if is_raspbian():
+            from src.camera.camera_pi import Camera
+        else:
+            from src.camera.camera_mock import Camera
+        camera = Camera(chunk_length if chunk_length else 300,
+                        recordings_path if recordings_path else './recordings')
+    return camera
 
 
 class CameraBase(Observable, metaclass=abc.ABCMeta):
@@ -47,7 +57,8 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         self.chunk_length = chunk_length
         self.record_thread: Thread = None
 
-        self.recordings_folder = RecordingsFolder(recordings_path)
+        self.recordings_folder = None
+        self.set_recordings_folder(recordings_path)
 
         self.default_image = read_file_relative_to(
             "default_image.jpeg",
@@ -55,6 +66,10 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         self.streaming_thread = None
         self.is_streaming = False
         self.is_streaming_allowed = True
+
+    def set_recordings_folder(self, recordings_path):
+        """ Setter: recordings_folder """
+        self.recordings_folder = RecordingsFolder(recordings_path)
 
     def __enter__(self):
         """

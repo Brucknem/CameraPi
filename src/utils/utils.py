@@ -37,9 +37,11 @@ def read_cpu_temperature():
     Read the pressure, temperature and humidity from the sense hat and log.
     """
 
-    f = open("/sys/class/thermal/thermal_zone0/temp", "r")
-    cpu = f.readline()
-    values = {'Temperature (Chip)': str(round(int(cpu) / 1000, 2)) + ' \'C'}
+    values = {}
+    with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+        cpu = f.readline()
+        values = {
+            'Temperature (Chip)': str(round(int(cpu) / 1000, 2)) + ' \'C'}
 
     return values
 
@@ -54,7 +56,7 @@ def read_file_relative_to(filename: str, relative_to: str,
             'rb') as f:
         file = f.read()
 
-    if not decode:
-        return file
-    else:
-        return file.decode("utf-8")
+        if not decode:
+            return file
+        else:
+            return file.decode("utf-8")

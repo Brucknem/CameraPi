@@ -31,18 +31,28 @@ class MockStreamingOutput(object):
         self.buf = buf
 
 
-class TestCameraFactory:
+class TestCameraFactory(unittest.TestCase):
     """
     Tests for the camera factory
     """
 
+    def setUp(self) -> None:
+        """ Setup """
+        self.camera = get_camera(recordings_path=test_recordings_path)
+        assert self.camera
+
     def test_get_camera(self):
         """
-        Test: Create a camera on different platforms
+        Test: Create a camera on different platforms.
         """
-        camera = get_camera(recordings_path=test_recordings_path)
-        assert camera
-        assert is_raspbian() is camera.is_real_camera()
+        assert is_raspbian() is self.camera.is_real_camera()
+
+    def test_singleton(self):
+        """
+        Test: Camera singleton pattern.
+        """
+        assert get_camera() == self.camera
+        assert get_camera(chunk_length=14) == self.camera
 
 
 class TestCameraBase(unittest.TestCase):
@@ -206,6 +216,15 @@ class TestCameraPi(unittest.TestCase):
 
             self.camera.stop_recording()
             assert self.camera.record_thread is None
+
+    def test_streaming_allowed(self):
+        """
+        Test: Streaming is allowed
+        """
+        output = MockStreamingOutput()
+        with self.camera:
+            self.camera.streaming_allowed(output)
+            assert output.buf.startswith(b'\xff\xd8')
 
 
 def create_and_assert_physical_camera():
