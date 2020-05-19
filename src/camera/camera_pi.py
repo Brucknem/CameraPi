@@ -36,15 +36,8 @@ class Camera(CameraBase):
         logging.info('Stopping camera.')
         self.camera_state = CameraState.STOPPING_RECORD
 
-        try:
-            self.real_camera.stop_recording(splitter_port=2)
-        except Exception:
-            logging.info('Camera not streaming on splitter port 2.')
-
-        try:
-            self.real_camera.stop_recording()
-        except Exception:
-            logging.info('Camera not recording.')
+        self.stop_streaming()
+        self.stop_recording()
 
         try:
             self.real_camera.stop_preview()

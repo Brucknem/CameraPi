@@ -88,7 +88,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     web_streaming.start_recording()
                 if 'stop' in get_data:
                     web_streaming.stop_recording()
-
             except IndexError:
                 pass
             self.set_response()

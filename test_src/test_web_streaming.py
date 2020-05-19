@@ -19,7 +19,7 @@ enter = Keys.RETURN
 chunk_length = 3
 test_recordings_path = './test_webstreaming'
 
-web_streaming_is_running = True
+web_streaming_is_running = False
 
 
 def setup_camera_and_web_streaming():
@@ -107,8 +107,9 @@ class TestWebStreaming(unittest.TestCase):
         """
         Tests if server is really not reachable if streaming is stopped.
         """
-        self.camera.streaming_chunk_length = 1
+
         with self.camera:
+            self.camera.streaming_chunk_length = 1
             web_streaming = get_web_streaming(self.camera)
             self.assert_correct_camera_view_shown()
 
@@ -138,6 +139,7 @@ class TestWebStreaming(unittest.TestCase):
         """
         Tear down web streaming and driver.
         """
+        sleep(2)
         self.driver.close()
         shutil.rmtree(test_recordings_path)
 
@@ -151,20 +153,22 @@ class TestUI(unittest.TestCase):
         """
         Set up web streaming and driver.
         """
-        setup_camera_and_web_streaming()
         path = '/usr/local/bin'
         if is_raspbian():
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
+        setup_camera_and_web_streaming()
 
     def tearDown(self):
         """
         Tear down web streaming and driver.
         """
-        global web_streaming_is_running
-        web_streaming_is_running = False
+        sleep(2)
         self.driver.close()
         shutil.rmtree(test_recordings_path)
+        global web_streaming_is_running
+        web_streaming_is_running = False
+        sleep(2)
 
     def test_open_web_streaming(self):
         """
@@ -198,7 +202,6 @@ class TestUI(unittest.TestCase):
         Checks if the start button is enabled.
         """
         start_recording = self.driver.find_element_by_name('start')
-        assert start_recording.is_enabled
         return start_recording
 
     def get_stop_recording(self):
@@ -206,7 +209,6 @@ class TestUI(unittest.TestCase):
         Checks if the start button is enabled.
         """
         stop_recording = self.driver.find_element_by_name('stop')
-        assert stop_recording.is_enabled
         return stop_recording
 
     def click_start(self):
@@ -224,6 +226,7 @@ class TestUI(unittest.TestCase):
         """
         stop_recording = self.get_stop_recording()
         stop_recording.click()
+        sleep(2)
         self.assert_start_stop_recording(True, False)
 
     def extract_get_values(self):

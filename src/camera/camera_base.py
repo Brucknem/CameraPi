@@ -16,28 +16,17 @@ camera_state_to_allowed_state_map: map = {
     CameraState.STOPPING_RECORD: (CameraState.IDLE,)
 }
 
-camera = None
 
-
-def get_camera(chunk_length=None,
-               recordings_path: str = ''):
+def get_camera(chunk_length=300,
+               recordings_path: str = './recordings'):
     """
     Factory method for the camera interface
     """
-    global camera
-    if camera:
-        if recordings_path:
-            camera.set_recordings_folder(recordings_path)
-        if chunk_length:
-            camera.chunk_length = chunk_length
+    if is_raspbian():
+        from src.camera.camera_pi import Camera
     else:
-        if is_raspbian():
-            from src.camera.camera_pi import Camera
-        else:
-            from src.camera.camera_mock import Camera
-        camera = Camera(chunk_length if chunk_length else 300,
-                        recordings_path if recordings_path else './recordings')
-    return camera
+        from src.camera.camera_mock import Camera
+    return Camera(chunk_length, recordings_path)
 
 
 class CameraBase(Observable, metaclass=abc.ABCMeta):
@@ -110,10 +99,12 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Start the recording.
         """
+        logging.info('Start recording')
         if not self.camera_state == CameraState.IDLE:
+            logging.info('Camera not idle. Aborting.',
+                         self.camera_state)
             return
 
-        logging.info('Start recording')
         if self.is_real_camera():
             self.recordings_folder.create_new_recording()
 
@@ -143,10 +134,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         Starts a stream to an output stream object.
         """
         logging.info('Start streaming')
-        if self.streaming_thread:
-            self.is_streaming = False
-            self.streaming_thread.join()
-
+        self.stop_streaming()
         self.streaming_thread = Thread(target=self._streaming_thread,
                                        args=(output,))
         self.streaming_thread.daemon = True
@@ -180,7 +168,9 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Stops the streaming.
         """
-        pass
+        if self.streaming_thread:
+            self.is_streaming = False
+            self.streaming_thread.join()
 
     def is_real_camera(self):
         """

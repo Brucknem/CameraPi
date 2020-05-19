@@ -47,13 +47,6 @@ class TestCameraFactory(unittest.TestCase):
         """
         assert is_raspbian() is self.camera.is_real_camera()
 
-    def test_singleton(self):
-        """
-        Test: Camera singleton pattern.
-        """
-        assert get_camera() == self.camera
-        assert get_camera(chunk_length=14) == self.camera
-
 
 class TestCameraBase(unittest.TestCase):
     """
