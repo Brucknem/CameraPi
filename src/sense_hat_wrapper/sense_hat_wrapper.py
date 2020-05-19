@@ -3,8 +3,8 @@ from time import sleep
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
-from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase, \
-    start_camera, stop_camera, start_streaming, stop_streaming, show_ip
+from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
+from src.utils.utils import read_cpu_temperature
 
 HUMIDITY = 'Humidity'
 
@@ -142,3 +142,87 @@ class SenseHatWrapper(SenseHatWrapperBase):
             self.actual_sense_hat.clear()
         except Exception:
             pass
+
+
+def read_sensors(event):
+    """
+    Read the pressure, temperature and humidity from the sense hat and log.
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        return sense_hat.read_sensors()
+    except Exception:
+        return read_cpu_temperature()
+
+
+def start_camera(event):
+    """
+    Method stub for camera starting later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        sense_hat.camera.start_recording()
+    except Exception as err:
+        logging.exception(err)
+
+
+def stop_camera(event):
+    """
+    Method stub for camera stopping later on
+    (Joystick key callback)
+
+    :param event: the key input event
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    try:
+        sense_hat.camera.stop_recording()
+    except Exception as err:
+        logging.exception(err)
+
+
+def start_streaming(event):
+    """
+    Starts the web stream.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    sense_hat.camera.is_output_allowed = True
+
+
+def stop_streaming(event):
+    """
+    Stops the web stream.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    sense_hat.camera.is_output_allowed = False
+
+
+def show_ip(event):
+    """
+    Displays the own ip for easy connect.
+    """
+    global sense_hat
+    if event.action != 'released':
+        return
+
+    sense_hat.show_ip()

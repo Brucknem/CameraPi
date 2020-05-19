@@ -53,6 +53,13 @@ class TestSenseHatWrapperBase(unittest.TestCase):
         for state in CameraState:
             set_and_assert_camera_state(self.camera, self.sense_hat, state)
 
+    def test_read_sensors(self):
+        """
+        Test: Temperature (Chip) correct read as sense hat value
+        """
+        values = self.sense_hat.read_sensors()
+        assert values
+
 
 class TestSenseHatWrapper(TestSenseHatWrapperBase):
     """
