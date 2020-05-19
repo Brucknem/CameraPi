@@ -1,6 +1,5 @@
 import logging
 import socket
-from time import sleep
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
@@ -20,45 +19,37 @@ class SenseHatWrapperBase(Observer):
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self, actual_sense_hat, camera: CameraBase,
+    def __init__(self, camera: CameraBase,
                  message='Started CameraPi'):
         """
         Constructor.
         """
         super().__init__()
-        self.actual_sense_hat = actual_sense_hat
         self.camera = camera
-        self.setup_callbacks(left=start_camera,
-                             right=stop_camera,
-                             up=start_streaming,
-                             down=stop_streaming,
-                             middle=show_ip,
-                             message=message)
         self.camera.attach(self)
+        self.setup(message)
 
-    def __del__(self):
+    def setup(self, message):
         """
-        Destructor.
+        Show the message and make specific setup.
         """
-        self.clear()
+        logging.info(message)
 
     def get_matrix(self):
         """
         Returns the sense hat matrix.
         """
-        return self.actual_sense_hat.get_pixels()
+        return []
 
     def display_camera_state(self, camera_state: CameraState):
         """
         Sets the sense hat matrix according to the recording state.
         """
-        try:
-            self.actual_sense_hat.clear(
-                camera_state_to_color_map[camera_state])
-            self.actual_sense_hat.low_light = True
-            sleep(1)
-        except Exception as err:
-            logging.exception(err)
+        color = camera_state_to_color_map[camera_state]
+        logging.info(
+            'Displaying camera state: ' + str(camera_state) + "(" + str(
+                color) + ')')
+        return color
 
     def update(self, **kwargs):
         """
@@ -79,19 +70,10 @@ class SenseHatWrapperBase(Observer):
             s.close()
             output_string = str(ip) + ':' + str(8080)
             logging.info('IP: ' + output_string)
-            self.actual_sense_hat.show_message(output_string)
+            return output_string
         except Exception as err:
             logging.exception('Show IP failed: ' + str(err))
-            self.actual_sense_hat.clear(255, 0, 0)
-
-    def clear(self):
-        """
-        Clears the sense hat matrix.
-        """
-        try:
-            self.actual_sense_hat.clear()
-        except Exception:
-            pass
+            return None
 
     def read_sensors(self):
         """
@@ -100,29 +82,6 @@ class SenseHatWrapperBase(Observer):
 
         values = read_cpu_temperature()
         return values
-
-    def setup_callbacks(self,
-                        left=None,
-                        right=None,
-                        up=None,
-                        down=None,
-                        middle=None,
-                        message=None):
-        """ Overriding """
-
-        try:
-            self.actual_sense_hat.stick.direction_left = left
-            self.actual_sense_hat.stick.direction_right = right
-            self.actual_sense_hat.stick.direction_up = up
-            self.actual_sense_hat.stick.direction_down = down
-            self.actual_sense_hat.stick.direction_middle = middle
-
-            if message:
-                self.actual_sense_hat.show_message(message,
-                                                   scroll_speed=0.05)
-            self.clear()
-        except Exception:
-            pass
 
     def is_real_sense_hat(self):
         """

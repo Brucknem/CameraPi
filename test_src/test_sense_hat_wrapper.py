@@ -9,7 +9,7 @@ from src.camera.camera_state import CameraState
 from src.sense_hat_wrapper.sense_hat_wrapper import TEMPERATURE_PRESSURE_KEY, \
     TEMPERATURE_HUMIDITY_KEY, PRESSURE, HUMIDITY
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase, \
-    camera_state_to_color_map, get_sense_hat
+    camera_state_to_color_map
 from src.utils.utils import TEMPERATURE_CHIP_KEY
 
 chunk_length = 3
@@ -25,7 +25,7 @@ class TestSenseHatWrapperBase(unittest.TestCase):
     def setUp(self) -> None:
         """ Setup """
         self.camera = get_camera(chunk_length, tests_folder)
-        self.sense_hat = get_sense_hat(self.camera, message='')
+        self.sense_hat = SenseHatWrapperBase(self.camera, message='')
 
     def test_display_camera_state(self):
         """
@@ -34,11 +34,24 @@ class TestSenseHatWrapperBase(unittest.TestCase):
         for state in CameraState:
             set_and_assert_display_state(self.sense_hat, state)
 
-    def test_clear(self):
+    def tearDown(self) -> None:
+        """ Tear down """
+        del self.camera
+        del self.sense_hat
+        shutil.rmtree(tests_folder)
+
+    def test_show_ip(self):
         """
-        Test: Clear the matrix:
+        Test: Show ip
         """
-        self.sense_hat.clear()
+        assert self.sense_hat.show_ip()
+
+    def test_update(self):
+        """
+        Test: Update method
+        """
+        for state in CameraState:
+            set_and_assert_camera_state(self.camera, self.sense_hat, state)
 
 
 class TestSenseHatWrapper(TestSenseHatWrapperBase):
@@ -74,40 +87,11 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         assert PRESSURE in values
         assert HUMIDITY in values
 
-    def test_update(self):
+    def test_clear(self):
         """
-        Test: Update method
+        Test: Clear the matrix:
         """
-        for state in CameraState:
-            set_and_assert_camera_state(self.camera, self.sense_hat, state)
-
-
-class TestSenseHatWrapperMock(TestSenseHatWrapperBase):
-    """
-    Tests for the sense hat wrapper mock.
-    """
-
-    def setUp(self) -> None:
-        """ Setup """
-        self.camera = get_camera(chunk_length, tests_folder)
-        from src.sense_hat_wrapper.sense_hat_wrapper_mock import \
-            SenseHatWrapperMock
-        self.sense_hat = SenseHatWrapperMock(self.camera, message='')
-        assert not self.sense_hat.is_real_sense_hat()
-
-    def tearDown(self) -> None:
-        """ Tear down """
-        del self.camera
-        del self.sense_hat
-        shutil.rmtree(tests_folder)
-
-    def test_read_sensors(self):
-        """
-        Test: Temperature (Chip) correct read as sense hat value
-        """
-        values = self.sense_hat.read_sensors()
-        assert values
-        assert TEMPERATURE_CHIP_KEY in values
+        self.sense_hat.clear()
 
     def test_update(self):
         """

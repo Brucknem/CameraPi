@@ -1,7 +1,10 @@
 import logging
+from time import sleep
 
 from src.camera.camera_base import CameraBase
-from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
+from src.camera.camera_state import CameraState
+from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase, \
+    start_camera, stop_camera, start_streaming, stop_streaming, show_ip
 
 HUMIDITY = 'Humidity'
 
@@ -41,7 +44,33 @@ class SenseHatWrapper(SenseHatWrapperBase):
         Constructor.
         """
         from sense_hat import SenseHat
-        super().__init__(SenseHat(), camera, message)
+        self.actual_sense_hat = SenseHat()
+        super().__init__(camera, message)
+
+    def __del__(self):
+        """
+        Destructor.
+        """
+        self.clear()
+
+    def setup(self, message):
+        """
+        Show the message and make specific setup.
+        """
+        super().setup(message)
+        try:
+            self.actual_sense_hat.stick.direction_left = start_camera
+            self.actual_sense_hat.stick.direction_right = stop_camera
+            self.actual_sense_hat.stick.direction_up = start_streaming
+            self.actual_sense_hat.stick.direction_down = stop_streaming
+            self.actual_sense_hat.stick.direction_middle = show_ip
+
+            if message:
+                self.actual_sense_hat.show_message(message,
+                                                   scroll_speed=0.05)
+            self.clear()
+        except Exception:
+            pass
 
     def read_sensors(self):
         """ Overriding """
@@ -74,3 +103,42 @@ class SenseHatWrapper(SenseHatWrapperBase):
     def is_real_sense_hat(self):
         """ Overriding """
         return True
+
+    def get_matrix(self):
+        """
+        Returns the sense hat matrix.
+        """
+        return self.actual_sense_hat.get_pixels()
+
+    def display_camera_state(self, camera_state: CameraState):
+        """
+        Sets the sense hat matrix according to the recording state.
+        """
+        color = super().display_camera_state(camera_state)
+        try:
+            self.actual_sense_hat.clear(color)
+            self.actual_sense_hat.low_light = True
+        except Exception as err:
+            logging.exception(err)
+            sleep(1)
+        return color
+
+    def show_ip(self):
+        """
+        Displays the own ip for easy connect.
+        """
+        ip = super().show_ip()
+        if ip:
+            self.actual_sense_hat.show_message(ip)
+        else:
+            self.actual_sense_hat.clear(255, 0, 0)
+        return ip
+
+    def clear(self):
+        """
+        Clears the sense hat matrix.
+        """
+        try:
+            self.actual_sense_hat.clear()
+        except Exception:
+            pass
