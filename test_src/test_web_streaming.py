@@ -8,9 +8,9 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from src.camera.CameraBase import get_camera
-from src.utils.Utils import is_raspbian
-from src.web.WebStreaming import get_web_streaming
+from src.camera.camera_base import get_camera
+from src.utils.utils import is_raspbian
+from src.web.web_streaming import get_web_streaming
 
 base_url = 'http://0.0.0.0:8080/index.html'
 

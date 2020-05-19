@@ -1,10 +1,10 @@
 import logging
 import socket
 
-from src.camera.CameraBase import CameraBase
-from src.camera.CameraState import CameraState
-from src.utils.Observer import Observer
-from src.utils.Utils import read_cpu_temperature
+from src.camera.camera_base import CameraBase
+from src.camera.camera_state import CameraState
+from src.utils.observer import Observer
+from src.utils.utils import read_cpu_temperature
 
 camera_state_to_color_map: map = {
     CameraState.OFF: (0, 0, 0),
@@ -131,11 +131,12 @@ def get_sense_hat(camera: CameraBase = None):
             raise ValueError(
                 'A camera must be given when instantiating a sense hat.')
         try:
-            from src.sense_hat.SenseHatWrapper import SenseHatWrapper
+            from src.sense_hat.sense_hat_wrapper import SenseHatWrapper
 
             sense_hat = SenseHatWrapper(camera)
         except Exception:
-            from src.sense_hat.SenseHatWrapperMock import SenseHatWrapperMock
+            from src.sense_hat.sense_hat_wrapper_mock import \
+                SenseHatWrapperMock
 
             sense_hat = SenseHatWrapperMock(camera)
     return sense_hat
@@ -210,7 +211,7 @@ def stop_streaming(event):
     global sense_hat
     if event.action != 'released':
         return
-    
+
     sense_hat.camera.is_streaming_allowed = False
 
 

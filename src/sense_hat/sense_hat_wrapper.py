@@ -2,8 +2,8 @@ import logging
 
 from sense_hat import SenseHat
 
-from src.camera.CameraBase import CameraBase
-from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
+from src.camera.camera_base import CameraBase
+from src.sense_hat.sense_hat_wrapper_base import ISenseHatWrapper
 
 
 def single_sensor_measurement(measurement_name: str, measurement_function):

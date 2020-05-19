@@ -4,9 +4,9 @@ import logging
 import signal
 import sys
 
-from src.camera.CameraBase import get_camera
-from src.sense_hat.ISenseHatWrapper import get_sense_hat
-from src.web.WebStreaming import get_web_streaming
+from src.camera.camera_base import get_camera
+from src.sense_hat.sense_hat_wrapper_base import get_sense_hat
+from src.web.web_streaming import get_web_streaming
 
 
 def signal_handler(sig, frame):

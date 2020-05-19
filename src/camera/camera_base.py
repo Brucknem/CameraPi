@@ -1,11 +1,12 @@
+import abc
 import logging
 from threading import Thread
 from time import sleep
 
-from src.camera.CameraState import CameraState
-from src.utils.Observable import Observable
-from src.utils.RecordingsFolder import RecordingsFolder
-from src.utils.Utils import is_raspbian, read_file_relative_to
+from src.camera.camera_state import CameraState
+from src.utils.observable import Observable
+from src.utils.recordings_folder import RecordingsFolder
+from src.utils.utils import is_raspbian, read_file_relative_to
 
 camera_state_to_allowed_state_map: map = {
     CameraState.OFF: (CameraState.IDLE,),
@@ -22,14 +23,14 @@ def get_camera(chunk_length=300,
     Factory method for the camera interface
     """
     if is_raspbian():
-        from src.camera.PhysicalCamera import PhysicalCamera
-        return PhysicalCamera(chunk_length, recordings_path)
+        from src.camera.camera_pi import Camera
+        return Camera(chunk_length, recordings_path)
     else:
-        from src.camera.MockCamera import MockCamera
-        return MockCamera(chunk_length, recordings_path)
+        from src.camera.camera_mock import Camera
+        return Camera(chunk_length, recordings_path)
 
 
-class CameraBase(Observable):
+class CameraBase(Observable, metaclass=abc.ABCMeta):
     """
     Wrapper for the picamera.
     Never call directly. Call CameraBase.get_camera() to keep singleton.
@@ -150,7 +151,7 @@ class CameraBase(Observable):
         """
         Writes to the buffer if the streaming is allowed
         """
-        pass
+        output.write(b'Mock implementation for override.')
 
     def streaming_not_allowed(self, output):
         """

@@ -1,5 +1,5 @@
-from src.camera.CameraBase import CameraBase
-from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
+from src.camera.camera_base import CameraBase
+from src.sense_hat.sense_hat_wrapper_base import ISenseHatWrapper
 
 
 class SenseHatWrapperMock(ISenseHatWrapper):

@@ -1,5 +1,5 @@
-from src.utils.Observable import Observable
-from src.utils.Observer import Observer
+from src.utils.observable import Observable
+from src.utils.observer import Observer
 
 
 def create_observable_observer_combination(num_observables, num_observers):

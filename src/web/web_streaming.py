@@ -6,10 +6,10 @@ from threading import Condition
 
 from jinja2 import Template
 
-from src.camera.CameraBase import CameraBase
-from src.sense_hat.ISenseHatWrapper import ISenseHatWrapper
-from src.utils.Observer import Observer
-from src.utils.Utils import read_cpu_temperature, read_file_relative_to
+from src.camera.camera_base import CameraBase
+from src.sense_hat.sense_hat_wrapper_base import ISenseHatWrapper
+from src.utils.observer import Observer
+from src.utils.utils import read_cpu_temperature, read_file_relative_to
 
 index_template_string = read_file_relative_to("templates/index.html",
                                               __file__, decode=True)

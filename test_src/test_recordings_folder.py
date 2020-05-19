@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from src.utils.RecordingsFolder import RecordingsFolder
+from src.utils.recordings_folder import RecordingsFolder
 
 tests_folder = './test_recordings_folder'
 recordings_folder = RecordingsFolder(tests_folder)
@@ -10,7 +10,7 @@ recordings_folder = RecordingsFolder(tests_folder)
 
 class TestRecordingsFolder:
     """
-    Tests for RecordingsFolder.py
+    Tests for recordings_folder.py
     """
 
     def test_module_constructor(self):

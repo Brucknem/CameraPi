@@ -6,13 +6,29 @@ from time import sleep
 
 import pytest
 
-from src.camera.CameraBase import CameraBase, CameraState, get_camera
-from src.camera.MockCamera import MockCamera
-from src.utils.Observer import Observer
-from src.utils.Utils import is_raspbian
+from src.camera.camera_base import CameraBase, CameraState, get_camera
+from src.camera.camera_mock import Camera
+from src.utils.observer import Observer
+from src.utils.utils import is_raspbian
 
 chunk_length = 3
 test_recordings_path = './test_cameras'
+
+
+class MockStreamingOutput(object):
+    """
+    The output for the camera web stream.
+    """
+
+    def __init__(self):
+        """ Constructor s"""
+        self.buf = b''
+
+    def write(self, buf):
+        """
+        Write to the stream buffer.
+        """
+        self.buf = buf
 
 
 class TestCameraFactory:
@@ -82,6 +98,15 @@ class TestCameraBase(unittest.TestCase):
         """
         start_stop_transition(self.camera, [Observer()])
 
+    def test_streaming_allowed(self):
+        """
+        Test: Streaming allowed function does nothing on base
+        """
+        output = MockStreamingOutput()
+        assert output.buf == b''
+        self.camera.streaming_allowed(output)
+        assert output.buf != b''
+
 
 def start_stop_transition(camera, observers=[]):
     """
@@ -115,14 +140,14 @@ def check_camera_state_in_observer(camera, camera_state):
         assert observer.notification['state'] == camera_state
 
 
-class TestMockCamera(unittest.TestCase):
+class TestCameraMock(unittest.TestCase):
     """
     Tests for the camera mock.
     """
 
     def setUp(self) -> None:
         """ Setup """
-        self.camera = MockCamera(recordings_path=test_recordings_path)
+        self.camera = Camera(recordings_path=test_recordings_path)
 
     def test_record(self):
         """
@@ -143,7 +168,7 @@ class TestMockCamera(unittest.TestCase):
             assert self.camera.record_thread is None
 
 
-class TestPhysicalCamera(unittest.TestCase):
+class TestCameraPi(unittest.TestCase):
     """
     Tests for the camera mock.
     """

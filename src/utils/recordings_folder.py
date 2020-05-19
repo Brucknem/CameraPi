@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from src.utils.Utils import get_datetime_now_file_string
+from src.utils.utils import get_datetime_now_file_string
 
 
 class RecordingsFolder:
