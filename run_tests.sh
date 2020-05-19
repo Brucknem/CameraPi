@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo systemctl stop camerapi.service
+
 source camerapiEnv/bin/activate
 
 flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=camerapiEnv
@@ -25,3 +27,6 @@ for arg in "$@"; do
     break
   fi
 done
+
+sudo systemctl start camerapi.service
+
