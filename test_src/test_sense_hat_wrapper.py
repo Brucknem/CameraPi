@@ -177,6 +177,28 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         sleep(2)
         assert self.camera.camera_state == CameraState.OFF
 
+    def test_start_stop_streaming(self):
+        """
+        Test: Start the camera.
+        """
+        assert self.camera.camera_state == CameraState.OFF
+
+        with self.camera:
+            sleep(2)
+            assert self.camera.camera_state == CameraState.IDLE
+            assert self.camera.is_output_allowed
+
+            self.sense_hat.stop_streaming(ReleaseEvent())
+            sleep(2)
+            assert not self.camera.is_output_allowed
+
+            self.sense_hat.start_streaming(ReleaseEvent())
+            sleep(2)
+            assert self.camera.is_output_allowed
+
+        sleep(2)
+        assert self.camera.camera_state == CameraState.OFF
+
     def test_show_ip(self):
         """
         Test: Show ip
