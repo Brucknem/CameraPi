@@ -1,5 +1,6 @@
 import shutil
 import unittest
+from time import sleep
 
 import numpy as np
 import pytest
@@ -15,6 +16,26 @@ from src.utils.utils import TEMPERATURE_CHIP_KEY, is_raspbian
 chunk_length = 3
 tests_folder = './test_sense_hat_folder'
 max_sense_hat_difference = list((1, 1, 1))
+
+
+class ReleaseEvent:
+    """
+    Mock event for the joystick callbacks
+    """
+
+    def __init__(self):
+        """ Constructor """
+        self.action = 'released'
+
+
+class PressedEvent:
+    """
+    Mock event for the joystick callbacks
+    """
+
+    def __init__(self):
+        """ Constructor """
+        self.action = 'pressed'
 
 
 class TestSenseHatWrapperBase(unittest.TestCase):
@@ -76,12 +97,10 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
     def setUp(self) -> None:
         """ Setup """
         self.camera = get_camera(chunk_length, tests_folder)
-        try:
-            from src.sense_hat_wrapper.sense_hat_wrapper import SenseHatWrapper
-            self.sense_hat = SenseHatWrapper(self.camera, message='')
-        except Exception:
+        self.sense_hat = get_sense_hat(self.camera, message='')
+        if not self.sense_hat.is_real_sense_hat():
             pytest.skip('Not on raspbian or no sense hat connected.')
-        assert self.sense_hat.is_real_sense_hat()
+        assert self.sense_hat in self.camera.observers
 
     def tearDown(self) -> None:
         """ Tear down """
@@ -111,8 +130,52 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         """
         Test: Update method
         """
-        for state in CameraState:
-            set_and_assert_camera_state(self.camera, self.sense_hat, state)
+        assert_sense_hat_matrix_color(self.sense_hat,
+                                      camera_state_to_color_map[
+                                          CameraState.OFF])
+
+        with self.camera:
+            sleep(2)
+            assert_sense_hat_matrix_color(self.sense_hat,
+                                          camera_state_to_color_map[
+                                              CameraState.IDLE])
+
+            self.camera.start_recording()
+            sleep(2)
+            assert_sense_hat_matrix_color(self.sense_hat,
+                                          camera_state_to_color_map[
+                                              CameraState.RECORDING])
+
+            self.camera.stop_recording()
+            sleep(2)
+            assert_sense_hat_matrix_color(self.sense_hat,
+                                          camera_state_to_color_map[
+                                              CameraState.IDLE])
+        sleep(2)
+        assert_sense_hat_matrix_color(self.sense_hat,
+                                      camera_state_to_color_map[
+                                          CameraState.OFF])
+
+    def test_start_stop_recording(self):
+        """
+        Test: Start the camera.
+        """
+        assert self.camera.camera_state == CameraState.OFF
+
+        with self.camera:
+            sleep(2)
+            assert self.camera.camera_state == CameraState.IDLE
+
+            self.sense_hat.start_recording(ReleaseEvent())
+            sleep(2)
+            assert self.camera.camera_state == CameraState.RECORDING
+
+            self.sense_hat.stop_recording(ReleaseEvent())
+            sleep(2)
+            assert self.camera.camera_state == CameraState.IDLE
+
+        sleep(2)
+        assert self.camera.camera_state == CameraState.OFF
 
 
 def assert_sense_hat_matrix_color(sense_hat: SenseHatWrapperBase, color):

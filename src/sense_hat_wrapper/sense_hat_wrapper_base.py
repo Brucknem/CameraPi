@@ -90,22 +90,14 @@ class SenseHatWrapperBase(Observer):
         return False
 
 
-sense_hat: SenseHatWrapperBase = None
-
-
-def get_sense_hat(camera: CameraBase = None,
+def get_sense_hat(camera: CameraBase,
                   message='Started CameraPi'):
     """
     Factory method for the sense hat interface
     """
-    global sense_hat
-    if not sense_hat:
-        if not camera:
-            raise ValueError(
-                'A camera must be given when instantiating a sense hat.')
-        try:
-            from src.sense_hat_wrapper.sense_hat_wrapper import SenseHatWrapper
-            sense_hat = SenseHatWrapper(camera, message)
-        except Exception:
-            sense_hat = SenseHatWrapperBase(camera, message)
+    try:
+        from src.sense_hat_wrapper.sense_hat_wrapper import SenseHatWrapper
+        sense_hat = SenseHatWrapper(camera, message)
+    except Exception:
+        sense_hat = SenseHatWrapperBase(camera, message)
     return sense_hat

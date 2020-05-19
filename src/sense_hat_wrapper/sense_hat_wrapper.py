@@ -4,7 +4,6 @@ from time import sleep
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
-from src.utils.utils import read_cpu_temperature
 
 HUMIDITY = 'Humidity'
 
@@ -59,11 +58,11 @@ class SenseHatWrapper(SenseHatWrapperBase):
         """
         super().setup(message)
         try:
-            self.actual_sense_hat.stick.direction_left = start_camera
-            self.actual_sense_hat.stick.direction_right = stop_camera
-            self.actual_sense_hat.stick.direction_up = start_streaming
-            self.actual_sense_hat.stick.direction_down = stop_streaming
-            self.actual_sense_hat.stick.direction_middle = show_ip
+            self.actual_sense_hat.stick.direction_left = self.start_recording
+            self.actual_sense_hat.stick.direction_right = self.stop_recording
+            self.actual_sense_hat.stick.direction_up = self.start_streaming
+            self.actual_sense_hat.stick.direction_down = self.stop_streaming
+            self.actual_sense_hat.stick.direction_middle = self.show_ip
 
             if message:
                 self.actual_sense_hat.show_message(message,
@@ -74,6 +73,7 @@ class SenseHatWrapper(SenseHatWrapperBase):
 
     def read_sensors(self):
         """ Overriding """
+
         values = super().read_sensors()
 
         try:
@@ -123,10 +123,13 @@ class SenseHatWrapper(SenseHatWrapperBase):
             sleep(1)
         return color
 
-    def show_ip(self):
+    def show_ip(self, event=None):
         """
         Displays the own ip for easy connect.
         """
+        if event and event.action != 'released':
+            return
+
         ip = super().show_ip()
         if ip:
             self.actual_sense_hat.show_message(ip)
@@ -143,86 +146,50 @@ class SenseHatWrapper(SenseHatWrapperBase):
         except Exception:
             pass
 
+    def start_recording(self, event):
+        """
+        Method stub for camera starting later on
+        (Joystick key callback)
 
-def read_sensors(event):
-    """
-    Read the pressure, temperature and humidity from the sense hat and log.
-    (Joystick key callback)
+        :param event: the key input event
+        """
+        if event.action != 'released':
+            return
 
-    :param event: the key input event
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
+        try:
+            self.camera.start_recording()
+        except Exception as err:
+            logging.exception(err)
 
-    try:
-        return sense_hat.read_sensors()
-    except Exception:
-        return read_cpu_temperature()
+    def stop_recording(self, event):
+        """
+        Method stub for camera stopping later on
+        (Joystick key callback)
 
+        :param event: the key input event
+        """
+        if event.action != 'released':
+            return
 
-def start_camera(event):
-    """
-    Method stub for camera starting later on
-    (Joystick key callback)
+        try:
+            self.camera.stop_recording()
+        except Exception as err:
+            logging.exception(err)
 
-    :param event: the key input event
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
+    def start_streaming(self, event):
+        """
+        Starts the web stream.
+        """
+        if event.action != 'released':
+            return
 
-    try:
-        sense_hat.camera.start_recording()
-    except Exception as err:
-        logging.exception(err)
+        self.camera.is_output_allowed = True
 
+    def stop_streaming(self, event):
+        """
+        Stops the web stream.
+        """
+        if event.action != 'released':
+            return
 
-def stop_camera(event):
-    """
-    Method stub for camera stopping later on
-    (Joystick key callback)
-
-    :param event: the key input event
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
-
-    try:
-        sense_hat.camera.stop_recording()
-    except Exception as err:
-        logging.exception(err)
-
-
-def start_streaming(event):
-    """
-    Starts the web stream.
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
-
-    sense_hat.camera.is_output_allowed = True
-
-
-def stop_streaming(event):
-    """
-    Stops the web stream.
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
-
-    sense_hat.camera.is_output_allowed = False
-
-
-def show_ip(event):
-    """
-    Displays the own ip for easy connect.
-    """
-    global sense_hat
-    if event.action != 'released':
-        return
-
-    sense_hat.show_ip()
+        self.camera.is_output_allowed = False
