@@ -33,16 +33,25 @@ class Camera(CameraBase):
         """
         Closes the camera.
         """
+        logging.info('Stopping camera.')
         self.camera_state = CameraState.STOPPING_RECORD
 
         try:
+            self.real_camera.stop_recording(splitter_port=2)
+        except Exception:
+            logging.info('Camera not streaming on splitter port 2.')
+
+        try:
             self.real_camera.stop_recording()
+        except Exception:
+            logging.info('Camera not recording.')
+
+        try:
             self.real_camera.stop_preview()
         except Exception:
-            pass
-        finally:
-            self.real_camera.close()
+            logging.info('Camera not recording.')
 
+        self.real_camera.close()
         self.real_camera = None
         super().stop_camera()
 

@@ -51,6 +51,8 @@ def web_streaming_thread():
         while web_streaming_is_running:
             pass
 
+    del camera
+
 
 def curl(url):
     """

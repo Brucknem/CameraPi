@@ -81,12 +81,14 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Starts the camera.
         """
+        logging.info('Start camera.')
         self.set_camera_state(CameraState.IDLE)
 
     def stop_camera(self):
         """
         Closes the camera.
         """
+        logging.info('Stop camera.')
         self.set_camera_state(CameraState.OFF)
 
     def start_recording(self):
