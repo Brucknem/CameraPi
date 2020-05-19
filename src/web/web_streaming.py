@@ -7,7 +7,7 @@ from threading import Condition
 from jinja2 import Template
 
 from src.camera.camera_base import CameraBase
-from src.sense_hat.sense_hat_wrapper_base import ISenseHatWrapper
+from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
 from src.utils.observer import Observer
 from src.utils.utils import read_cpu_temperature, read_file_relative_to
 
@@ -152,7 +152,7 @@ class WebStreaming(Observer):
         self.address = '', 8080
         self.camera: CameraBase = None
         self.server = StreamingServer(self.address, StreamingHandler)
-        self.sense_hat: ISenseHatWrapper = None
+        self.sense_hat: SenseHatWrapperBase = None
         self.thread = None
 
     def set_camera(self, camera):
@@ -162,7 +162,7 @@ class WebStreaming(Observer):
         self.camera = camera
         self.start_streaming()
 
-    def set_sense_hat(self, sense_hat: ISenseHatWrapper):
+    def set_sense_hat(self, sense_hat: SenseHatWrapperBase):
         """
         Sets the camera object.
         """
@@ -217,7 +217,8 @@ class WebStreaming(Observer):
             pass
 
 
-def get_web_streaming(camera: CameraBase, sense_hat: ISenseHatWrapper = None):
+def get_web_streaming(camera: CameraBase,
+                      sense_hat: SenseHatWrapperBase = None):
     """
     Gets the package internal web streaming object.
     """

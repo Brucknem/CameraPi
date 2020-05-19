@@ -1,9 +1,15 @@
 import logging
 
-from sense_hat import SenseHat
-
 from src.camera.camera_base import CameraBase
-from src.sense_hat.sense_hat_wrapper_base import ISenseHatWrapper
+from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
+
+HUMIDITY = 'Humidity'
+
+PRESSURE = 'Pressure'
+
+TEMPERATURE_HUMIDITY_KEY = 'Temperature (Humidity)'
+
+TEMPERATURE_PRESSURE_KEY = 'Temperature (Pressure)'
 
 
 def single_sensor_measurement(measurement_name: str, measurement_function):
@@ -24,16 +30,18 @@ def single_sensor_measurement(measurement_name: str, measurement_function):
     return output
 
 
-class SenseHatWrapper(ISenseHatWrapper):
+class SenseHatWrapper(SenseHatWrapperBase):
     """
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self, camera: CameraBase):
+    def __init__(self, camera: CameraBase,
+                 message='Started CameraPi'):
         """
         Constructor.
         """
-        super().__init__(SenseHat(), camera)
+        from sense_hat import SenseHat
+        super().__init__(SenseHat(), camera, message)
 
     def read_sensors(self):
         """ Overriding """
@@ -50,12 +58,12 @@ class SenseHatWrapper(ISenseHatWrapper):
             temperature_pressure = \
                 self.actual_sense_hat.get_temperature_from_pressure
 
-            values.update(single_sensor_measurement('Temperature (Pressure)',
+            values.update(single_sensor_measurement(TEMPERATURE_PRESSURE_KEY,
                                                     temperature_pressure))
-            values.update(single_sensor_measurement('Temperature (Humidity)',
+            values.update(single_sensor_measurement(TEMPERATURE_HUMIDITY_KEY,
                                                     temperature_humidity))
-            values.update(single_sensor_measurement('Pressure', pressure))
-            values.update(single_sensor_measurement('Humidity', humidity))
+            values.update(single_sensor_measurement(PRESSURE, pressure))
+            values.update(single_sensor_measurement(HUMIDITY, humidity))
             self.actual_sense_hat.clear()
             self.actual_sense_hat.set_pixels(pixel_list)
 

@@ -1,5 +1,6 @@
 import logging
 import socket
+from time import sleep
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
@@ -14,12 +15,13 @@ camera_state_to_color_map: map = {
 }
 
 
-class ISenseHatWrapper(Observer):
+class SenseHatWrapperBase(Observer):
     """
     Wrapper for the Sense Hat functions.
     """
 
-    def __init__(self, actual_sense_hat, camera: CameraBase):
+    def __init__(self, actual_sense_hat, camera: CameraBase,
+                 message='Started CameraPi'):
         """
         Constructor.
         """
@@ -31,13 +33,20 @@ class ISenseHatWrapper(Observer):
                              up=start_streaming,
                              down=stop_streaming,
                              middle=show_ip,
-                             message='Started CameraPi')
+                             message=message)
+        self.camera.attach(self)
 
     def __del__(self):
         """
         Destructor.
         """
         self.clear()
+
+    def get_matrix(self):
+        """
+        Returns the sense hat matrix.
+        """
+        return self.actual_sense_hat.get_pixels()
 
     def display_camera_state(self, camera_state: CameraState):
         """
@@ -47,6 +56,7 @@ class ISenseHatWrapper(Observer):
             self.actual_sense_hat.clear(
                 camera_state_to_color_map[camera_state])
             self.actual_sense_hat.low_light = True
+            sleep(1)
         except Exception as err:
             logging.exception(err)
 
@@ -78,7 +88,10 @@ class ISenseHatWrapper(Observer):
         """
         Clears the sense hat matrix.
         """
-        self.actual_sense_hat.clear()
+        try:
+            self.actual_sense_hat.clear()
+        except Exception:
+            pass
 
     def read_sensors(self):
         """
@@ -118,10 +131,11 @@ class ISenseHatWrapper(Observer):
         return False
 
 
-sense_hat: ISenseHatWrapper = None
+sense_hat: SenseHatWrapperBase = None
 
 
-def get_sense_hat(camera: CameraBase = None):
+def get_sense_hat(camera: CameraBase = None,
+                  message='Started CameraPi'):
     """
     Factory method for the sense hat interface
     """
@@ -131,14 +145,14 @@ def get_sense_hat(camera: CameraBase = None):
             raise ValueError(
                 'A camera must be given when instantiating a sense hat.')
         try:
-            from src.sense_hat.sense_hat_wrapper import SenseHatWrapper
+            from src.sense_hat_wrapper.sense_hat_wrapper import SenseHatWrapper
 
-            sense_hat = SenseHatWrapper(camera)
+            sense_hat = SenseHatWrapper(camera, message)
         except Exception:
-            from src.sense_hat.sense_hat_wrapper_mock import \
+            from src.sense_hat_wrapper.sense_hat_wrapper_mock import \
                 SenseHatWrapperMock
 
-            sense_hat = SenseHatWrapperMock(camera)
+            sense_hat = SenseHatWrapperMock(camera, message)
     return sense_hat
 
 

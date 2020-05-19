@@ -5,7 +5,7 @@ import signal
 import sys
 
 from src.camera.camera_base import get_camera
-from src.sense_hat.sense_hat_wrapper_base import get_sense_hat
+from src.sense_hat_wrapper.sense_hat_wrapper_base import get_sense_hat
 from src.utils.utils import get_default_recordings_path
 from src.web.web_streaming import get_web_streaming
 
@@ -55,6 +55,5 @@ with camera:
     sense_hat = get_sense_hat(camera)
     web_streaming = get_web_streaming(camera, sense_hat)
     camera.attach(web_streaming)
-    camera.attach(sense_hat)
     while True:
         pass

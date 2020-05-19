@@ -3,6 +3,8 @@ from datetime import datetime
 from os.path import dirname
 from pathlib import Path
 
+TEMPERATURE_CHIP_KEY = 'Temperature (Chip)'
+
 file_date_format_string = '%Y_%m_%d_%H_%M_%S'
 log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
 
@@ -45,11 +47,10 @@ def read_cpu_temperature():
     Read the pressure, temperature and humidity from the sense hat and log.
     """
 
-    values = {}
     with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
         cpu = f.readline()
         values = {
-            'Temperature (Chip)': str(round(int(cpu) / 1000, 2)) + ' \'C'}
+            TEMPERATURE_CHIP_KEY: str(round(int(cpu) / 1000, 2)) + ' \'C'}
 
     return values
 
