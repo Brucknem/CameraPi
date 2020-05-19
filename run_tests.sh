@@ -4,7 +4,19 @@ source camerapiEnv/bin/activate
 flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=camerapiEnv
 flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=camerapiEnv
 
-pytest -v --cov --cov-config=.coveragerc --cov-report=xml
+verbose=false
+for arg in "$@"; do
+  if [ "$arg" == "-s" ]; then
+    verbose=true
+  break
+  fi
+done
+
+if [ "$verbose" = true ]; then
+  pytest -v -s --cov --cov-config=.coveragerc --cov-report=xml
+else
+  pytest -v --cov --cov-config=.coveragerc --cov-report=xml
+fi
 
 for arg in "$@"; do
   if [ "$arg" == "-u" ]; then
