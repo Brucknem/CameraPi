@@ -7,6 +7,13 @@ file_date_format_string = '%Y_%m_%d_%H_%M_%S'
 log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
 
 
+def get_default_recordings_path() -> str:
+    """
+    Returns the default recordings path
+    """
+    return './recordings/'
+
+
 def get_datetime_now_file_string() -> str:
     """
     Returns datetime now formatted

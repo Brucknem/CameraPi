@@ -6,6 +6,7 @@ import sys
 
 from src.camera.camera_base import get_camera
 from src.sense_hat.sense_hat_wrapper_base import get_sense_hat
+from src.utils.utils import get_default_recordings_path
 from src.web.web_streaming import get_web_streaming
 
 
@@ -31,7 +32,7 @@ parser.add_argument('-c',
                     type=int,
                     help='The length of the video chunks [s]. '
                          'Default: ' + str(chunk_length) + ' s')
-recordings_path = './recordings'
+recordings_path = get_default_recordings_path()
 parser.add_argument('-o',
                     '--out',
                     nargs='?',

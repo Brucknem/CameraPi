@@ -3,6 +3,7 @@ import logging
 from picamera import PiCamera
 
 from src.camera.camera_base import CameraState, CameraBase
+from src.utils.utils import get_default_recordings_path
 
 
 class Camera(CameraBase):
@@ -12,7 +13,7 @@ class Camera(CameraBase):
     """
 
     def __init__(self, chunk_length: int = 5 * 60,
-                 recordings_path: str = './recordings'):
+                 recordings_path: str = get_default_recordings_path()):
         """
         Constructor.
         """
@@ -61,6 +62,8 @@ class Camera(CameraBase):
         try:
             while self.camera_state is CameraState.RECORDING:
                 logging.info('Recording')
+                if not self.can_write_recordings():
+                    self.set_recordings_folder(get_default_recordings_path())
                 self.real_camera.split_recording(
                     self.recordings_folder.get_next_chunk_path())
                 self.real_camera.wait_recording(self.chunk_length)

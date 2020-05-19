@@ -3,6 +3,7 @@ import shutil
 import unittest
 
 from src.utils.recordings_folder import RecordingsFolder
+from src.utils.utils import get_default_recordings_path
 
 tests_folder = './test_recordings_folder'
 
@@ -25,7 +26,7 @@ class TestRecordingsFolder(unittest.TestCase):
         Test: Can not write to permission denied dir.
         """
         assert RecordingsFolder(
-            '/mnt/test_camerapi/').base_path == './recordings'
+            '/mnt/test_camerapi/').base_path == get_default_recordings_path()
 
     def test_module_constructor(self):
         """
@@ -46,7 +47,6 @@ class TestRecordingsFolder(unittest.TestCase):
         assert self.recordings_folder.base_path
         assert self.recordings_folder.datetime_now
         assert self.recordings_folder.log_dir
-        assert self.recordings_folder.log_file_path
         assert not self.recordings_folder.current_recordings_folder
         assert os.path.exists(self.recordings_folder.base_path)
         assert os.path.exists(self.recordings_folder.log_dir)

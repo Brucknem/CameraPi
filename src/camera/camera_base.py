@@ -7,7 +7,7 @@ from src.camera.camera_state import CameraState
 from src.utils.observable import Observable
 from src.utils.recordings_folder import RecordingsFolder
 from src.utils.utils import is_raspbian, read_file_relative_to, \
-    assert_can_write_to_dir
+    get_default_recordings_path
 
 camera_state_to_allowed_state_map: map = {
     CameraState.OFF: (CameraState.IDLE,),
@@ -19,7 +19,7 @@ camera_state_to_allowed_state_map: map = {
 
 
 def get_camera(chunk_length=300,
-               recordings_path: str = './recordings'):
+               recordings_path: str = get_default_recordings_path()):
     """
     Factory method for the camera interface
     """
@@ -37,7 +37,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
     """
 
     def __init__(self, chunk_length: int = 5 * 60,
-                 recordings_path: str = './recordings'):
+                 recordings_path: str = get_default_recordings_path()):
         """
         Constructor.
         """
@@ -193,4 +193,4 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Checks if the recordings folder is writable
         """
-        return assert_can_write_to_dir(self.recordings_folder.base_path)
+        return self.recordings_folder.can_write_own_log_dir_path()

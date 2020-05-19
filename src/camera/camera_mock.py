@@ -2,6 +2,7 @@ import logging
 import time
 
 from src.camera.camera_base import CameraState, CameraBase
+from src.utils.utils import get_default_recordings_path
 
 
 class Camera(CameraBase):
@@ -11,7 +12,7 @@ class Camera(CameraBase):
     """
 
     def __init__(self, chunk_length: int = 5 * 60,
-                 recordings_path: str = './recordings'):
+                 recordings_path: str = get_default_recordings_path()):
         """
         Constructor.
         """
