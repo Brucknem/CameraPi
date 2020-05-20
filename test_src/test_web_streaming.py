@@ -1,55 +1,22 @@
-import logging
 import os
 import shutil
 import unittest
-from threading import Thread
-from time import sleep
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 from src.camera.camera_base import get_camera
 from src.utils.utils import is_raspbian
 from src.web.web_streaming import get_web_streaming
 
-base_url = 'http://0.0.0.0:8080/index.html'
+index_url = 'http://0.0.0.0:8080/index.html'
+settings_url = 'http://0.0.0.0:8080/settings.html'
 
 enter = Keys.RETURN
 
 chunk_length = 3
 test_recordings_path = './test_webstreaming'
-
-web_streaming_is_running = False
-
-
-def setup_camera_and_web_streaming():
-    """
-    Helper: Starts a thread with a running web streaming server
-    """
-    thread = Thread(target=web_streaming_thread, args=())
-    thread.daemon = True
-    thread.start()
-
-
-def web_streaming_thread():
-    """
-    Helper: The web streaming thread.
-    """
-    global web_streaming_is_running
-    web_streaming_is_running = True
-
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
-                        level=logging.INFO)
-    logging.info('Started monitoring')
-
-    camera = get_camera(chunk_length, test_recordings_path)
-
-    with camera:
-        web_streaming = get_web_streaming(camera)
-        camera.attach(web_streaming)
-
-        while web_streaming_is_running:
-            pass
 
 
 def curl(url):
@@ -88,7 +55,7 @@ def curl(url):
         crl.close()
 
 
-class TestWebStreaming(unittest.TestCase):
+class TestViewBase(unittest.TestCase):
     """
     UI Tests for the web streaming.
     """
@@ -97,126 +64,38 @@ class TestWebStreaming(unittest.TestCase):
         """
         Set up web streaming and driver.
         """
+        self.start_web_driver()
+        self.camera = get_camera(chunk_length, test_recordings_path)
+
+    def start_web_driver(self):
+        """
+        Starts the web driver.
+        """
         path = '/usr/local/bin'
         if is_raspbian():
             path = '/usr/lib/chromium-browser/'
         self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
-        self.camera = get_camera(chunk_length, test_recordings_path)
 
-    def test_start_stop_streaming(self):
+    def create_web_streaming(self):
         """
-        Tests if server is really not reachable if streaming is stopped.
+        Creates a web streaming object using the camera
         """
+        self.camera.streaming_chunk_length = 1
+        web_streaming = get_web_streaming(self.camera)
+        self.assert_correct_camera_view_shown(index_url)
+        return web_streaming
 
-        with self.camera:
-            self.camera.streaming_chunk_length = 1
-            web_streaming = get_web_streaming(self.camera)
-            self.assert_correct_camera_view_shown()
-
-            web_streaming.camera.is_output_allowed = False
-            sleep(2)
-            self.driver.get(base_url)
-            assert 'Camera Pi' in self.driver.title
-            size = self.driver.find_element_by_id('stream_image').size
-            assert (size['height'] - size['width'] / 2) < 3
-
-            assert not get_start_recording(self.driver).is_enabled()
-            assert not get_stop_recording(self.driver).is_enabled()
-
-            web_streaming.camera.is_output_allowed = True
-            self.assert_correct_camera_view_shown()
-
-    def assert_correct_camera_view_shown(self):
+    def assert_correct_camera_view_shown(self, url):
         """
         Asserts that the image stream is the correct image.
         """
-        self.driver.get(base_url)
+        self.driver.get(url)
         assert 'Camera Pi' in self.driver.title
         size = self.driver.find_element_by_id('stream_image').size
         if self.camera.is_real_camera():
             assert (size['height'] - size['width'] / 2) > 3
         else:
             assert (size['height'] - size['width'] / 2) < 3
-
-    def tearDown(self):
-        """
-        Tear down web streaming and driver.
-        """
-        sleep(2)
-        self.driver.close()
-        shutil.rmtree(test_recordings_path)
-
-
-class TestUI(unittest.TestCase):
-    """
-    UI Tests for the web streaming.
-    """
-
-    def setUp(self):
-        """
-        Set up web streaming and driver.
-        """
-        path = '/usr/local/bin'
-        if is_raspbian():
-            path = '/usr/lib/chromium-browser/'
-        self.driver = webdriver.Chrome(os.path.join(path, 'chromedriver'))
-        setup_camera_and_web_streaming()
-
-    def tearDown(self):
-        """
-        Tear down web streaming and driver.
-        """
-        sleep(2)
-        self.driver.close()
-        shutil.rmtree(test_recordings_path)
-        global web_streaming_is_running
-        web_streaming_is_running = False
-        sleep(2)
-
-    def test_open_web_streaming(self):
-        """
-        Test: Page is opened correct.
-        """
-        self.driver.get(base_url)
-        assert 'Camera Pi' in self.driver.title
-
-    def test_recording(self):
-        """
-        Test: Page is opened correct.
-        """
-        self.driver.get(base_url)
-        assert 'Camera Pi' in self.driver.title
-
-        self.click_start()
-        assert 'start' in self.extract_get_values()
-
-        self.click_stop()
-        assert 'stop' in self.extract_get_values()
-
-    def assert_start_stop_recording(self, start, stop):
-        """
-        Asserts the given button setting.
-        """
-        assert get_start_recording(self.driver).is_enabled() == start
-        assert get_stop_recording(self.driver).is_enabled() == stop
-
-    def click_start(self):
-        """
-        Clicks on the start button.
-        """
-        self.assert_start_stop_recording(True, False)
-        start_recording = get_start_recording(self.driver)
-        start_recording.click()
-        self.assert_start_stop_recording(False, True)
-
-    def click_stop(self):
-        """
-        Clicks on the stop button.
-        """
-        stop_recording = get_stop_recording(self.driver)
-        stop_recording.click()
-        sleep(2)
-        self.assert_start_stop_recording(True, False)
 
     def extract_get_values(self):
         """
@@ -240,18 +119,117 @@ class TestUI(unittest.TestCase):
 
         return values
 
+    def assert_start_stop_recording(self, start, stop):
+        """
+        Asserts the given button setting.
+        """
+        assert self.get_element_by_name('start').is_enabled() == start
+        assert self.get_element_by_name('stop').is_enabled() == stop
 
-def get_start_recording(driver):
-    """
-    Checks if the start button is enabled.
-    """
-    start_recording = driver.find_element_by_name('start')
-    return start_recording
+    def tearDown(self):
+        """
+        Tear down web streaming and driver.
+        """
+        self.driver.close()
+        shutil.rmtree(test_recordings_path)
+
+    def get_element_by_name(self, name):
+        """
+        Gets an ui element by its name
+        """
+        try:
+            start_recording = self.driver.find_element_by_name(name)
+            return start_recording
+        except NoSuchElementException:
+            return None
 
 
-def get_stop_recording(driver):
+class TestIndexView(TestViewBase):
     """
-    Checks if the start button is enabled.
+    UI Tests for the web streaming.
     """
-    stop_recording = driver.find_element_by_name('stop')
-    return stop_recording
+
+    def test_open_web_streaming(self):
+        """
+        Test: Page is opened correct.
+        """
+        with self.camera:
+            self.create_web_streaming()
+            self.driver.get(index_url)
+            assert 'Camera Pi' in self.driver.title
+            assert not self.get_element_by_name('start')
+            assert not self.get_element_by_name('stop')
+
+
+class TestSettingsView(TestViewBase):
+    """
+    UI Tests for the web streaming.
+    """
+
+    def test_start_stop_streaming(self):
+        """
+        Tests if server is really not reachable if streaming is stopped.
+        """
+
+        with self.camera:
+            web_streaming = self.create_web_streaming()
+
+            self.driver.get(settings_url)
+            assert 'Camera Pi' in self.driver.title
+            assert self.driver.current_url == settings_url
+
+            web_streaming.allow_streaming(False)
+            assert not self.camera.is_output_allowed
+
+            self.driver.get(settings_url)
+            assert 'Camera Pi' in self.driver.title
+            assert self.driver.current_url == index_url
+            assert not self.get_element_by_name('start')
+            assert not self.get_element_by_name('stop')
+
+            web_streaming.allow_streaming(True)
+            assert self.camera.is_output_allowed
+            assert web_streaming.camera.is_output_allowed
+
+            self.driver.get(settings_url)
+            assert 'Camera Pi' in self.driver.title
+            assert self.driver.current_url == settings_url
+            assert self.get_element_by_name('start')
+            assert self.get_element_by_name('stop')
+
+    def test_recording(self):
+        """
+        Test: Page is opened correct.
+        """
+
+        with self.camera:
+            self.create_web_streaming()
+            self.driver.get(settings_url)
+            assert 'Camera Pi' in self.driver.title
+            assert not self.camera.is_recording()
+            self.assert_start_stop_recording(True, False)
+
+            self.click_start()
+            assert self.camera.is_recording()
+            self.assert_start_stop_recording(False, True)
+
+            self.click_stop()
+            assert not self.camera.is_recording()
+            self.assert_start_stop_recording(True, False)
+
+    def click_start(self):
+        """
+        Clicks on the start button.
+        """
+        self.assert_start_stop_recording(True, False)
+        start_recording = self.get_element_by_name('start')
+        start_recording.click()
+        self.assert_start_stop_recording(False, True)
+
+    def click_stop(self):
+        """
+        Clicks on the stop button.
+        """
+        stop_recording = self.get_element_by_name('stop')
+        stop_recording.click()
+        self.assert_start_stop_recording(True, False)

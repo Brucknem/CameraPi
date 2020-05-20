@@ -157,7 +157,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Writes to the buffer if the streaming is allowed
         """
-        output.write(b'Mock implementation for override.')
+        output.write(self.default_image)
 
     def streaming_not_allowed(self, output):
         """

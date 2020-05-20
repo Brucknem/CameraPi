@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block buttons %}
+    <hr>
+    {% if not can_write_recordings %}
+        <div style="font-size:xx-large">Cannot write to
+            directory: {{ base_path }}
+        </div>
+        <hr>
+    {% endif %}
+
+    <form action="" method="post">
+        <button style="font-size:xx-large" name="start" type="submit"
+                value="True"
+                {% if is_recording %} disabled {% endif %}
+        >
+            Start recording
+        </button>
+        <button style="font-size:xx-large" name="stop" type="submit"
+                value="True"
+                {% if not is_recording %} disabled {% endif %}
+        >
+            Stop recording
+        </button>
+    </form>
+{% endblock %}
