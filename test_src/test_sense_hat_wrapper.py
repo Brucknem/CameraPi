@@ -130,31 +130,26 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         """
         Test: Update method
         """
-        assert_sense_hat_matrix_color(self.sense_hat,
-                                      camera_state_to_color_map[
-                                          CameraState.OFF])
+        assert_sense_hat_matrix_color_by_state(self.sense_hat,
+                                               CameraState.OFF)
 
         with self.camera:
             sleep(2)
-            assert_sense_hat_matrix_color(self.sense_hat,
-                                          camera_state_to_color_map[
-                                              CameraState.IDLE])
+            assert_sense_hat_matrix_color_by_state(self.sense_hat,
+                                                   CameraState.IDLE)
 
             self.camera.start_recording()
             sleep(2)
-            assert_sense_hat_matrix_color(self.sense_hat,
-                                          camera_state_to_color_map[
-                                              CameraState.RECORDING])
+            assert_sense_hat_matrix_color_by_state(self.sense_hat,
+                                                   CameraState.RECORDING)
 
             self.camera.stop_recording()
             sleep(2)
-            assert_sense_hat_matrix_color(self.sense_hat,
-                                          camera_state_to_color_map[
-                                              CameraState.IDLE])
+            assert_sense_hat_matrix_color_by_state(self.sense_hat,
+                                                   CameraState.IDLE)
         sleep(2)
-        assert_sense_hat_matrix_color(self.sense_hat,
-                                      camera_state_to_color_map[
-                                          CameraState.OFF])
+        assert_sense_hat_matrix_color_by_state(self.sense_hat,
+                                               CameraState.OFF)
 
     def test_start_stop_recording(self):
         """
@@ -206,10 +201,12 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         assert self.sense_hat.show_ip(ReleaseEvent())
 
 
-def assert_sense_hat_matrix_color(sense_hat: SenseHatWrapperBase, color):
+def assert_sense_hat_matrix_color_by_state(sense_hat: SenseHatWrapperBase,
+                                           state):
     """
     Helper: Asserts that the matrix is uniform colored.
     """
+    color = camera_state_to_color_map[state]
     for pixel in sense_hat.get_matrix():
         difference = np.abs(np.array(np.array(pixel) - np.array(color)))
         for i in range(len(difference)):
@@ -222,9 +219,7 @@ def set_and_assert_display_state(sense_hat: SenseHatWrapperBase,
     Helper: Sets and asserts that the matrix is set correct.
     """
     sense_hat.display_camera_state(camera_state)
-    assert_sense_hat_matrix_color(sense_hat,
-                                  camera_state_to_color_map[
-                                      camera_state])
+    assert_sense_hat_matrix_color_by_state(sense_hat, camera_state)
 
 
 def set_and_assert_camera_state(camera: CameraBase,
@@ -235,6 +230,4 @@ def set_and_assert_camera_state(camera: CameraBase,
     correct via the observer pattern.
     """
     camera.set_camera_state(camera_state)
-    assert_sense_hat_matrix_color(sense_hat,
-                                  camera_state_to_color_map[
-                                      camera_state])
+    assert_sense_hat_matrix_color_by_state(sense_hat, camera_state)

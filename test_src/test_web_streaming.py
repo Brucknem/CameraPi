@@ -5,7 +5,6 @@ from time import sleep
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
 
 from src.camera.camera_base import get_camera
 from src.utils.utils import is_raspbian
@@ -14,8 +13,6 @@ from src.web.web_streaming import get_web_streaming, toggle_allow_streaming_url
 index_url = 'http://0.0.0.0:8080/index.html'
 settings_url = 'http://0.0.0.0:8080/settings.html'
 allow_streaming_url = 'http://0.0.0.0:8080' + toggle_allow_streaming_url
-
-enter = Keys.RETURN
 
 chunk_length = 3
 test_recordings_path = './test_webstreaming'
@@ -145,6 +142,23 @@ class TestViewBase(unittest.TestCase):
         except NoSuchElementException:
             return None
 
+    def click_start(self):
+        """
+        Clicks on the start button.
+        """
+        self.assert_start_stop_recording(True, False)
+        start_recording = self.get_element_by_name('start')
+        start_recording.click()
+        self.assert_start_stop_recording(False, True)
+
+    def click_stop(self):
+        """
+        Clicks on the stop button.
+        """
+        stop_recording = self.get_element_by_name('stop')
+        stop_recording.click()
+        self.assert_start_stop_recording(True, False)
+
 
 class TestIndexView(TestViewBase):
     """
@@ -224,23 +238,6 @@ class TestSettingsView(TestViewBase):
             self.click_stop()
             assert not self.camera.is_recording()
             self.assert_start_stop_recording(True, False)
-
-    def click_start(self):
-        """
-        Clicks on the start button.
-        """
-        self.assert_start_stop_recording(True, False)
-        start_recording = self.get_element_by_name('start')
-        start_recording.click()
-        self.assert_start_stop_recording(False, True)
-
-    def click_stop(self):
-        """
-        Clicks on the stop button.
-        """
-        stop_recording = self.get_element_by_name('stop')
-        stop_recording.click()
-        self.assert_start_stop_recording(True, False)
 
 
 class TestToggleAllowStreaming(TestViewBase):
