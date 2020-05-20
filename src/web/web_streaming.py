@@ -4,17 +4,18 @@ import threading
 from http import server
 from threading import Condition
 
-from jinja2 import Template
+import jinja2
 
 from src.camera.camera_base import CameraBase
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
 from src.utils.observer import Observer
-from src.utils.utils import read_cpu_temperature, read_file_relative_to, \
-    read_ip
+from src.utils.utils import read_cpu_temperature, read_ip
 
-index_template_string = read_file_relative_to("templates/index.html",
-                                              __file__, decode=True)
-template = Template(index_template_string)
+templateLoader = jinja2.PackageLoader("src.web", "templates")
+templateEnv = jinja2.Environment(loader=templateLoader)
+
+index_template = templateEnv.get_template('base.html')
+settings_template = templateEnv.get_template('settings.html')
 
 
 class StreamingOutput(object):
@@ -45,15 +46,38 @@ class StreamingOutput(object):
         return self.buffer.write(buf)
 
 
+def on_start_stop_buttons(post_body):
+    """
+    Checks if there is a start or stop in the get values and
+    calls the camera accordingly.
+    """
+    global web_streaming
+
+    if 'start' in post_body:
+        web_streaming.start_recording()
+    elif 'stop' in post_body:
+        web_streaming.stop_recording()
+
+
 class StreamingHandler(server.BaseHTTPRequestHandler):
     """
     Base Http request handler for the camera stream.
     """
 
-    def set_response(self):
+    def finalize_response(self, html):
         """
-        Sets the common response headers and content.
-        :return:
+        Finalizes the response and sets the necessary headers.
+        """
+        html_template_string = html.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-Length', str(len(html_template_string)))
+        self.end_headers()
+        self.wfile.write(html_template_string)
+
+    def process_request(self):
+        """
+        Processes a request.
         """
         global web_streaming
 
@@ -62,54 +86,62 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         else:
             measurements = read_cpu_temperature()
 
-        # Render HTML Template String
-        html_template_string = template.render(
-            is_recording=web_streaming.camera.is_recording(),
-            measurements=measurements,
-            is_streaming_allowed=web_streaming.camera.is_output_allowed,
-            can_write_recordings=web_streaming.camera.can_write_recordings(),
-            base_path=web_streaming.camera.recordings_folder.base_path,
-            ip=read_ip())
-        html_template_string = html_template_string.encode('utf-8')
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.send_header('Content-Length', str(len(html_template_string)))
-        self.end_headers()
-        self.wfile.write(html_template_string)
+        values = {
+            'is_recording': web_streaming.camera.is_recording(),
+            'measurements': measurements,
+            'can_write_recordings': web_streaming.camera.can_write_recordings(),
+            'base_path': web_streaming.camera.recordings_folder.base_path,
+            'ip': read_ip()
+        }
+        html = 'Error in path resolve.'
+
+        if str.startswith(str(self.path), '/index'):
+            html = index_template.render(**values)
+        elif str.startswith(str(self.path), '/settings'):
+            if not web_streaming.camera.is_output_allowed:
+                self.redirect_to_index()
+                return
+            html = settings_template.render(**values)
+        self.finalize_response(html)
 
     def do_GET(self):
         """
         REST Get handler.
         """
         if self.path == '/':
-            self.send_response(301)
-            self.send_header('Location', '/index.html')
-            self.end_headers()
-        elif str.startswith(str(self.path), '/index.html'):
-            if web_streaming.camera.is_output_allowed:
-                self.on_start_stop_buttons()
-            self.set_response()
+            self.redirect_to_index()
+        elif str.startswith(str(self.path), '/index') or \
+                str.startswith(str(self.path), '/settings'):
+            self.process_request()
         elif self.path == '/stream.mjpg':
             self.do_streaming()
-
         else:
             self.send_error(404)
             self.end_headers()
 
-    def on_start_stop_buttons(self):
+    def redirect_to_index(self):
         """
-        Checks if there is a start or stop in the get values and
-        calls the camera accordingly.
+        Redirects to the index view
+        """
+        self.send_response(301)
+        self.send_header('Location', '/index.html')
+        self.end_headers()
+
+    def do_POST(self):
+        """
+        REST Post handler
         """
         from urllib.parse import parse_qs
-        try:
-            get_data = parse_qs(str.split(self.path, '?')[1])
-            if 'start' in get_data:
-                web_streaming.start_recording()
-            if 'stop' in get_data:
-                web_streaming.stop_recording()
-        except IndexError:
-            pass
+
+        length = int(self.headers.get('content-length'))
+        field_data = self.rfile.read(length).decode('utf-8')
+        post_body = parse_qs(field_data)
+
+        if str.startswith(str(self.path), '/settings'):
+            on_start_stop_buttons(post_body)
+            self.send_response(301)
+            self.send_header('Location', '/settings.html')
+            self.end_headers()
 
     def do_streaming(self):
         """
@@ -206,6 +238,12 @@ class WebStreaming(Observer):
             self.thread.start()
 
         self.camera.start_streaming(output)
+
+    def allow_streaming(self, value: bool = True):
+        """
+        Allow streaming
+        """
+        self.camera.is_output_allowed = value
 
     def stream(self):
         """
