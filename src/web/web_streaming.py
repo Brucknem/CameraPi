@@ -9,7 +9,6 @@ import jinja2
 
 from src.camera.camera_base import CameraBase
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
-from src.utils.observer import Observer
 from src.utils.utils import read_cpu_temperature, read_ip
 
 templateLoader = jinja2.PackageLoader("src.web", "templates")
@@ -249,7 +248,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-class WebStreaming(Observer):
+class WebStreaming:
     """
     Wrapper for the camera web stream.
     Runs an asynchron thread for the web view.

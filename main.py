@@ -54,6 +54,5 @@ camera = get_camera(chunk_length, recordings_path)
 with camera:
     sense_hat = get_sense_hat(camera)
     web_streaming = get_web_streaming(camera, sense_hat)
-    camera.attach(web_streaming)
     while True:
         pass
