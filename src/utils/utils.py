@@ -14,7 +14,7 @@ def get_default_recordings_path() -> str:
     """
     Returns the default recordings path
     """
-    return './recordings/'
+    return os.path.join(dirname(dirname(dirname(__file__))), 'recordings/')
 
 
 def get_datetime_now_file_string() -> str:
