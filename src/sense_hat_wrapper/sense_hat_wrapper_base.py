@@ -26,6 +26,7 @@ class SenseHatWrapperBase(Observer):
         super().__init__()
         self.camera = camera
         self.camera.attach(self)
+        self.display_camera_state(self.camera.camera_state)
         self.setup(message)
 
     def setup(self, message):
