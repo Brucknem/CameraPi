@@ -1,5 +1,4 @@
 import logging
-from time import sleep
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
@@ -91,7 +90,6 @@ class SenseHatWrapper(SenseHatWrapperBase):
             values.update(single_sensor_measurement(PRESSURE, pressure))
             values.update(single_sensor_measurement(HUMIDITY, humidity))
 
-
         except Exception as err:
             logging.exception(err)
         return values
@@ -116,7 +114,6 @@ class SenseHatWrapper(SenseHatWrapperBase):
             self.actual_sense_hat.low_light = True
         except Exception as err:
             logging.exception(err)
-            sleep(1)
         return color
 
     def show_ip(self, event=None):
