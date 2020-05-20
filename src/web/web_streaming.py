@@ -211,13 +211,14 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             'is_recording': web_streaming.camera.is_recording()
         }
         self.set_streaming_headers(boundary)
-        self.send_streaming_content(boundary, data)
+        self.send_streaming_content(boundary, data, 500)
 
-    def send_streaming_content(self, boundary, payload):
+    def send_streaming_content(self, boundary, payload, retry: int = 3000):
         """
         Sends the streaming content.
         """
-        data = b'data: '
+        data = b'retry: ' + str(retry).encode() + b'\n'
+        data += b'data: '
         data += json.dumps(payload).encode()
         data += b'\n\n'
         self.wfile.write(b'--' + boundary.encode() + b'\r\n')
