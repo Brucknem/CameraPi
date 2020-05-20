@@ -73,9 +73,6 @@ class Camera(CameraBase):
         Record functionality of the camera.
         """
         super().record()
-        if not self.can_write_recordings():
-            logging.info('Fallback folder')
-            self.set_recordings_folder(get_default_recordings_path())
 
         self.real_camera.start_recording(
             self.recordings_folder.get_next_chunk_path())
@@ -84,8 +81,6 @@ class Camera(CameraBase):
         try:
             while self.camera_state is CameraState.RECORDING:
                 logging.info('Recording')
-                if not self.can_write_recordings():
-                    self.set_recordings_folder(get_default_recordings_path())
                 self.real_camera.split_recording(
                     self.recordings_folder.get_next_chunk_path())
                 self.wait_and_annotate_video_recording(self.chunk_length)

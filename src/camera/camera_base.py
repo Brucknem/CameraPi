@@ -105,8 +105,6 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
             return
 
         if self.is_real_camera():
-            if not self.can_write_recordings():
-                self.set_recordings_folder(get_default_recordings_path())
             self.recordings_folder.create_new_recording()
 
         self.record_thread = Thread(target=self.record, args=())
