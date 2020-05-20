@@ -138,7 +138,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         post_body = parse_qs(field_data)
 
         if str.startswith(str(self.path), '/settings'):
-            on_start_stop_buttons(post_body)
+            if not web_streaming.camera.is_output_allowed:
+                on_start_stop_buttons(post_body)
             self.send_response(301)
             self.send_header('Location', '/settings.html')
             self.end_headers()
