@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% block javascript %}
+    {{ super() }}
+
+    <script type="text/javascript">
+        {% include "buttons_event_stream.js" %}
+    </script>
+{% endblock %}
+
 {% block buttons %}
     <hr>
     {% if not can_write_recordings %}
@@ -11,13 +19,13 @@
 
     <form action="" method="post">
         <button style="font-size:xx-large" name="start" type="submit"
-                value="True"
+                value="True" id="start_button"
                 {% if is_recording %} disabled {% endif %}
         >
             Start recording
         </button>
         <button style="font-size:xx-large" name="stop" type="submit"
-                value="True"
+                value="True" id="stop_button"
                 {% if not is_recording %} disabled {% endif %}
         >
             Stop recording

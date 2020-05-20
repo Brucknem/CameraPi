@@ -130,6 +130,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.do_streaming()
         elif self.path == '/measurements_event_stream':
             self.do_measurement_update()
+        elif self.path == '/buttons_event_stream':
+            self.do_button_update()
         elif self.path == toggle_allow_streaming_url:
             web_streaming.camera.is_output_allowed = \
                 not web_streaming.camera.is_output_allowed
@@ -192,28 +194,50 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
     def do_measurement_update(self):
         """
-        Writes the latest frame to the streaming output.
+        Writes the latest measurements to the server sent event.
+        """
+        boundary = 'MEASUREMENTS'
+        self.set_streaming_headers(boundary)
+        self.send_streaming_content(boundary, read_measurements())
+
+    def do_button_update(self):
+        """
+        Writes the latest button event to the server sent event.
         """
         global web_streaming
-        self.send_response(200)
+        boundary = 'BUTTONS'
+        data = {
+            'is_streaming_allowed': web_streaming.camera.is_output_allowed,
+            'is_recording': web_streaming.camera.is_recording()
+        }
+        self.set_streaming_headers(boundary)
+        self.send_streaming_content(boundary, data)
 
+    def send_streaming_content(self, boundary, payload):
+        """
+        Sends the streaming content.
+        """
+        data = b'data: '
+        data += json.dumps(payload).encode()
+        data += b'\n\n'
+        self.wfile.write(b'--' + boundary.encode() + b'\r\n')
+        self.send_header('Content-Type', 'text/event-stream')
+        self.send_header('Content-Length', str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+        self.wfile.write(b'\r\n')
+
+    def set_streaming_headers(self, boundary):
+        """
+        Sends the streaming headers.
+        """
+        self.send_response(200)
         self.send_header('Age', str(0))
         self.send_header('Cache-Control', 'no-cache, private')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Content-Type',
-                         'text/event-stream; boundary=SENSE')
+                         'text/event-stream; boundary=' + str(boundary))
         self.end_headers()
-
-        result = b'data: '
-        result += json.dumps(read_measurements()).encode()
-        result += b'\n\n'
-
-        self.wfile.write(b'--SENSE\r\n')
-        self.send_header('Content-Type', 'text/event-stream')
-        self.send_header('Content-Length', str(len(result)))
-        self.end_headers()
-        self.wfile.write(result)
-        self.wfile.write(b'\r\n')
 
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
@@ -293,14 +317,6 @@ class WebStreaming(Observer):
             self.server.serve_forever()
         finally:
             self.camera.stop_streaming()
-
-    def update(self, **kwargs):
-        """
-        @inheritdoc
-        """
-        super().update(**kwargs)
-        if 'restart' in kwargs:
-            pass
 
 
 def get_web_streaming(camera: CameraBase,
