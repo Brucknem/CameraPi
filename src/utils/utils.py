@@ -1,4 +1,5 @@
 import os
+import socket
 from datetime import datetime
 from os.path import dirname
 from pathlib import Path
@@ -69,6 +70,24 @@ def read_file_relative_to(filename: str, relative_to: str,
             return file
         else:
             return file.decode("utf-8")
+
+
+last_cached_ip = None
+
+
+def read_ip():
+    """
+    Reads the own ip.
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        last_cached_ip = ip
+    except Exception:
+        pass
+    return last_cached_ip
 
 
 def assert_can_write_to_dir(base_path):

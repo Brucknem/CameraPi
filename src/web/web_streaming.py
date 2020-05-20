@@ -9,7 +9,8 @@ from jinja2 import Template
 from src.camera.camera_base import CameraBase
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase
 from src.utils.observer import Observer
-from src.utils.utils import read_cpu_temperature, read_file_relative_to
+from src.utils.utils import read_cpu_temperature, read_file_relative_to, \
+    read_ip
 
 index_template_string = read_file_relative_to("templates/index.html",
                                               __file__, decode=True)
@@ -67,7 +68,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             measurements=measurements,
             is_streaming_allowed=web_streaming.camera.is_output_allowed,
             can_write_recordings=web_streaming.camera.can_write_recordings(),
-            base_path=web_streaming.camera.recordings_folder.base_path)
+            base_path=web_streaming.camera.recordings_folder.base_path,
+            ip=read_ip())
         html_template_string = html_template_string.encode('utf-8')
         self.send_response(200)
         self.send_header('Content-type', 'text/html')

@@ -1,10 +1,9 @@
 import logging
-import socket
 
 from src.camera.camera_base import CameraBase
 from src.camera.camera_state import CameraState
 from src.utils.observer import Observer
-from src.utils.utils import read_cpu_temperature
+from src.utils.utils import read_cpu_temperature, read_ip
 
 camera_state_to_color_map: map = {
     CameraState.OFF: (0, 0, 0),
@@ -62,17 +61,14 @@ class SenseHatWrapperBase(Observer):
         """
         Displays the own ip for easy connect.
         """
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("8.8.8.8", 80))
-            ip = s.getsockname()[0]
-            s.close()
+        ip = read_ip()
+        if ip:
             output_string = str(ip) + ':' + str(8080)
             logging.info('IP: ' + output_string)
             return output_string
-        except Exception as err:
-            logging.exception('Show IP failed: ' + str(err))
-            return None
+
+        logging.exception('Show IP failed.')
+        return None
 
     def read_sensors(self):
         """
