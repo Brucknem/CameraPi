@@ -47,8 +47,7 @@ class SenseHatWrapperBase(Observer):
         """
         color = camera_state_to_color_map[camera_state]
         logging.info(
-            'Displaying camera state: ' + str(camera_state) + "(" + str(
-                color) + ')')
+            'Displaying camera state: ' + str(camera_state) + " " + str(color))
         return color
 
     def update(self, **kwargs):

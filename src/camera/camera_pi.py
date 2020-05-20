@@ -1,9 +1,11 @@
 import logging
 
+import numpy as np
 from picamera import PiCamera
 
 from src.camera.camera_base import CameraState, CameraBase
-from src.utils.utils import get_default_recordings_path
+from src.utils.utils import get_default_recordings_path, \
+    get_datetime_now_log_string
 
 
 class Camera(CameraBase):
@@ -49,6 +51,23 @@ class Camera(CameraBase):
         self.real_camera = None
         super().stop_camera()
 
+    def update_timestamp(self):
+        """
+        Updates the timestamp in the video recording.
+        """
+        self.real_camera.annotate_text = get_datetime_now_log_string()
+
+    def wait_and_annotate_video_recording(self, chunk_length):
+        """
+        Waits and annotates the video recording with the current time stamp.
+        """
+        step = 0.2
+        for _ in np.arange(0, chunk_length, step):
+            if self.camera_state is not CameraState.RECORDING:
+                return
+            self.update_timestamp()
+            self.real_camera.wait_recording(step)
+
     def record(self):
         """
         Record functionality of the camera.
@@ -60,7 +79,7 @@ class Camera(CameraBase):
 
         self.real_camera.start_recording(
             self.recordings_folder.get_next_chunk_path())
-        self.real_camera.wait_recording(self.chunk_length)
+        self.wait_and_annotate_video_recording(self.chunk_length)
 
         try:
             while self.camera_state is CameraState.RECORDING:
@@ -69,11 +88,13 @@ class Camera(CameraBase):
                     self.set_recordings_folder(get_default_recordings_path())
                 self.real_camera.split_recording(
                     self.recordings_folder.get_next_chunk_path())
-                self.real_camera.wait_recording(self.chunk_length)
-        except Exception:
+                self.wait_and_annotate_video_recording(self.chunk_length)
+        except Exception as e:
             logging.error('Error in record thread')
+            print(e)
             self.stop_recording()
             self.start_recording()
+        self.real_camera.annotate_text = ''
 
     def stop_recording(self):
         """
