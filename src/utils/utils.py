@@ -79,6 +79,7 @@ def read_ip():
     """
     Reads the own ip.
     """
+    global last_cached_ip
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
