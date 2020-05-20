@@ -6,7 +6,7 @@ from pathlib import Path
 TEMPERATURE_CHIP_KEY = 'Temperature (Chip)'
 
 file_date_format_string = '%Y_%m_%d_%H_%M_%S'
-log_date_format_string = '%d-%m-%Y (%H:%M:%S)'
+log_date_format_string = '%Y-%m-%d %H:%M:%S'
 
 
 def get_default_recordings_path() -> str:
@@ -18,7 +18,7 @@ def get_default_recordings_path() -> str:
 
 def get_datetime_now_file_string() -> str:
     """
-    Returns datetime now formatted
+    Returns datetime now formatted for filename
     """
     return datetime.now().strftime(file_date_format_string)
 
