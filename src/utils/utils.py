@@ -72,22 +72,6 @@ def read_file_relative_to(filename: str, relative_to: str,
             return file.decode("utf-8")
 
 
-def read_file_in_dir(filename: str, dir: str,
-                     decode: bool = False):
-    """
-    Reads a file in a directory.
-    """
-    with open(
-            os.path.join(os.path.abspath(dir), filename),
-            'rb') as f:
-        file = f.read()
-
-        if not decode:
-            return file
-        else:
-            return file.decode("utf-8")
-
-
 last_cached_ip = None
 
 
