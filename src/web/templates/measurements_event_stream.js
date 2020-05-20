@@ -2,12 +2,17 @@ if (!!window.EventSource) {
     let source = new EventSource('measurements_event_stream');
     source.addEventListener('message', function (e) {
         let measurements = JSON.parse(e.data);
+
+        if (jQuery.isEmptyObject(measurements)) {
+            return;
+        }
+
         $('.measurement').remove()
 
         measurements_table_element = $('#measurements')
         for (const key in measurements) {
             measurements_table_element.append(
-                "<tr class=\"measurement\">" +
+                "<tr class=\"measurement " + Date.now() + "\">" +
                 "<td>" + key + "</td>" +
                 "<td style=\"padding: 0 1em\"></td>" +
                 "<td>" + measurements[key] + "</td>" +

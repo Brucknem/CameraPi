@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+from time import sleep
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -269,3 +270,60 @@ class TestToggleAllowStreaming(TestViewBase):
             assert self.driver.current_url == index_url
             self.assert_correct_camera_view_shown(index_url)
             self.assert_correct_camera_view_shown(settings_url)
+
+
+class TestJavaScript(TestViewBase):
+    """
+    Tests the javascript events.
+    """
+
+    def test_measurements_update(self):
+        """
+        Test: Measurements get updated every 3 seconds.
+        """
+        with self.camera:
+            self.create_web_streaming()
+            self.driver.get(index_url)
+
+            old_measurements = self.driver.find_element_by_id(
+                'measurements').get_attribute('innerHTML')
+
+            for _ in range(3):
+                sleep(4)
+                new_measurements = self.driver.find_element_by_id(
+                    'measurements').get_attribute('innerHTML')
+                assert old_measurements != new_measurements
+                old_measurements = new_measurements
+
+    def test_buttons_correct_enabled(self):
+        """
+        Test: Buttons correct enabled on start and stop recording.
+        """
+        with self.camera:
+            self.create_web_streaming()
+            self.driver.get(settings_url)
+            self.assert_start_stop_recording(True, False)
+
+            self.camera.start_recording()
+            sleep(1)
+            self.assert_start_stop_recording(False, True)
+
+            self.camera.stop_recording()
+            sleep(1)
+            self.assert_start_stop_recording(True, False)
+
+    def test_redirect_on_streaming_not_allowed(self):
+        """
+        Test: Redirect when camera is not allowed to stream.
+        """
+        with self.camera:
+            self.create_web_streaming()
+            self.driver.get(settings_url)
+
+            self.camera.is_output_allowed = False
+            sleep(1)
+            assert self.driver.current_url == index_url
+
+            self.camera.is_output_allowed = True
+            self.driver.get(settings_url)
+            assert self.driver.current_url == settings_url

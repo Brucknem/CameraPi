@@ -33,7 +33,15 @@
                 <th>Value</th>
             </tr>
             </thead>
-            <tbody id="measurements"></tbody>
+            <tbody id="measurements">
+            {% for key, value in measurements.items() %}
+                <tr class="measurement">
+                    <td>{{ key }}</td>
+                    <td style="padding: 0 1em"></td>
+                    <td>{{ value }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
