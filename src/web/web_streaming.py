@@ -1,4 +1,5 @@
 import io
+import json
 import socketserver
 import threading
 from http import server
@@ -62,6 +63,18 @@ def on_start_stop_buttons(post_body):
         web_streaming.stop_recording()
 
 
+def read_measurements():
+    """
+    Reads the measurements.
+    """
+    global web_streaming
+    if web_streaming.sense_hat:
+        measurements = web_streaming.sense_hat.read_sensors()
+    else:
+        measurements = read_cpu_temperature()
+    return measurements
+
+
 class StreamingHandler(server.BaseHTTPRequestHandler):
     """
     Base Http request handler for the camera stream.
@@ -84,10 +97,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         global web_streaming
 
-        if web_streaming.sense_hat:
-            measurements = web_streaming.sense_hat.read_sensors()
-        else:
-            measurements = read_cpu_temperature()
+        measurements = read_measurements()
 
         values = {
             'is_recording': web_streaming.camera.is_recording(),
@@ -97,7 +107,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             'ip': read_ip()
         }
         html = 'Error in path resolve.'
-
         if self.path == '/index.html':
             html = index_template.render(**values)
         elif self.path == '/settings.html':
@@ -113,10 +122,14 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         if self.path == '/':
             self.redirect_to_index()
+        if self.path == '/favicon.ico':
+            self.finalize_response('')
         elif self.path == '/index.html' or self.path == '/settings.html':
             self.process_request()
         elif self.path == '/stream.mjpg':
             self.do_streaming()
+        elif self.path == '/measurements_event_stream':
+            self.do_measurement_update()
         elif self.path == toggle_allow_streaming_url:
             web_streaming.camera.is_output_allowed = \
                 not web_streaming.camera.is_output_allowed
@@ -176,6 +189,31 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 self.wfile.write(b'\r\n')
         except Exception:
             pass
+
+    def do_measurement_update(self):
+        """
+        Writes the latest frame to the streaming output.
+        """
+        global web_streaming
+        self.send_response(200)
+
+        self.send_header('Age', str(0))
+        self.send_header('Cache-Control', 'no-cache, private')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Content-Type',
+                         'text/event-stream; boundary=SENSE')
+        self.end_headers()
+
+        result = b'data: '
+        result += json.dumps(read_measurements()).encode()
+        result += b'\n\n'
+
+        self.wfile.write(b'--SENSE\r\n')
+        self.send_header('Content-Type', 'text/event-stream')
+        self.send_header('Content-Length', str(len(result)))
+        self.end_headers()
+        self.wfile.write(result)
+        self.wfile.write(b'\r\n')
 
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
