@@ -17,6 +17,9 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 index_template = templateEnv.get_template('base.html')
 settings_template = templateEnv.get_template('settings.html')
 
+toggle_allow_streaming_url = '/96LTVesGktcbD7QfB8w74huCWdQQC' \
+                             'eyHJhDAD9VHEhWnLuWDzc7aEQjeseuMe4pG'
+
 
 class StreamingOutput(object):
     """
@@ -114,6 +117,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.process_request()
         elif self.path == '/stream.mjpg':
             self.do_streaming()
+        elif self.path == toggle_allow_streaming_url:
+            web_streaming.camera.is_output_allowed = \
+                not web_streaming.camera.is_output_allowed
+            self.redirect_to_index()
         else:
             self.send_error(404)
             self.end_headers()
@@ -139,7 +146,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         if str.startswith(str(self.path), '/settings'):
             if web_streaming.camera.is_output_allowed:
                 on_start_stop_buttons(post_body)
-            self.send_response(301)
+            self.send_response(302)
             self.send_header('Location', '/settings.html')
             self.end_headers()
 
@@ -150,7 +157,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         global web_streaming
         self.send_response(200)
 
-        self.send_header('Age', 0)
+        self.send_header('Age', str(0))
         self.send_header('Cache-Control', 'no-cache, private')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Content-Type',
@@ -163,7 +170,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     frame = output.frame
                 self.wfile.write(b'--FRAME\r\n')
                 self.send_header('Content-Type', 'image/jpeg')
-                self.send_header('Content-Length', len(frame))
+                self.send_header('Content-Length', str(len(frame)))
                 self.end_headers()
                 self.wfile.write(frame)
                 self.wfile.write(b'\r\n')
@@ -238,12 +245,6 @@ class WebStreaming(Observer):
             self.thread.start()
 
         self.camera.start_streaming(output)
-
-    def allow_streaming(self, value: bool = True):
-        """
-        Allow streaming
-        """
-        self.camera.is_output_allowed = value
 
     def stream(self):
         """

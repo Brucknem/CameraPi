@@ -8,10 +8,11 @@ from selenium.webdriver.common.keys import Keys
 
 from src.camera.camera_base import get_camera
 from src.utils.utils import is_raspbian
-from src.web.web_streaming import get_web_streaming
+from src.web.web_streaming import get_web_streaming, toggle_allow_streaming_url
 
 index_url = 'http://0.0.0.0:8080/index.html'
 settings_url = 'http://0.0.0.0:8080/settings.html'
+allow_streaming_url = 'http://0.0.0.0:8080' + toggle_allow_streaming_url
 
 enter = Keys.RETURN
 
@@ -85,14 +86,14 @@ class TestViewBase(unittest.TestCase):
         self.assert_correct_camera_view_shown(index_url)
         return web_streaming
 
-    def assert_correct_camera_view_shown(self, url):
+    def assert_correct_camera_view_shown(self, url, is_output_allowed=True):
         """
         Asserts that the image stream is the correct image.
         """
         self.driver.get(url)
         assert 'Camera Pi' in self.driver.title
         size = self.driver.find_element_by_id('stream_image').size
-        if self.camera.is_real_camera():
+        if is_output_allowed and self.camera.is_real_camera():
             assert (size['height'] - size['width'] / 2) > 3
         else:
             assert (size['height'] - size['width'] / 2) < 3
@@ -173,12 +174,14 @@ class TestSettingsView(TestViewBase):
 
         with self.camera:
             web_streaming = self.create_web_streaming()
+            self.assert_correct_camera_view_shown(index_url)
+            self.assert_correct_camera_view_shown(settings_url)
 
             self.driver.get(settings_url)
             assert 'Camera Pi' in self.driver.title
             assert self.driver.current_url == settings_url
 
-            web_streaming.allow_streaming(False)
+            web_streaming.camera.is_output_allowed = False
             assert not self.camera.is_output_allowed
 
             self.driver.get(settings_url)
@@ -186,8 +189,10 @@ class TestSettingsView(TestViewBase):
             assert self.driver.current_url == index_url
             assert not self.get_element_by_name('start')
             assert not self.get_element_by_name('stop')
+            self.assert_correct_camera_view_shown(index_url, False)
+            self.assert_correct_camera_view_shown(settings_url, False)
 
-            web_streaming.allow_streaming(True)
+            web_streaming.camera.is_output_allowed = True
             assert self.camera.is_output_allowed
             assert web_streaming.camera.is_output_allowed
 
@@ -196,6 +201,8 @@ class TestSettingsView(TestViewBase):
             assert self.driver.current_url == settings_url
             assert self.get_element_by_name('start')
             assert self.get_element_by_name('stop')
+            self.assert_correct_camera_view_shown(index_url)
+            self.assert_correct_camera_view_shown(settings_url)
 
     def test_recording(self):
         """
@@ -233,3 +240,32 @@ class TestSettingsView(TestViewBase):
         stop_recording = self.get_element_by_name('stop')
         stop_recording.click()
         self.assert_start_stop_recording(True, False)
+
+
+class TestToggleAllowStreaming(TestViewBase):
+    """
+    Tests the toggle allow
+    """
+
+    def test_toggle_allow_streaming(self):
+        """
+        Test: Allow and disallow streaming
+        """
+        with self.camera:
+            self.create_web_streaming()
+
+            assert self.camera.is_output_allowed
+            self.assert_correct_camera_view_shown(index_url)
+            self.assert_correct_camera_view_shown(settings_url)
+
+            self.driver.get(allow_streaming_url)
+            assert not self.camera.is_output_allowed
+            assert self.driver.current_url == index_url
+            self.assert_correct_camera_view_shown(index_url, False)
+            self.assert_correct_camera_view_shown(settings_url, False)
+
+            self.driver.get(allow_streaming_url)
+            assert self.camera.is_output_allowed
+            assert self.driver.current_url == index_url
+            self.assert_correct_camera_view_shown(index_url)
+            self.assert_correct_camera_view_shown(settings_url)
