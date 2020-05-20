@@ -187,9 +187,6 @@ class TestSettingsView(TestViewBase):
             assert not self.get_element_by_name('start')
             assert not self.get_element_by_name('stop')
 
-            self.driver.close()
-            self.start_web_driver()
-
             web_streaming.allow_streaming(True)
             assert self.camera.is_output_allowed
             assert web_streaming.camera.is_output_allowed

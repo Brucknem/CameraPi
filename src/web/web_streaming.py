@@ -95,9 +95,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         }
         html = 'Error in path resolve.'
 
-        if str.startswith(str(self.path), '/index'):
+        if self.path == '/index.html':
             html = index_template.render(**values)
-        elif str.startswith(str(self.path), '/settings'):
+        elif self.path == '/settings.html':
             if not web_streaming.camera.is_output_allowed:
                 self.redirect_to_index()
                 return
@@ -110,8 +110,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         if self.path == '/':
             self.redirect_to_index()
-        elif str.startswith(str(self.path), '/index') or \
-                str.startswith(str(self.path), '/settings'):
+        elif self.path == '/index.html' or self.path == '/settings.html':
             self.process_request()
         elif self.path == '/stream.mjpg':
             self.do_streaming()
@@ -123,7 +122,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         """
         Redirects to the index view
         """
-        self.send_response(301)
+        self.send_response(302)
         self.send_header('Location', '/index.html')
         self.end_headers()
 
@@ -138,7 +137,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         post_body = parse_qs(field_data)
 
         if str.startswith(str(self.path), '/settings'):
-            if not web_streaming.camera.is_output_allowed:
+            if web_streaming.camera.is_output_allowed:
                 on_start_stop_buttons(post_body)
             self.send_response(301)
             self.send_header('Location', '/settings.html')
