@@ -77,9 +77,6 @@ class SenseHatWrapper(SenseHatWrapperBase):
         values = super().read_sensors()
 
         try:
-            pixel_list = self.actual_sense_hat.get_pixels()
-            self.actual_sense_hat.clear(0, 0, 255)
-
             pressure = self.actual_sense_hat.get_pressure
             humidity = self.actual_sense_hat.get_humidity
             temperature_humidity = \
@@ -93,7 +90,7 @@ class SenseHatWrapper(SenseHatWrapperBase):
                                                     temperature_humidity))
             values.update(single_sensor_measurement(PRESSURE, pressure))
             values.update(single_sensor_measurement(HUMIDITY, humidity))
- 
+
 
         except Exception as err:
             logging.exception(err)
