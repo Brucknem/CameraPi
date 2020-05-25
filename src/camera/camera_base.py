@@ -104,8 +104,7 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         if not self.camera_state == CameraState.IDLE:
             return
 
-        if self.is_real_camera():
-            self.recordings_folder.create_new_recording()
+        self.recordings_folder.create_new_recording()
 
         self.record_thread = Thread(target=self.record, args=())
         self.record_thread.daemon = True

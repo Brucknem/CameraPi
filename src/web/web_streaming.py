@@ -101,8 +101,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         values = {
             'is_recording': web_streaming.camera.is_recording(),
             'measurements': measurements,
-            'can_write_recordings': web_streaming.camera.can_write_recordings(),
-            'base_path': web_streaming.camera.recordings_folder.base_path,
+            'writing_to': web_streaming.camera.recordings_folder.current_recordings_folder,
             'ip': read_ip()
         }
         html = 'Error in path resolve.'
