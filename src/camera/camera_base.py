@@ -193,4 +193,4 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         """
         Checks if the recordings folder is writable
         """
-        return self.recordings_folder.can_write_own_log_dir_path()
+        return self.recordings_folder.can_write_to_current_recordings_folder()
