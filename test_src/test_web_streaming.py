@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
 from src.camera.camera_base import get_camera
-from src.utils.utils import is_raspbian
+from src.utils.utils import is_raspbian, get_project_path
 from src.web.web_streaming import get_web_streaming, toggle_allow_streaming_url
 
 index_url = 'http://0.0.0.0:8080/index.html'
@@ -15,7 +15,7 @@ settings_url = 'http://0.0.0.0:8080/settings.html'
 allow_streaming_url = 'http://0.0.0.0:8080' + toggle_allow_streaming_url
 
 chunk_length = 3
-test_recordings_path = './test_webstreaming'
+test_recordings_path = os.path.join(get_project_path(), 'test_webstreaming')
 
 
 def curl(url):
@@ -65,6 +65,13 @@ class TestViewBase(unittest.TestCase):
         """
         self.start_web_driver()
         self.camera = get_camera(chunk_length, test_recordings_path)
+
+    def tearDown(self):
+        """
+        Tear down web streaming and driver.
+        """
+        self.driver.close()
+        shutil.rmtree(test_recordings_path, ignore_errors=True)
 
     def start_web_driver(self):
         """
@@ -124,13 +131,6 @@ class TestViewBase(unittest.TestCase):
         """
         assert self.get_element_by_name('start').is_enabled() == start
         assert self.get_element_by_name('stop').is_enabled() == stop
-
-    def tearDown(self):
-        """
-        Tear down web streaming and driver.
-        """
-        self.driver.close()
-        shutil.rmtree(test_recordings_path)
 
     def get_element_by_name(self, name):
         """

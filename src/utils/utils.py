@@ -147,7 +147,7 @@ def expand_glob(path: str):
         return [path, ]
 
 
-def get_src_path():
+def get_project_path():
     """
     Returns the path to the src files
     """

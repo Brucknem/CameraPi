@@ -9,10 +9,10 @@ import pytest
 from src.camera.camera_base import CameraBase, CameraState, get_camera
 from src.camera.camera_mock import Camera
 from src.utils.observer import Observer
-from src.utils.utils import is_raspbian
+from src.utils.utils import is_raspbian, get_project_path
 
 chunk_length = 3
-test_recordings_path = './test_cameras'
+test_recordings_path = os.path.join(get_project_path(), 'test_cameras')
 
 
 class MockStreamingOutput(object):
@@ -77,6 +77,7 @@ class TestCameraBase(unittest.TestCase):
         assert 'attached_to' in observer.notification
         assert observer.notification['attached_to'] == self.camera
 
+        self.camera.set_camera_state(CameraState.IDLE)
         self.camera.set_camera_state(CameraState.IDLE)
         assert observer.notification['state'] == CameraState.IDLE
 
@@ -267,4 +268,4 @@ def test_suite_before_and_after_all():
     # teardown - put your command here
     import shutil
 
-    shutil.rmtree(test_recordings_path)
+    shutil.rmtree(test_recordings_path, ignore_errors=True)

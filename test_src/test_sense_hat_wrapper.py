@@ -1,3 +1,4 @@
+import os
 import shutil
 import unittest
 from time import sleep
@@ -11,10 +12,10 @@ from src.sense_hat_wrapper.sense_hat_wrapper import TEMPERATURE_PRESSURE_KEY, \
     TEMPERATURE_HUMIDITY_KEY, PRESSURE, HUMIDITY
 from src.sense_hat_wrapper.sense_hat_wrapper_base import SenseHatWrapperBase, \
     camera_state_to_color_map, get_sense_hat
-from src.utils.utils import TEMPERATURE_CHIP_KEY, is_raspbian
+from src.utils.utils import TEMPERATURE_CHIP_KEY, is_raspbian, get_project_path
 
 chunk_length = 3
-tests_folder = './test_sense_hat_folder'
+tests_folder = os.path.join(get_project_path(), 'test_sense_hat_folder')
 max_sense_hat_difference = list((1, 1, 1))
 
 
@@ -66,7 +67,7 @@ class TestSenseHatWrapperBase(unittest.TestCase):
         """ Tear down """
         del self.camera
         del self.sense_hat
-        shutil.rmtree(tests_folder)
+        shutil.rmtree(tests_folder, ignore_errors=True)
 
     def test_show_ip(self):
         """
@@ -106,7 +107,7 @@ class TestSenseHatWrapper(TestSenseHatWrapperBase):
         """ Tear down """
         del self.camera
         del self.sense_hat
-        shutil.rmtree(tests_folder)
+        shutil.rmtree(tests_folder, ignore_errors=True)
 
     def test_read_sensors(self):
         """

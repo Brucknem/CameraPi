@@ -4,12 +4,13 @@ import unittest
 from pathlib import Path
 
 from src.utils.recordings_folder import RecordingsFolder
-from src.utils.utils import get_src_path
+from src.utils.utils import get_project_path
 
 test_path_prefix = 'test_recordings_folder'
 folder_names = ['', 'test_split_path_1',
-                'test_split_path_2', 'test_split_path_3', 'recordings/*']
-tests_folders = [os.path.join(get_src_path(), test_path_prefix, f) for f in
+                'test_split_path_2', 'test_split_path_3',
+                'recordings/*']
+tests_folders = [os.path.join(get_project_path(), test_path_prefix, f) for f in
                  folder_names]
 base_path_string = ''
 for f in tests_folders:
@@ -30,9 +31,9 @@ class PathTestsBase(unittest.TestCase):
                 for p in ['a', 'b', 'c', 'd', 'e']:
                     join_path = os.path.join(clean_path, p)
                     self.paths.append(join_path)
+                    Path(join_path).mkdir(parents=True, exist_ok=True)
             else:
                 self.paths.append(path)
-        Path(self.paths[0]).mkdir(parents=True, exist_ok=True)
 
     def tearDown(self) -> None:
         """ Tear down """
