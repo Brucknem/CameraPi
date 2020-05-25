@@ -7,14 +7,14 @@ import pytest
 
 from src.sense_hat_wrapper.sense_hat_wrapper import SenseHatWrapper
 from src.sense_hat_wrapper.sense_hat_wrapper_base import get_sense_hat
-from src.utils.utils import is_raspbian
+from src.utils.utils import is_raspbian, get_project_path
 from test_src.test_sense_hat_wrapper import \
     assert_sense_hat_matrix_color_by_state, ReleaseEvent
 from test_src.test_web_streaming import TestViewBase
 from test_src.test_web_streaming import index_url, settings_url
 
 chunk_length = 3
-test_recordings_path = './test_system'
+test_recordings_path = os.path.join(get_project_path(), 'test_system')
 
 
 class TestSystem(TestViewBase):

@@ -37,8 +37,10 @@ parser.add_argument('-o',
                     '--out',
                     nargs='?',
                     type=str,
-                    help='The output path for recordings and logs. '
-                         'Default: ' + recordings_path)
+                    help='A semi-colon separated list of absolute paths that '
+                         'should be written to in order. '
+                         'If none of the paths is writable the fallback path '
+                         'is ' + get_default_recordings_path())
 args = parser.parse_args()
 chunk_length = \
     args.chunk_length if args.chunk_length else chunk_length

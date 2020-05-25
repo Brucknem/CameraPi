@@ -1,55 +1,62 @@
 import os
 import shutil
 import unittest
+from pathlib import Path
 
 from src.utils.recordings_folder import RecordingsFolder
-from src.utils.utils import get_default_recordings_path
+from src.utils.utils import get_project_path
 
-tests_folder = './test_recordings_folder'
+test_path_prefix = 'test_recordings_folder'
+folder_names = ['', 'test_split_path_1',
+                'test_split_path_2', 'test_split_path_3',
+                'recordings/*']
+tests_folders = [os.path.join(get_project_path(), test_path_prefix, f) for f in
+                 folder_names]
+base_path_string = ''
+for f in tests_folders:
+    base_path_string += f + ';'
 
 
-class TestRecordingsFolder(unittest.TestCase):
+class PathTestsBase(unittest.TestCase):
+    """
+    Base for the tests that need paths set up.
+    """
+
+    def setUp(self) -> None:
+        """ Setup """
+        self.paths = []
+        for path in tests_folders:
+            if path.endswith('*'):
+                clean_path = path.replace('*', '')
+                for p in ['a', 'b', 'c', 'd', 'e']:
+                    join_path = os.path.join(clean_path, p)
+                    self.paths.append(join_path)
+                    Path(join_path).mkdir(parents=True, exist_ok=True)
+            else:
+                self.paths.append(path)
+
+    def tearDown(self) -> None:
+        """ Tear down """
+        for path in self.paths:
+            shutil.rmtree(path, ignore_errors=True)
+
+
+class TestRecordingsFolder(PathTestsBase):
     """
     Tests for recordings_folder.py
     """
 
     def setUp(self) -> None:
         """ Setup """
-        self.recordings_folder = RecordingsFolder(tests_folder)
+        super().setUp()
+        self.recordings_folder = RecordingsFolder(base_path_string)
 
-    def tearDown(self) -> None:
-        """ Tear down """
-        shutil.rmtree(tests_folder)
-
-    def test_can_write_to_dir(self):
-        """
-        Test: Can not write to permission denied dir.
-        """
-        assert RecordingsFolder(
-            '/mnt/test_camerapi/').base_path == get_default_recordings_path()
-
-    def test_module_constructor(self):
+    def test_path_splitting(self):
         """
         Test: Singleton class design of RecordingsFolder
         """
-
-        assert self.recordings_folder.base_path == tests_folder
-        test_base_path = os.path.join(tests_folder, 'test_module_constructor')
-
-        assert self.recordings_folder is not RecordingsFolder(test_base_path)
-        assert os.path.exists(self.recordings_folder.base_path)
-        assert os.path.exists(self.recordings_folder.log_dir)
-
-    def test_base_path(self):
-        """
-        Tests the base path setting and path creation
-        """
-        assert self.recordings_folder.base_path
-        assert self.recordings_folder.datetime_now
-        assert self.recordings_folder.log_dir
-        assert not self.recordings_folder.current_recordings_folder
-        assert os.path.exists(self.recordings_folder.base_path)
-        assert os.path.exists(self.recordings_folder.log_dir)
+        for path in self.recordings_folder.base_paths:
+            assert path in self.paths
 
     def test_create_new_recording(self):
         """
@@ -87,8 +94,23 @@ class TestRecordingsFolder(unittest.TestCase):
             assert next_chunk_path is not current_chunk_path
 
             assert next_chunk_path.endswith('.h264')
-            assert next_chunk_path.startswith(tests_folder)
+            assert next_chunk_path.split('/')[-3] == test_path_prefix
             assert next_chunk_path.startswith(
                 self.recordings_folder.current_recordings_folder)
 
             current_chunk_path = next_chunk_path
+
+    def test_non_existing_paths_skipped(self):
+        """
+        Test: Non existing paths are not used for writing
+        """
+        non_existing_paths = '/nfjdksn/fdsfsd;/kdfjnsf;/mnt/;/opt/;'
+        self.recordings_folder = RecordingsFolder(
+            non_existing_paths + base_path_string)
+        print(self.recordings_folder.base_paths)
+
+        chunk_path = self.recordings_folder.get_next_chunk_path()
+        assert chunk_path.startswith(self.paths[0])
+
+        chunk_path = self.recordings_folder.get_next_chunk_path()
+        assert chunk_path.startswith(self.paths[0])

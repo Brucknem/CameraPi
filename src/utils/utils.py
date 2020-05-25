@@ -91,7 +91,7 @@ def read_ip():
     return last_cached_ip
 
 
-def assert_can_write_to_dir(base_path):
+def can_write_to_dir(base_path):
     """
     Checks if the base dir can be written.
     """
@@ -113,3 +113,42 @@ def assert_can_write_to_dir(base_path):
         return True
     except Exception:
         return False
+
+
+def split_path_list(path_list_string: str):
+    """
+    Splits the given path list into its paths
+    """
+    if not path_list_string:
+        return []
+
+    if ';' not in path_list_string:
+        return [path_list_string, ]
+
+    path_list = path_list_string.split(';')
+    path_list = [p for p in path_list if p]
+    path_list = [expand_glob(p) for p in path_list]
+    path_list = [item for sublist in path_list for item in sublist]
+    return path_list
+
+
+def expand_glob(path: str):
+    """
+    Expands a * glob
+    """
+    if not path.endswith('*'):
+        return [path, ]
+
+    path = path.replace('*', '')
+    try:
+        paths = [os.path.join(path, x) for x in os.listdir(path)]
+        return paths
+    except FileNotFoundError:
+        return [path, ]
+
+
+def get_project_path():
+    """
+    Returns the path to the src files
+    """
+    return dirname(dirname(get_default_recordings_path()))
