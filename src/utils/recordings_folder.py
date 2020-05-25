@@ -22,7 +22,6 @@ class RecordingsFolder:
         """
         Creates a new folder for recordings.
         """
-
         if not self.log_dir or not can_write_to_dir(self.log_dir):
             for path in self.base_paths:
                 if can_write_to_dir(path):
@@ -47,9 +46,3 @@ class RecordingsFolder:
             self.create_new_recording()
         return os.path.join(self.current_recordings_folder,
                             get_datetime_now_file_string() + '.h264')
-
-    def can_write_to_current_recordings_folder(self):
-        """
-        Checks if the log dir can be written.
-        """
-        return can_write_to_dir(self.current_recordings_folder)

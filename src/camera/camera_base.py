@@ -187,9 +187,3 @@ class CameraBase(Observable, metaclass=abc.ABCMeta):
         Is idle
         """
         return self.camera_state == CameraState.IDLE
-
-    def can_write_recordings(self):
-        """
-        Checks if the recordings folder is writable
-        """
-        return self.recordings_folder.can_write_to_current_recordings_folder()
