@@ -122,10 +122,11 @@ def split_path_list(path_list_string: str):
     if not path_list_string:
         return []
 
-    if ';' not in path_list_string:
-        return [path_list_string, ]
+    if ';' in path_list_string:
+        path_list = path_list_string.split(';')
+    else:
+        path_list = [path_list_string, ]
 
-    path_list = path_list_string.split(';')
     path_list = [p for p in path_list if p]
     path_list = [expand_glob(p) for p in path_list]
     path_list = [item for sublist in path_list for item in sublist]

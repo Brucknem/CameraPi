@@ -48,3 +48,11 @@ class TestUtils(PathTestsBase):
         Test: Empty path split correct
         """
         assert [] == split_path_list('')
+
+    def test_single_with_glob(self):
+        """"
+        Test: Empty path split correct
+        """
+        paths = split_path_list(tests_folders[4])
+        for path in paths:
+            assert path.split('/')[-1] in ['a', 'b', 'c', 'd', 'e']
