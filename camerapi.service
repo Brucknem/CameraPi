@@ -1,6 +1,6 @@
 [Unit]
 Description=Camera Pi Service
-After=multi-user.target
+After=multi-user.target network.target mnt-harddrive.mount
 Conflicts=getty@tty1.service
 
 [Service]
