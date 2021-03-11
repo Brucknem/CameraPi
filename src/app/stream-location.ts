@@ -8,3 +8,16 @@ export interface StreamLocation {
   port: number;
   path: string;
 }
+
+export function format(streamLocation: StreamLocation): string {
+  return (
+    streamLocation.protocol +
+    '://' +
+    streamLocation.location +
+    ':' +
+    streamLocation.port +
+    '/' +
+    streamLocation.path +
+    '.mjpg'
+  );
+}

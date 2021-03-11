@@ -1,4 +1,26 @@
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="over">
+    <app-sidebar></app-sidebar>
+  </mat-drawer>
 
-<app-image-stream></app-image-stream>
+  <div class="example-sidenav-content">
+    <div class="container">
+      <app-image-stream></app-image-stream>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+      <button
+        id="open-sidebar-button"
+        mat-icon-button
+        mat-raised-button
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>menu_open</mat-icon>
+      </button>
+    </div>
+  </div>
+</mat-drawer-container>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+  crossorigin="anonymous"
+></script>

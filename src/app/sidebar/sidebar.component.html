@@ -1,0 +1,53 @@
+<div>
+      <mat-form-field appearance="fill">
+        <mat-label>Protocol</mat-label>
+        <mat-select
+          [(value)]="streamLocation.protocol"
+          (change)="onChangeStreamLocation()"
+        >
+          <mat-option
+            *ngFor="let protocol of eProtocol | keyvalue"
+            [value]="protocol.value"
+          >
+            {{ protocol.key }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+</div>
+<div>
+      <mat-form-field appearance="fill">
+        <mat-label>Location</mat-label>
+        <input
+          matInput
+          [(ngModel)]="streamLocation.location"
+          placeholder="IP or URL"
+          (change)="onChangeStreamLocation()"
+        />
+      </mat-form-field>
+
+</div>
+<div>
+      <mat-form-field appearance="fill">
+        <mat-label>Port</mat-label>
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="streamLocation.port"
+          placeholder="Port"
+          (change)="onChangeStreamLocation()"
+        />
+      </mat-form-field>
+
+</div>
+<div>
+      <mat-form-field appearance="fill">
+        <mat-label>Path</mat-label>
+        <input
+          matInput
+          [(ngModel)]="streamLocation.path"
+          placeholder="Path without .mjpg"
+          (change)="onChangeStreamLocation()"
+        />
+      </mat-form-field>
+
+</div>
