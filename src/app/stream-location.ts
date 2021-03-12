@@ -17,7 +17,7 @@ export function format(streamLocation: StreamLocation): string {
     ':' +
     streamLocation.port +
     '/' +
-    streamLocation.path +
-    '.mjpg'
+    streamLocation.path
+    // +    '.mjpg'
   );
 }
