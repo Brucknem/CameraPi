@@ -14,7 +14,8 @@ def set_camera(camera_type: str):
     global camera
     try:
         Camera = import_module('lib.camera_' + camera_type).Camera
-    except Exception as e:
+        print("Success switching")
+    except ModuleNotFoundError as e:
         from lib.camera_base import Camera
         success = False
         print("Falling back to base camera.\n" + e)
@@ -22,7 +23,7 @@ def set_camera(camera_type: str):
     return success
 
 
-camera = set_camera('pi')
+set_camera('pi')
 
 
 def get_base_path() -> str:
