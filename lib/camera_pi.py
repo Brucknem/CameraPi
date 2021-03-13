@@ -60,4 +60,4 @@ class Camera(Camera):
 
     @staticmethod
     def stop_recording():
-        Camera.camera.stop_recording()
+        Camera.camera.stop_recording(splitter_port=2)
