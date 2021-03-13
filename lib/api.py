@@ -105,7 +105,8 @@ def stop_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Stop recording not implemented")
+    print("Stop recording")
+    camera.stop_recording()
     return redirect(get_stream_path())
 
 
