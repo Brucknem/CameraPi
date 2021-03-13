@@ -39,6 +39,10 @@ class Camera(Camera):
 
     @staticmethod
     def record():
-        step = 0.2
-        for _ in range(10):
-            Camera.camera.wait_recording(step)
+        Camera.camera.start_recording('./test_recordings/yeet.h264')
+        Camera.camera.start_recording('1.h264')
+        Camera.camera.wait_recording(1)
+        for i in range(2, 11):
+            Camera.camera.split_recording('%d.h264' % i)
+            Camera.camera.wait_recording(1)
+        Camera.camera.stop_recording()
