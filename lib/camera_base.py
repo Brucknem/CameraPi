@@ -120,3 +120,7 @@ class Camera(object):
                 print('Stopping camera thread due to inactivity.')
                 break
         Camera.thread = None
+
+    @staticmethod
+    def record():
+        pass

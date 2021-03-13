@@ -13,6 +13,8 @@ if os.environ.get('CAMERA'):
 else:
     from lib.camera_base import Camera
 
+camera = Camera()
+
 
 def get_base_path() -> str:
     """
@@ -53,7 +55,7 @@ def video_feed() -> Response:
     Returns:
         Response: JPG camera images encoded as HTML response for streaming to the web.
     """
-    return Response(video_feed_generator(Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(video_feed_generator(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @provider.route('/')
@@ -78,6 +80,7 @@ def index() -> Response:
 
 @provider.route(get_base_path() + 'start_recording')
 def start_recording() -> Response:
+    global camera
     """
 
     Starts the recording of the camera to disk on the server.
@@ -85,7 +88,8 @@ def start_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Start recording not implemented")
+    print("Start recording")
+    camera.record()
     return redirect(get_stream_path())
 
 
