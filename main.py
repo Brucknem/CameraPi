@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import argparse
 import logging
 import signal
 import sys
@@ -25,8 +26,9 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-# chunk_length = 5 * 60
-# parser = argparse.ArgumentParser(description='Camera Pi.')
+chunk_length = 5 * 60
+parser = argparse.ArgumentParser(description='Camera Pi.')
+
 # parser.add_argument('-c',
 #                     '--chunk_length',
 #                     nargs='?',
@@ -42,7 +44,8 @@ signal.signal(signal.SIGINT, signal_handler)
 #                          'should be written to in order. '
 #                          'If none of the paths is writable the fallback path '
 #                          'is ' + get_default_recordings_path())
-# args = parser.parse_args()
+args = parser.parse_args()
+
 # chunk_length = \
 #     args.chunk_length if args.chunk_length else chunk_length
 # recordings_path = \
