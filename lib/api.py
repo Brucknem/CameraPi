@@ -50,6 +50,9 @@ def video_feed_generator(camera) -> Generator[str, None, None]:
 
 @provider.route(get_stream_path())
 def video_feed() -> Response:
+    global camera
+    camera = Camera()
+
     """
 
     Returns:
