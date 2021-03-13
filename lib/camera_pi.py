@@ -55,11 +55,11 @@ class Camera(Camera):
                 Camera.camera.wait_recording(3)
             Camera.camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
-            print("PiCameraAlreadyRecording " + e)
+            print("PiCameraAlreadyRecording " + str(e))
 
     @staticmethod
     def stop_recording():
         try:
             Camera.camera.stop_recording(splitter_port=2)
         except picamera.PiCameraNotRecording as e:
-            print("PiCameraNotRecording " + e)
+            print("PiCameraNotRecording " + str(e))
