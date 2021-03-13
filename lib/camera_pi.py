@@ -44,3 +44,4 @@ class Camera(Camera):
         for _ in Camera.camera.record_sequence(('/home/pi/test_recordings/yeet%d.h264' % i for i in range(1, 11)),
                                                splitter_port=2):
             Camera.camera.wait_recording(5)
+        Camera.camera.stop_recording()
