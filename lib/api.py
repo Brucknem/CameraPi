@@ -43,9 +43,10 @@ def get_stream_path() -> str:
     return get_base_path() + 'stream/'
 
 
-def video_feed_generator(camera: Camera) -> Generator[str, None, None]:
+def video_feed_generator() -> Generator[str, None, None]:
+    global camera
     """
-
+    
     Returns:
         Generator[str, None, None]: JPG camera images encoded as bitstring.
     """
@@ -62,7 +63,7 @@ def video_feed() -> Response:
     Returns:
         Response: JPG camera images encoded as HTML response for streaming to the web.
     """
-    return Response(video_feed_generator(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(video_feed_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @provider.route('/')
