@@ -7,10 +7,10 @@ import sys
 from lib.api import provider
 
 
-# from src.camera.camera_base import get_camera
-# from src.sense_hat_wrapper.sense_hat_wrapper_base import get_sense_hat
-# from src.utils.utils import get_default_recordings_path
-# from src.web.web_streaming import get_web_streaming
+# from lib.camera.camera_base import get_camera
+# from lib.sense_hat_wrapper.sense_hat_wrapper_base import get_sense_hat
+# from lib.utils.utils import get_default_recordings_path
+# from lib.web.web_streaming import get_web_streaming
 
 def signal_handler(sig, frame):
     """
