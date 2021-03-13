@@ -19,7 +19,7 @@ class Camera(Camera):
         inherited
         """
 
-        if Camera.camera.closed:
+        if not Camera.camera or Camera.camera.closed:
             Camera.camera = picamera.PiCamera()
 
         Camera.camera.resolution = 1200, 900
