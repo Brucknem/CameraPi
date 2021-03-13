@@ -23,6 +23,7 @@ class Camera(Camera):
 
         if not Camera.camera_opened:
             Camera.camera = picamera.PiCamera()
+            Camera.camera_opened = True
 
         # let camera warm up
         time.sleep(2)
