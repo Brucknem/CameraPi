@@ -72,7 +72,6 @@ class Camera(object):
     last_access = 0
     event = CameraEvent()
     error_image = open(pathlib.Path(get_data_path(), 'error-icon.png'), 'rb').read()
-    should_shutdown = False
 
     def __init__(self):
         """Start the background camera thread if it isn't running yet."""
@@ -121,7 +120,3 @@ class Camera(object):
                 print('Stopping camera thread due to inactivity.')
                 break
         Camera.thread = None
-
-    @staticmethod
-    def shutdown():
-        Camera.should_shutdown = True

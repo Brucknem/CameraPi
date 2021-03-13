@@ -1,29 +1,17 @@
 #!/usr/bin/env python
+import os
 from importlib import import_module
 from typing import Generator
 
 from flask import Flask, Response, redirect, jsonify, url_for
 
-from lib.camera_base import Camera
+provider = Flask(__name__)
 
-provider = Flask("Some testing name")
-
-
-def set_camera(camera_type: str):
-    success = True
-    global camera
-    try:
-        Camera = import_module('lib.camera_' + camera_type).Camera
-        print("Success switching")
-    except ModuleNotFoundError as e:
-        from lib.camera_base import Camera
-        success = False
-        print("Falling back to base camera.\n" + e)
-    camera = Camera()
-    return success
-
-
-set_camera('pi')
+# import camera driver
+if os.environ.get('CAMERA'):
+    Camera = import_module('lib.camera_' + os.environ['CAMERA']).Camera
+else:
+    from lib.camera_base import Camera
 
 
 def get_base_path() -> str:
@@ -46,8 +34,7 @@ def get_stream_path() -> str:
     return get_base_path() + 'stream/'
 
 
-def video_feed_generator() -> Generator[str, None, None]:
-    global camera
+def video_feed_generator(camera) -> Generator[str, None, None]:
     """
     
     Returns:
@@ -66,7 +53,7 @@ def video_feed() -> Response:
     Returns:
         Response: JPG camera images encoded as HTML response for streaming to the web.
     """
-    return Response(video_feed_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(video_feed_generator(Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @provider.route('/')
@@ -139,9 +126,3 @@ def stop_streaming() -> Response:
     """
     print("Stop streaming not implemented")
     return redirect(get_stream_path())
-
-
-@provider.route(get_base_path() + 'change_camera/<camera_type>')
-def change_camera(camera_type):
-    success = set_camera(camera_type)
-    return jsonify({'success': success})
