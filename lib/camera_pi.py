@@ -17,12 +17,18 @@ class Camera(Camera):
         inherited
         """
 
+        Camera.should_shutdown = False
+
         with picamera.PiCamera() as camera:
             # let camera warm up
             time.sleep(2)
 
             stream = io.BytesIO()
             for foo in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
+                if Camera.should_shutdown:
+                    Camera.should_shutdown = False
+                    return
+
                 # return current frame
                 stream.seek(0)
                 yield stream.read()
