@@ -15,9 +15,10 @@ def set_camera(camera_type: str):
     global camera
     try:
         Camera = import_module('lib.camera_' + camera_type).Camera
-    except:
+    except Exception as e:
         from lib.camera_base import Camera
         success = False
+        print("Falling back to base camera.\n" + e)
     camera = Camera()
     return success
 

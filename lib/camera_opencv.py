@@ -1,6 +1,6 @@
 import os
 import cv2
-from camera_base import Camera
+from lib.camera_base import Camera
 
 
 class Camera(Camera):

@@ -3,7 +3,7 @@ import time
 
 import picamera
 
-from camera_base import Camera
+from lib.camera_base import Camera
 import atexit
 
 
