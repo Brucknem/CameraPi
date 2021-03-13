@@ -6,7 +6,6 @@ from flask import Flask, Response, redirect, jsonify, url_for
 
 from lib.camera_base import Camera
 
-camera = Camera()
 provider = Flask("Some testing name")
 
 
@@ -21,6 +20,9 @@ def set_camera(camera_type: str):
         print("Falling back to base camera.\n" + e)
     camera = Camera()
     return success
+
+
+camera = set_camera('pi')
 
 
 def get_base_path() -> str:
