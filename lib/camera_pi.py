@@ -19,7 +19,8 @@ class Camera(Camera):
         inherited
         """
 
-        Camera.camera = picamera.PiCamera()
+        if Camera.camera.closed:
+            Camera.camera = picamera.PiCamera()
 
         Camera.camera.resolution = 1200, 900
         Camera.camera.framerate = 30
