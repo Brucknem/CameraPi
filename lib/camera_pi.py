@@ -39,10 +39,7 @@ class Camera(Camera):
 
     @staticmethod
     def record():
-        Camera.camera.start_recording('./test_recordings/yeet.h264')
-        Camera.camera.start_recording('1.h264')
-        Camera.camera.wait_recording(1)
-        for i in range(2, 11):
-            Camera.camera.split_recording('%d.h264' % i)
-            Camera.camera.wait_recording(1)
-        Camera.camera.stop_recording()
+        Camera.camera.start_recording('/home/pi/test_recordings/yeet.h264')
+        for _ in Camera.camera.record_sequence(('/home/pi/test_recordings/yeet%d.h264' % i for i in range(1, 11)),
+                                               splitter_port=2):
+            Camera.camera.wait_recording(5)
