@@ -13,6 +13,7 @@ class Camera(Camera):
     """
 
     camera = None
+    is_recording = False
 
     @staticmethod
     def frames():
@@ -49,11 +50,21 @@ class Camera(Camera):
     @staticmethod
     def record_thread():
         try:
+            chunk = 60
+            step = 0.5
+
             Camera.camera.start_recording('/home/pi/test_recordings/yeet.h264')
+            print("Recording is on")
+            Camera.is_recording = True
             for _ in Camera.camera.record_sequence(
                     ('/home/pi/test_recordings/yeet%d.h264' % i for i in range(10000000)),
                     splitter_port=2):
-                Camera.camera.wait_recording(60)
+                if not Camera.is_recording:
+                    break
+                for i in range(int(chunk / step)):
+                    if not Camera.is_recording:
+                        break
+                    Camera.camera.wait_recording(step)
             Camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
             print(e)
@@ -64,3 +75,5 @@ class Camera(Camera):
             Camera.camera.stop_recording(splitter_port=2)
         except picamera.PiCameraNotRecording as e:
             print(e)
+        Camera.is_recording = False
+        print("Recording is off")

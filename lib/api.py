@@ -91,7 +91,6 @@ def start_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Start recording")
     camera.record()
     return Response("Start recording requested", 200)
 
@@ -105,7 +104,6 @@ def stop_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Stop recording")
     camera.stop_recording()
     return Response("Stop recording requested", 200)
 
