@@ -1,5 +1,6 @@
 .app-drawer-container {
   width: 100vw;
+
   height: calc(100% - 64px);
   height: -o-calc(100% - 64px); /* opera */
   height: -webkit-calc(100% - 64px); /* google, safari */
@@ -7,6 +8,25 @@
   //border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
+  @media (min-width: 0) and (max-width: 959px) and (orientation: portrait) {
+    .app-drawer-container {
+
+    height: calc(100% - 56px);
+    height: -o-calc(100% - 56px); /* opera */
+    height: -webkit-calc(100% - 56px); /* google, safari */
+    height: -moz-calc(100% - 56px); /* firefox */
+    }
+  }
+
+@media (min-width: 0) and (max-width: 959px) and (orientation: landscape) {
+  .app-drawer-container {
+
+  height: calc(100% - 48px);
+  height: -o-calc(100% - 48px); /* opera */
+  height: -webkit-calc(100% - 48px); /* google, safari */
+  height: -moz-calc(100% - 48px); /* firefox */
+   }
+}
 
 .top-spacer {
   padding-top 2em
