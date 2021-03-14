@@ -3,6 +3,7 @@ import os
 from importlib import import_module
 from pathlib import Path
 from typing import Generator
+import logging
 
 from flask import Flask, Response, redirect, jsonify, url_for, request
 from flask_cors import CORS
@@ -76,6 +77,7 @@ def root() -> Response:
     Returns:
         Response: Endpoint for the landing page.
     """
+    logging.info('Redirecting from / to stream')
     return redirect(get_stream_path())
 
 
@@ -86,6 +88,7 @@ def index() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
+    logging.info('Redirecting from ' + get_base_path() + ' to stream')
     return redirect(get_stream_path())
 
 
@@ -97,6 +100,7 @@ def get_password() -> str:
     if 'password' not in data:
         return ''
 
+    logging.info('Password correct')
     return str(data['password']).strip()
 
 
@@ -111,6 +115,7 @@ def start_recording() -> Response:
         Response: Endpoint for the video stream.
     """
     global password
+    logging.info('Start recording requested')
     if get_password() != password:
         return jsonify({'success': False})
 
@@ -128,6 +133,7 @@ def stop_recording() -> Response:
         Response: Endpoint for the video stream.
     """
     global password
+    logging.info('Stop recording requested')
     if get_password() != password:
         return jsonify({'success': False})
 
@@ -144,6 +150,7 @@ def is_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
+    logging.info('Is recording requested')
     return jsonify({'success': camera.is_recording()})
 
 
@@ -156,7 +163,7 @@ def start_streaming() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Start streaming not implemented")
+    logging.warning("Start streaming not implemented")
     return Response("Start streaming not yet implemented", 404)
 
 
@@ -169,5 +176,5 @@ def stop_streaming() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    print("Stop streaming not implemented")
+    logging.warning("Stop streaming not implemented")
     return Response("Stop streaming not yet implemented", 404)

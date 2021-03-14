@@ -1,4 +1,5 @@
 import io
+import logging
 import threading
 import time
 
@@ -58,7 +59,7 @@ class Camera(Camera):
             chunk = 60 * 5
             step = 0.5
 
-            print("Recording is on")
+            logging.info("Recording is on")
             for _ in Camera.camera.record_sequence(
                     (Camera.recordings_folder.get_next_chunk_path() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
@@ -70,22 +71,22 @@ class Camera(Camera):
                     Camera.camera.wait_recording(step, splitter_port=Camera.record_splitter_port)
             Camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
-            print(e)
+            logging.info(e)
         except AttributeError as e:
-            print(e)
+            logging.info(e)
 
     @staticmethod
     def stop_recording():
         try:
             Camera.camera.stop_recording(splitter_port=Camera.record_splitter_port)
         except picamera.PiCameraNotRecording as e:
-            print(e)
+            logging.info(e)
         except AttributeError as e:
-            print(e)
+            logging.info(e)
         Camera.recording = False
         Camera.recordings_folder.needs_new_recording = True
 
-        print("Recording is off")
+        logging.info("Recording is off")
 
     @staticmethod
     def is_recording():
