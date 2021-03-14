@@ -73,8 +73,6 @@ class Camera(object):
     event = CameraEvent()
     error_image = open(pathlib.Path(get_data_path(), 'error-icon.png'), 'rb').read()
 
-    is_recording = False
-
     def __init__(self):
         """Start the background camera thread if it isn't running yet."""
         if Camera.thread is None:
@@ -125,8 +123,8 @@ class Camera(object):
 
     @staticmethod
     def record():
-        Camera.is_recording = True
+        pass
 
     @staticmethod
     def stop_recording():
-        Camera.is_recording = False
+        pass

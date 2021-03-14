@@ -41,9 +41,10 @@ class Camera(Camera):
 
     @staticmethod
     def record():
-        Camera.record_thread = threading.Thread(target=Camera.record)
-        Camera.record_thread.daemon = True
-        Camera.record_thread.start()
+        Camera.stop_recording()
+        record_thread = threading.Thread(target=Camera.record)
+        record_thread.daemon = True
+        record_thread.start()
 
     @staticmethod
     def record_thread():
@@ -63,4 +64,3 @@ class Camera(Camera):
             Camera.camera.stop_recording(splitter_port=2)
         except picamera.PiCameraNotRecording as e:
             print("PiCameraNotRecording " + str(e))
-   
