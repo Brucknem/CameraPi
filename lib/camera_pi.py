@@ -59,7 +59,7 @@ class Camera(Camera):
 
             print("Recording is on")
 
-            Camera.camera.start_recording('/tmp')
+            Camera.camera.start_recording('/tmp/setup_recording.h264', splitter_port=Camera.record_splitter_port)
             Camera.recordings_folder.create_new_recording()
 
             for _ in Camera.camera.record_sequence(
