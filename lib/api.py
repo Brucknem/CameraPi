@@ -4,8 +4,10 @@ from importlib import import_module
 from typing import Generator
 
 from flask import Flask, Response, redirect, jsonify, url_for
+from flask_cors import CORS
 
 provider = Flask(__name__)
+CORS(provider)
 
 # import camera driver
 if os.environ.get('CAMERA'):
@@ -92,7 +94,7 @@ def start_recording() -> Response:
         Response: Endpoint for the video stream.
     """
     camera.record()
-    return Response("Start recording requested", 200)
+    return jsonify({'success': True})
 
 
 @provider.route(get_base_path() + 'stop_recording')
@@ -105,7 +107,7 @@ def stop_recording() -> Response:
         Response: Endpoint for the video stream.
     """
     camera.stop_recording()
-    return Response("Stop recording requested", 200)
+    return jsonify({'success': True})
 
 
 @provider.route(get_base_path() + 'start_streaming')
