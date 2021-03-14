@@ -25,8 +25,6 @@ class Camera(Camera):
         inherited
         """
 
-        print(Camera.recordings_folder)
-
         if not Camera.camera or Camera.camera.closed:
             Camera.camera = picamera.PiCamera()
 
@@ -60,7 +58,7 @@ class Camera(Camera):
 
             print("Recording is on")
             for _ in Camera.camera.record_sequence(
-                    ('/home/pi/test_recordings/yeet%d.h264' % i for i in range(10000000)),
+                    (Camera.recordings_folder.create_new_recording() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
                 Camera.is_recording = True
                 for i in range(int(chunk / step)):
