@@ -29,6 +29,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/assets/camerapi_icon.png",
               { "glob": "**/*", "input": "./assets/", "output": "./assets/" },
               { "glob": "favicon.ico", "input": "./", "output": "./" },
               { "glob": "mdi.svg", "input": "./node_modules/@mdi/angular-material", "output": "./assets" }
