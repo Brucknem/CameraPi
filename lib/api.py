@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import os
 from importlib import import_module
+from pathlib import Path
 from typing import Generator
 
-from flask import Flask, Response, redirect, jsonify, url_for
+from flask import Flask, Response, redirect, jsonify, url_for, request
 from flask_cors import CORS
 
 provider = Flask(__name__)
@@ -16,6 +17,10 @@ else:
     from lib.camera_base import Camera
 
 camera = Camera()
+
+current_path = Path(__file__).parent.parent
+with open(os.path.join(current_path, '.password')) as password_file:
+    password = password_file.read()
 
 
 def get_base_path() -> str:
@@ -83,7 +88,18 @@ def index() -> Response:
     return redirect(get_stream_path())
 
 
-@provider.route(get_base_path() + 'start_recording')
+def get_password() -> str:
+    data = request.get_json()
+    if data is None:
+        return ''
+
+    if 'password' not in data:
+        return ''
+
+    return str(data['password'])
+
+
+@provider.route(get_base_path() + 'start_recording', methods=['POST'])
 def start_recording() -> Response:
     global camera
     """
@@ -93,11 +109,15 @@ def start_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
+    global password
+    if get_password() != password:
+        return jsonify({'success': False})
+
     camera.record()
     return jsonify({'success': True})
 
 
-@provider.route(get_base_path() + 'stop_recording')
+@provider.route(get_base_path() + 'stop_recording', methods=['POST'])
 def stop_recording() -> Response:
     """
 
@@ -106,6 +126,10 @@ def stop_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
+    global password
+    if get_password() != password:
+        return jsonify({'success': False})
+
     camera.stop_recording()
     return jsonify({'success': True})
 
