@@ -1,5 +1,8 @@
 #!/bin/bash
 
-source /home/pi/Repositories/Raspberry-Pi/camerapiEnv/bin/activate
+source /home/pi/Repositories/CameraPi/venv/bin/activate
 
-/usr/bin/python3 /home/pi/Repositories/Raspberry-Pi/main.py -c 300 -o "/mnt/*"
+
+CAMERA=pi
+RECORDINGS=/mnt/*
+python /home/pi/Repositories/CameraPi/main.py
