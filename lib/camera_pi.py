@@ -58,9 +58,14 @@ class Camera(Camera):
             step = 0.5
 
             print("Recording is on")
+            is_new_recording = True
             for _ in Camera.camera.record_sequence(
                     (Camera.recordings_folder.get_next_chunk_path() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
+                if is_new_recording:
+                    is_new_recording = False
+                    Camera.recordings_folder.create_new_recording()
+                    
                 Camera.is_recording = True
                 for i in range(int(chunk / step)):
                     if not Camera.is_recording:
