@@ -21,7 +21,7 @@ camera = Camera()
 current_path = Path(__file__).parent.parent
 with open(os.path.join(current_path, '.password')) as password_file:
     password = password_file.read()
-
+password = password.strip()
 
 def get_base_path() -> str:
     """
@@ -96,7 +96,7 @@ def get_password() -> str:
     if 'password' not in data:
         return ''
 
-    return str(data['password'])
+    return str(data['password']).strip()
 
 
 @provider.route(get_base_path() + 'start_recording', methods=['POST'])
