@@ -58,11 +58,10 @@ class Camera(Camera):
             for _ in Camera.camera.record_sequence(
                     ('/home/pi/test_recordings/yeet%d.h264' % i for i in range(10000000)),
                     splitter_port=2):
-                if not Camera.is_recording:
-                    break
                 for i in range(int(chunk / step)):
                     if not Camera.is_recording:
-                        break
+                        Camera.stop_recording()
+                        return
                     Camera.camera.wait_recording(step)
             Camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
