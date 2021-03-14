@@ -134,6 +134,22 @@ def stop_recording() -> Response:
     return jsonify({'success': True})
 
 
+@provider.route(get_base_path() + 'is_recording', methods=['GET'])
+def is_recording() -> Response:
+    """
+
+    Stops the recording of the camera to disk on the server.
+
+    Returns:
+        Response: Endpoint for the video stream.
+    """
+    global password
+    if get_password() != password:
+        return jsonify({'success': False, 'is_recording': False})
+
+    return jsonify({'success': True, 'is_recording': Camera.is_recording()})
+
+
 @provider.route(get_base_path() + 'start_streaming')
 def start_streaming() -> Response:
     """

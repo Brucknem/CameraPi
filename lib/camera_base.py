@@ -128,3 +128,7 @@ class Camera(object):
     @staticmethod
     def stop_recording():
         pass
+
+    @staticmethod
+    def is_recording():
+        return False
