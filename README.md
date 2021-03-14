@@ -1,2 +1,4 @@
-# Raspberry-Pi
-This repository holds all my raspberry pi test scripts that i made to learn to work with sensors and stuff.
+# Camera Pi
+
+A camera project to monitor some horses using the pi camera.
+Control via the sense hat or a web interface.

@@ -1,0 +1,12 @@
+[Unit]
+Description=Camera Pi Service
+After=multi-user.target network.target mnt-harddrive.mount
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "/home/pi/Repositories/CameraPi/run.sh"
+StandardInput=tty-force
+
+[Install]
+WantedBy=multi-user.target
