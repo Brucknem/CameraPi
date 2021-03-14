@@ -54,7 +54,7 @@ class Camera(Camera):
     @staticmethod
     def record_thread():
         try:
-            chunk = 3
+            chunk = 60 * 5
             step = 0.5
 
             print("Recording is on")
