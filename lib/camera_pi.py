@@ -52,12 +52,11 @@ class Camera(Camera):
             chunk = 3
             step = 0.5
 
-            Camera.camera.start_recording('/home/pi/test_recordings/yeet.h264')
             print("Recording is on")
-            Camera.is_recording = True
             for _ in Camera.camera.record_sequence(
                     ('/home/pi/test_recordings/yeet%d.h264' % i for i in range(10000000)),
                     splitter_port=2):
+                Camera.is_recording = True
                 for i in range(int(chunk / step)):
                     if not Camera.is_recording:
                         Camera.stop_recording()
