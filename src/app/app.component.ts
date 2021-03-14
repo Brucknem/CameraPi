@@ -21,6 +21,12 @@ export class AppComponent implements OnInit {
         'assets/github-circle-white-transparent.svg'
       )
     );
+    this.matIconRegistry.addSvgIcon(
+      `camerapi-icon`,
+      this.domSanitizer.bypassSecurityTrustResourceUrl(
+        'assets/camerapi_icon.svg'
+      )
+    );
   }
 
   ngOnInit(): void {}
