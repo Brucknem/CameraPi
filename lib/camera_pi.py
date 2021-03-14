@@ -58,10 +58,6 @@ class Camera(Camera):
             step = 0.5
 
             print("Recording is on")
-
-            Camera.camera.start_recording('/tmp/setup_recording.h264', splitter_port=Camera.record_splitter_port)
-            Camera.recordings_folder.create_new_recording()
-
             for _ in Camera.camera.record_sequence(
                     (Camera.recordings_folder.get_next_chunk_path() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
@@ -86,4 +82,6 @@ class Camera(Camera):
         except AttributeError as e:
             print(e)
         Camera.is_recording = False
+        Camera.recordings_folder.needs_new_recording = True
+
         print("Recording is off")

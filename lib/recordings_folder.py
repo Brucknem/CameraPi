@@ -17,6 +17,7 @@ class RecordingsFolder:
         self.base_paths: list = split_path_list(base_path_list)
         self.log_dir: str = ''
         self.current_recordings_folder: str = ''
+        self.needs_new_recording: bool = True
 
     def create_new_recording(self):
         """
@@ -36,13 +37,14 @@ class RecordingsFolder:
 
         Path(self.current_recordings_folder).mkdir(parents=True,
                                                    exist_ok=True)
+        self.needs_new_recording = False
 
     def get_next_chunk_path(self):
         """
         Returns the full path to the current chunk.
         :return:
         """
-        if not self.current_recordings_folder:
+        if not self.current_recordings_folder or self.needs_new_recording:
             self.create_new_recording()
         return os.path.join(self.current_recordings_folder,
                             get_datetime_now_file_string() + '.h264')
