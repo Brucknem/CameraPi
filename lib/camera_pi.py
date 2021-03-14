@@ -15,7 +15,7 @@ class Camera(Camera):
     """
 
     camera = None
-    is_recording = False
+    recording = False
     record_splitter_port = 2
 
     recordings_folder = RecordingsFolder(get_env_recordings_path())
@@ -61,10 +61,10 @@ class Camera(Camera):
             for _ in Camera.camera.record_sequence(
                     (Camera.recordings_folder.get_next_chunk_path() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
-                Camera.is_recording = True
+                Camera.recording = True
                 for i in range(int(chunk / step)):
                     Camera.camera.annotate_text = get_datetime_now_log_string()
-                    if not Camera.is_recording:
+                    if not Camera.recording:
                         Camera.stop_recording()
                         return
                     Camera.camera.wait_recording(step, splitter_port=Camera.record_splitter_port)
@@ -82,11 +82,11 @@ class Camera(Camera):
             print(e)
         except AttributeError as e:
             print(e)
-        Camera.is_recording = False
+        Camera.recording = False
         Camera.recordings_folder.needs_new_recording = True
 
         print("Recording is off")
 
     @staticmethod
     def is_recording():
-        return Camera.is_recording
+        return Camera.recording

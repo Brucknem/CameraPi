@@ -23,6 +23,7 @@ with open(os.path.join(current_path, '.password')) as password_file:
     password = password_file.read()
 password = password.strip()
 
+
 def get_base_path() -> str:
     """
 
@@ -143,11 +144,7 @@ def is_recording() -> Response:
     Returns:
         Response: Endpoint for the video stream.
     """
-    global password
-    if get_password() != password:
-        return jsonify({'success': False, 'is_recording': False})
-
-    return jsonify({'success': True, 'is_recording': Camera.is_recording()})
+    return jsonify({'success': camera.is_recording()})
 
 
 @provider.route(get_base_path() + 'start_streaming')
