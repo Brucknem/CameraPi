@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CameraControlService } from '../../service/camera-control.service';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-camera-controls',
@@ -9,8 +10,15 @@ import { CameraControlService } from '../../service/camera-control.service';
 export class CameraControlsComponent implements OnInit {
   record = false;
   password = '';
+  isRecording = false;
 
-  constructor(private cameraControlService: CameraControlService) {}
+  constructor(private cameraControlService: CameraControlService) {
+    interval(1000).subscribe((_) => {
+      this.cameraControlService.isRecording().subscribe((result) => {
+        this.isRecording = result.success;
+      });
+    });
+  }
 
   ngOnInit(): void {}
 

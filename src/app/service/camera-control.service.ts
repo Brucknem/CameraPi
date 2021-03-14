@@ -29,12 +29,23 @@ export class CameraControlService {
     };
   }
 
+  private handleErrorIsRecording<T>(
+    operation = 'operation',
+    result?: T
+  ): (error: any) => Observable<T> {
+    return (error: any): Observable<T> => {
+      this.messagesService.add(`Camera Pi not reachable`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+
   private performPostCall(
     operation: string,
     subpath: string,
     password: string
   ): Observable<CameraControlResult> {
-    this.messagesService.add(operation + ' requested');
     return this.httpService
       .post<CameraControlResult>(
         join(this.cameraUrlService.streamLocation, subpath),
@@ -46,9 +57,13 @@ export class CameraControlService {
         }
       )
       .pipe(
-        tap((result: CameraControlResult) =>
-          this.messagesService.add(operation + ' succeeded', result.success)
-        ),
+        tap((result: CameraControlResult) => {
+          let success = 'Correct';
+          if (!result.success) {
+            success = 'Incorrect';
+          }
+          this.messagesService.add(operation + ' - Password', success);
+        }),
         catchError(this.handleError<CameraControlResult>(operation))
       );
   }
@@ -59,5 +74,17 @@ export class CameraControlService {
 
   stopRecording(password: string): Observable<CameraControlResult> {
     return this.performPostCall('Stop recording', 'stop_recording', password);
+  }
+
+  isRecording(): Observable<CameraControlResult> {
+    return this.httpService
+      .get<CameraControlResult>(
+        join(this.cameraUrlService.streamLocation, 'is_recording')
+      )
+      .pipe(
+        catchError(
+          this.handleErrorIsRecording<CameraControlResult>('Is recording')
+        )
+      );
   }
 }

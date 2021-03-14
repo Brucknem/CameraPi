@@ -13,7 +13,7 @@ export class MessagesService {
       finalMessage += ': ' + value;
     }
     this.snackBar.open(finalMessage, 'OK', {
-      duration: 1000,
+      duration: 2000,
     });
   }
 }

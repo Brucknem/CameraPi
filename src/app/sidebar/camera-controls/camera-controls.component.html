@@ -8,6 +8,20 @@
     </mat-form-field>
   </div>
 
-  <button mat-raised-button (click)="onStartRecording()">Start Record</button>
-  <button mat-raised-button (click)="onStopRecording()">Stop Record</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onStartRecording()"
+    [disabled]="isRecording"
+  >
+    Start Record
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onStopRecording()"
+    [disabled]="!isRecording"
+  >
+    Stop Record
+  </button>
 </div>
