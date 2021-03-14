@@ -75,4 +75,11 @@ export class SidebarComponent implements OnInit {
     this.cookieService.set('port', this.streamLocation.port.toString());
     this.cookieService.set('path', this.streamLocation.path);
   }
+
+  clearCookies(): void {
+    this.cookieService.delete('protocol');
+    this.cookieService.delete('location');
+    this.cookieService.delete('port');
+    this.cookieService.delete('path');
+  }
 }

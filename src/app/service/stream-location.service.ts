@@ -15,9 +15,9 @@ export class StreamLocationService {
 
   streamLocation: StreamLocation = {
     protocol: Protocol.HTTPS,
-    location: 'placekitten.com',
+    location: 'marcelbruckner.webhop.me',
     port: 443,
-    path: '1600/1200',
+    path: 'camerapi/stream',
   };
 
   getStreamLink(): string {

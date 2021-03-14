@@ -45,9 +45,15 @@
         <input
           matInput
           [(ngModel)]="streamLocation.path"
-          placeholder="Path without .mjpg"
+          placeholder="Path"
           (change)="onChangeStreamLocation()"
         />
       </mat-form-field>
 
+</div>
+
+<div>
+  <button mat-raised-button (click)="clearCookies()">
+    Clear
+  </button>
 </div>
