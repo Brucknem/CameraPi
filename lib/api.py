@@ -93,7 +93,7 @@ def start_recording() -> Response:
     """
     print("Start recording")
     camera.record()
-    return redirect(get_stream_path())
+    return Response("Start recording requested", 200)
 
 
 @provider.route(get_base_path() + 'stop_recording')
@@ -107,7 +107,7 @@ def stop_recording() -> Response:
     """
     print("Stop recording")
     camera.stop_recording()
-    return redirect(get_stream_path())
+    return Response("Stop recording requested", 200)
 
 
 @provider.route(get_base_path() + 'start_streaming')
@@ -120,7 +120,7 @@ def start_streaming() -> Response:
         Response: Endpoint for the video stream.
     """
     print("Start streaming not implemented")
-    return redirect(get_stream_path())
+    return Response("Start streaming not yet implemented", 404)
 
 
 @provider.route(get_base_path() + 'stop_streaming')
@@ -133,4 +133,4 @@ def stop_streaming() -> Response:
         Response: Endpoint for the video stream.
     """
     print("Stop streaming not implemented")
-    return redirect(get_stream_path())
+    return Response("Stop streaming not yet implemented", 404)

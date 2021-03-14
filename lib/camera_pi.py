@@ -63,3 +63,4 @@ class Camera(Camera):
             Camera.camera.stop_recording(splitter_port=2)
         except picamera.PiCameraNotRecording as e:
             print("PiCameraNotRecording " + str(e))
+   
