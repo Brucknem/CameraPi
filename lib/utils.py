@@ -17,6 +17,12 @@ def get_default_recordings_path() -> str:
     return os.path.join(dirname(dirname(__file__)), 'recordings/')
 
 
+def get_env_recordings_path() -> str:
+    if os.environ.get("RECORDINGS"):
+        return os.environ["RECORDINGS"]
+    return get_default_recordings_path()
+
+
 def get_datetime_now_file_string() -> str:
     """
     Returns datetime now formatted for filename

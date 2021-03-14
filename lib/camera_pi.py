@@ -5,7 +5,8 @@ import time
 from lib.camera_base import Camera
 import atexit
 import picamera
-from lib.recordings_folder import RecordingsFolder, get_default_recordings_path
+from lib.recordings_folder import RecordingsFolder
+from lib.utils import get_env_recordings_path
 
 
 class Camera(Camera):
@@ -17,7 +18,7 @@ class Camera(Camera):
     is_recording = False
     record_splitter_port = 2
 
-    recordings_folder = RecordingsFolder(get_default_recordings_path())
+    recordings_folder = RecordingsFolder(get_env_recordings_path())
 
     @staticmethod
     def frames():
@@ -58,7 +59,7 @@ class Camera(Camera):
 
             print("Recording is on")
             for _ in Camera.camera.record_sequence(
-                    (Camera.recordings_folder.create_new_recording() for _ in range(10000000)),
+                    (Camera.recordings_folder.get_next_chunk_path() for _ in range(10000000)),
                     splitter_port=Camera.record_splitter_port):
                 Camera.is_recording = True
                 for i in range(int(chunk / step)):
