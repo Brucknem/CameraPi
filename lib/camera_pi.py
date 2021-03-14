@@ -5,6 +5,7 @@ import time
 from lib.camera_base import Camera
 import atexit
 import picamera
+from lib.recordings_folder import RecordingsFolder, get_default_recordings_path
 
 
 class Camera(Camera):
@@ -16,11 +17,15 @@ class Camera(Camera):
     is_recording = False
     record_splitter_port = 2
 
+    recordings_folder = RecordingsFolder(get_default_recordings_path())
+
     @staticmethod
     def frames():
         """
         inherited
         """
+
+        print(Camera.recordings_folder)
 
         if not Camera.camera or Camera.camera.closed:
             Camera.camera = picamera.PiCamera()
