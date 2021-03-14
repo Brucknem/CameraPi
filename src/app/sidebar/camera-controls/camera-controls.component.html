@@ -1,11 +1,13 @@
 <div class="filled-form-field">
-<h3>Recording</h3>
+  <h3>Recording</h3>
 
-<button mat-raised-button>
-  Record
-</button>
+  <div class="filled-form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input matInput [(ngModel)]="password" placeholder="The password" />
+    </mat-form-field>
+  </div>
 
-<button mat-raised-button>
-  Stop Record
-</button>
+  <button mat-raised-button (click)="onStartRecording()">Start Record</button>
+  <button mat-raised-button (click)="onStopRecording()">Stop Record</button>
 </div>

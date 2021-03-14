@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { CameraUrlService } from './camera-url.service';
 import { MessagesService } from './messages.service';
+import { join } from '../camera-url';
+import { catchError, tap } from 'rxjs/operators';
+import { CameraControlResult } from './camera-control-result';
 
 @Injectable({
   providedIn: 'root',
@@ -15,20 +17,47 @@ export class CameraControlService {
     private messagesService: MessagesService
   ) {}
 
-  startRecording(): Observable<any> {
-    this.messagesService.add('Start recording hit.');
-    return this.httpService.get(
-      new URL(
-        'start_recording',
-        this.cameraUrlService.getCameraUrl()
-      ).toString()
-    );
+  private handleError<T>(
+    operation = 'operation',
+    result?: T
+  ): (error: any) => Observable<T> {
+    return (error: any): Observable<T> => {
+      this.messagesService.add(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
   }
 
-  stopRecording(): Observable<any> {
-    this.messagesService.add('Stop recording hit.');
-    return this.httpService.get(
-      new URL('stop_recording', this.cameraUrlService.getCameraUrl()).toString()
-    );
+  private performPostCall(
+    operation: string,
+    subpath: string,
+    password: string
+  ): Observable<CameraControlResult> {
+    this.messagesService.add(operation + ' requested');
+    return this.httpService
+      .post<CameraControlResult>(
+        join(this.cameraUrlService.streamLocation, subpath),
+        JSON.stringify({ password }),
+        {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        }
+      )
+      .pipe(
+        tap((result: CameraControlResult) =>
+          this.messagesService.add(operation + ' succeeded', result.success)
+        ),
+        catchError(this.handleError<CameraControlResult>(operation))
+      );
+  }
+
+  startRecording(password: string): Observable<CameraControlResult> {
+    return this.performPostCall('Start recording', 'start_recording', password);
+  }
+
+  stopRecording(password: string): Observable<CameraControlResult> {
+    return this.performPostCall('Stop recording', 'stop_recording', password);
   }
 }

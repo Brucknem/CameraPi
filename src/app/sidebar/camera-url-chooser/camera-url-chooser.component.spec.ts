@@ -1,20 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StreamLocationChooserComponent } from './stream-location-chooser.component';
+import { CameraUrlChooserComponent } from './camera-url-chooser.component';
 
 describe('StreamLocationChooserComponent', () => {
-  let component: StreamLocationChooserComponent;
-  let fixture: ComponentFixture<StreamLocationChooserComponent>;
+  let component: CameraUrlChooserComponent;
+  let fixture: ComponentFixture<CameraUrlChooserComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ StreamLocationChooserComponent ]
-    })
-    .compileComponents();
+      declarations: [CameraUrlChooserComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StreamLocationChooserComponent);
+    fixture = TestBed.createComponent(CameraUrlChooserComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -5,10 +5,10 @@ import { CameraUrlService } from '../../service/camera-url.service';
 
 @Component({
   selector: 'app-stream-location-chooser',
-  templateUrl: './stream-location-chooser.component.html',
-  styleUrls: ['./stream-location-chooser.component.styl'],
+  templateUrl: './camera-url-chooser.component.html',
+  styleUrls: ['./camera-url-chooser.component.styl'],
 })
-export class StreamLocationChooserComponent implements OnInit {
+export class CameraUrlChooserComponent implements OnInit {
   /**
    * Enum reference for looping.
    */
@@ -74,14 +74,14 @@ export class StreamLocationChooserComponent implements OnInit {
     this.cookieService.set('streamSubPath', this.streamLocation.path);
   }
 
-  /**
-   * Clears the cookies from the server, as frequent changes in location does not update.
-   */
-  clearCookies(): void {
-    this.cookieService.delete('protocol');
-    this.cookieService.delete('location');
-    this.cookieService.delete('port');
-    this.cookieService.delete('path');
-    this.cookieService.delete('streamSubPath');
-  }
+  // /**
+  //  * Clears the cookies from the server, as frequent changes in location does not update.
+  //  */
+  // clearCookies(): void {
+  //   this.cookieService.delete('protocol');
+  //   this.cookieService.delete('location');
+  //   this.cookieService.delete('port');
+  //   this.cookieService.delete('path');
+  //   this.cookieService.delete('streamSubPath');
+  // }
 }
