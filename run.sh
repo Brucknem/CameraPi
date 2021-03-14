@@ -2,7 +2,4 @@
 
 source /home/pi/Repositories/CameraPi/venv/bin/activate
 
-
-CAMERA=pi
-RECORDINGS=/mnt/*
-python /home/pi/Repositories/CameraPi/main.py
+python CAMERA=pi RECORDINGS=/mnt/* /home/pi/Repositories/CameraPi/main.py
