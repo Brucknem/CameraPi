@@ -19,6 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { CameraUrlChooserComponent } from './sidebar/camera-url-chooser/camera-url-chooser.component';
 import { CameraControlsComponent } from './sidebar/camera-controls/camera-controls.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToolbarComponent } from './toolbar/toolbar.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     SidebarComponent,
     CameraUrlChooserComponent,
     CameraControlsComponent,
+    ToolbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +44,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
+    MatToolbarModule,
   ],
   providers: [CookieService],
   bootstrap: [AppComponent],

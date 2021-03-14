@@ -1,3 +1,5 @@
+<app-toolbar (menuToggled)="drawer.toggle()"></app-toolbar>
+
 <mat-drawer-container class="app-drawer-container" autosize>
   <mat-drawer #drawer class="app-sidenav" mode="over" [opened]="sidebarOpened">
     <app-sidebar></app-sidebar>
@@ -6,17 +8,7 @@
   <div class="app-sidenav-content">
     <div class="container">
       <div class="top-spacer"></div>
-
       <app-image-stream></app-image-stream>
-
-      <button
-        id="open-sidebar-button"
-        mat-icon-button
-        mat-raised-button
-        (click)="drawer.toggle()"
-      >
-        <mat-icon>menu_open</mat-icon>
-      </button>
     </div>
   </div>
 </mat-drawer-container>
