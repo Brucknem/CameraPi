@@ -8,6 +8,8 @@ import logging
 from flask import Flask, Response, redirect, jsonify, url_for, request
 from flask_cors import CORS
 
+logging.basicConfig(format='[%(asctime)s] [CameraPi] [%(levelname)s] %(message)s', level=logging.DEBUG)
+
 provider = Flask(__name__)
 CORS(provider)
 
@@ -100,7 +102,7 @@ def get_password() -> str:
     if 'password' not in data:
         return ''
 
-    logging.info('Password correct')
+    logging.info('Password received')
     return str(data['password']).strip()
 
 
@@ -117,8 +119,10 @@ def start_recording() -> Response:
     global password
     logging.info('Start recording requested')
     if get_password() != password:
+        logging.info('Password incorrect')
         return jsonify({'success': False})
 
+    logging.info('Password correct')
     camera.record()
     return jsonify({'success': True})
 
@@ -135,8 +139,10 @@ def stop_recording() -> Response:
     global password
     logging.info('Stop recording requested')
     if get_password() != password:
+        logging.info('Password incorrect')
         return jsonify({'success': False})
-
+    
+    logging.info('Password correct')
     camera.stop_recording()
     return jsonify({'success': True})
 
