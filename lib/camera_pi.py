@@ -54,7 +54,7 @@ class Camera(Camera):
                     ('/home/pi/test_recordings/yeet%d.h264' % i for i in range(10000000)),
                     splitter_port=2):
                 Camera.camera.wait_recording(3)
-            Camera.camera.stop_recording()
+            Camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
             print("PiCameraAlreadyRecording " + str(e))
 
