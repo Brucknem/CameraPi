@@ -28,7 +28,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 chunk_length = 5 * 60
-parser = argparse.ArgumentParser(description='Camera Pi.')
+parser = argparse.ArgumentParser(description='Camera Pi')
 
 # parser.add_argument('-c',
 #                     '--chunk_length',

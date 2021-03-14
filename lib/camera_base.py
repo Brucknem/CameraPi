@@ -1,3 +1,4 @@
+import logging
 import pathlib
 import threading
 import time
@@ -106,7 +107,7 @@ class Camera(object):
     @classmethod
     def _thread(cls):
         """Camera background thread."""
-        logging.info('Starting camera thread.')
+        logging.info('Starting camera thread')
         frames_iterator = cls.frames()
         for frame in frames_iterator:
             Camera.frame = frame
@@ -117,7 +118,7 @@ class Camera(object):
             # the last 10 seconds then stop the thread
             # if time.time() - Camera.last_access > 10:
             #     frames_iterator.close()
-            #     logging.info('Stopping camera thread due to inactivity.')
+            #     logging.info('Stopping camera thread due to inactivity')
             #     break
         Camera.thread = None
 
