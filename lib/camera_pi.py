@@ -42,7 +42,7 @@ class Camera(Camera):
     @staticmethod
     def record():
         Camera.stop_recording()
-        record_thread = threading.Thread(target=Camera.record)
+        record_thread = threading.Thread(target=Camera.record_thread)
         record_thread.daemon = True
         record_thread.start()
 
