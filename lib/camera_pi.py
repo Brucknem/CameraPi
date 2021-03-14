@@ -49,7 +49,7 @@ class Camera(Camera):
     @staticmethod
     def record_thread():
         try:
-            chunk = 60
+            chunk = 3
             step = 0.5
 
             Camera.camera.start_recording('/home/pi/test_recordings/yeet.h264')
@@ -67,12 +67,16 @@ class Camera(Camera):
             Camera.stop_recording()
         except picamera.PiCameraAlreadyRecording as e:
             print(e)
+        except AttributeError as e:
+            print(e)
 
     @staticmethod
     def stop_recording():
         try:
             Camera.camera.stop_recording(splitter_port=2)
         except picamera.PiCameraNotRecording as e:
+            print(e)
+        except AttributeError as e:
             print(e)
         Camera.is_recording = False
         print("Recording is off")
