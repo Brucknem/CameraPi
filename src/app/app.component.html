@@ -1,5 +1,5 @@
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="over">
+  <mat-drawer #drawer class="example-sidenav" mode="over" opened="opened">
     <app-sidebar></app-sidebar>
   </mat-drawer>
 
@@ -17,6 +17,8 @@
       >
         <mat-icon>menu_open</mat-icon>
       </button>
+
+      <app-messages></app-messages>
     </div>
   </div>
 </mat-drawer-container>

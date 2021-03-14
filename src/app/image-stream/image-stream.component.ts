@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { format, Protocol, StreamLocation } from '../stream-location';
-import { StreamLocationService } from '../service/stream-location.service';
+import { Protocol, CameraUrl } from '../camera-url';
+import { CameraUrlService } from '../service/camera-url.service';
 
 /**
  * The component to display the image stream.
@@ -11,13 +11,11 @@ import { StreamLocationService } from '../service/stream-location.service';
   styleUrls: ['./image-stream.component.styl'],
 })
 export class ImageStreamComponent implements OnInit {
-  format = format;
-
   get streamLocation(): string {
     return this.streamLocationService.getStreamLink();
   }
 
-  constructor(private streamLocationService: StreamLocationService) {}
+  constructor(private streamLocationService: CameraUrlService) {}
 
   ngOnInit(): void {}
 }

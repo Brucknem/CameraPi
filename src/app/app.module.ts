@@ -16,9 +16,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
+import { StreamLocationChooserComponent } from './sidebar/stream-location-chooser/stream-location-chooser.component';
+import { CameraControlsComponent } from './sidebar/camera-controls/camera-controls.component';
+import { MessagesComponent } from './messages/messages.component';
 
 @NgModule({
-  declarations: [AppComponent, ImageStreamComponent, SidebarComponent],
+  declarations: [AppComponent, ImageStreamComponent, SidebarComponent, StreamLocationChooserComponent, CameraControlsComponent, MessagesComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
