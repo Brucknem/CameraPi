@@ -22,6 +22,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { GlancesComponent } from './glances/glances.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,7 @@ import { GlancesComponent } from './glances/glances.component';
     CameraUrlChooserComponent,
     CameraControlsComponent,
     ToolbarComponent,
-    GlancesComponent,
+    GlancesComponent
   ],
   imports: [
     BrowserModule,
@@ -47,6 +48,7 @@ import { GlancesComponent } from './glances/glances.component';
     MatButtonModule,
     MatSnackBarModule,
     MatToolbarModule,
+    AppRoutingModule,
   ],
   providers: [CookieService],
   bootstrap: [AppComponent],

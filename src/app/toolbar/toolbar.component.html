@@ -1,22 +1,31 @@
 <mat-toolbar color="primary">
-  <button
+  <a
     (click)="toggleMenu()"
     mat-icon-button
     class="example-icon"
     aria-label="Icon button with menu symbol"
   >
     <mat-icon>menu</mat-icon>
-  </button>
+  </a>
   <span>Camera Pi</span>
   <span class="example-spacer"></span>
   <button
     mat-icon-button
     class="example-icon"
     aria-label="The Raspberry Pi logo inside a camera"
+    routerLink="/"
   >
     <mat-icon svgIcon="camerapi-icon"></mat-icon>
   </button>
   <span class="example-spacer"></span>
+  <a
+    mat-icon-button
+    class="favorite-icon"
+    aria-label="Icon button link to setting"
+    routerLink="/settings"
+  >
+    <mat-icon>code</mat-icon>
+  </a>
   <a
     mat-icon-button
     class="favorite-icon"
