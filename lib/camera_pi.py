@@ -37,6 +37,7 @@ class Camera(Camera):
 
         stream = io.BytesIO()
         for _ in Camera.camera.capture_continuous(stream, 'jpeg', use_video_port=True):
+            Camera.camera.annotate_text = get_datetime_now_log_string()
             # return current frame
             stream.seek(0)
             yield stream.read()
@@ -63,7 +64,6 @@ class Camera(Camera):
                     splitter_port=Camera.record_splitter_port):
                 Camera.recording = True
                 for i in range(int(chunk / step)):
-                    Camera.camera.annotate_text = get_datetime_now_log_string()
                     if not Camera.recording:
                         Camera.stop_recording()
                         return
