@@ -1,8 +1,8 @@
 #!/bin/sh
 
-sudo systemctl stop nightsight.service
-sudo cp nightsight.service /lib/systemd/system/
+sudo systemctl stop camerapi.service
+sudo cp camerapi.service /lib/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable nightsight.service
-sudo systemctl start nightsight.service
-sudo systemctl status nightsight.service
+sudo systemctl enable camerapi.service
+sudo systemctl start camerapi.service
+sudo systemctl status camerapi.service
