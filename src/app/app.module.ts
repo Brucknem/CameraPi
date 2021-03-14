@@ -21,6 +21,7 @@ import { CameraControlsComponent } from './sidebar/camera-controls/camera-contro
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { GlancesComponent } from './glances/glances.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     CameraUrlChooserComponent,
     CameraControlsComponent,
     ToolbarComponent,
+    GlancesComponent,
   ],
   imports: [
     BrowserModule,
